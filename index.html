@@ -1,0 +1,604 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Aiplus Kids — профориентация для 5-6 классов</title>
+  <style>
+    :root {
+      --accent: #ffb703;
+      --dark: #102a43;
+      --muted: #52667a;
+      --bg: #f2fbff;
+      --card: #fff;
+      --border: #d6e5ee;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #e2f5ff 0%, #f7fcff 100%);
+      color: var(--dark);
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid rgba(16,42,67,0.08);
+      backdrop-filter: blur(10px);
+    }
+    .brand { font-weight: 900; font-size: 18px; }
+    .lang-btn {
+      border: 1px solid rgba(16,42,67,0.12);
+      background: #fff;
+      color: var(--dark);
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      margin: 0 4px;
+      font-weight: 700;
+    }
+    .lang-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #102a43;
+    }
+    .page { max-width: 900px; margin: 0 auto; padding: 24px 18px 50px; }
+    .hero {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      margin-bottom: 20px;
+      border: 1px solid rgba(16,42,67,.05);
+    }
+    .hero h1 { font-size: clamp(24px,5vw,40px); line-height: 1.1; margin-bottom: 14px; }
+    .hero p { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 24px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .2s, box-shadow .2s;
+      display: inline-block;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #102a43;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,183,3,.2); }
+    .btn-secondary {
+      background: rgba(16,42,67,.08);
+      color: var(--dark);
+      margin-left: 10px;
+    }
+    .button-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .hidden { display: none !important; }
+    .progress-wrap { margin: 16px 0 12px; }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(16,42,67,.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      transition: width .3s ease;
+    }
+    .question-card {
+      background: #f8fbff;
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid rgba(16,42,67,.08);
+    }
+    .q-counter { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .1em; }
+    .q-text { font-size: clamp(18px,3vw,24px); font-weight: 800; line-height: 1.3; margin-bottom: 18px; }
+    .answers { display: grid; gap: 10px; }
+    .answer-btn {
+      border: 1px solid rgba(16,42,67,.12);
+      border-radius: 12px;
+      padding: 16px 18px;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      transition: all .2s;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .answer-btn:hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: 0 8px 16px rgba(255,183,3,.12); }
+    .result-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,183,3,.16);
+      color: #7a4c00;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .result-title { font-size: 28px; font-weight: 900; margin-bottom: 12px; line-height: 1.1; }
+    .result-desc { color: var(--muted); margin-bottom: 16px; line-height: 1.7; font-size: 15px; }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 12px; }
+    .result-box {
+      background: #f7fcff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid rgba(16,42,67,.08);
+    }
+    .result-box h4 { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+    .result-box p { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 0; }
+    .footer-note { color: var(--muted); font-size: 12px; padding: 12px; background: rgba(16,42,67,.04); border-radius: 10px; margin-top: 16px; line-height: 1.6; }
+    @media(max-width:640px) {
+      .button-group { flex-direction: column; }
+      .btn-secondary { margin-left: 0; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Aiplus Kids</div>
+    <div>
+      <button class="lang-btn active" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="kz">KZ</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero" id="intro-hero">
+      <h1 id="h-title">Найди своё направление</h1>
+      <p id="h-text">24 вопроса, 6 типов, результат с профессией и кружками.</p>
+      <div class="button-group">
+        <button class="btn btn-primary" id="start-btn">Начать тест</button>
+        <button class="btn btn-secondary" id="info-btn">Подробнее</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="info-section">
+      <h2 id="info-title" style="margin-bottom:16px; font-size:20px;">Как это работает</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
+          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-1-t">24 вопроса</h3>
+          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-1-d">Короткие и понятные, для 10-11 лет.</p>
+        </div>
+        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
+          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-2-t">6 направлений</h3>
+          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-2-d">Люди, исследование, техника, творчество, природа, экономика.</p>
+        </div>
+        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
+          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-3-t">Результат</h3>
+          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-3-d">Профессия, что учить, какие кружки.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card hidden" id="test-section">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+      <div class="question-card">
+        <div class="q-counter" id="q-counter">Вопрос 1 из 24</div>
+        <div class="q-text" id="q-text">...</div>
+        <div class="answers" id="answers"></div>
+      </div>
+    </section>
+
+    <section class="card hidden" id="result-section">
+      <div class="result-badge" id="result-badge">Направление</div>
+      <h2 class="result-title" id="result-title">...</h2>
+      <p class="result-desc" id="result-desc">...</p>
+      <div class="result-grid">
+        <div class="result-box">
+          <h4 id="result-career-l">Профессия</h4>
+          <p id="result-career">...</p>
+        </div>
+        <div class="result-box">
+          <h4 id="result-subjects-l">Что учить</h4>
+          <p id="result-subjects">...</p>
+        </div>
+        <div class="result-box">
+          <h4 id="result-clubs-l">Кружки</h4>
+          <p id="result-clubs">...</p>
+        </div>
+      </div>
+      <div class="button-group" style="margin-top:20px;">
+        <button class="btn btn-primary" id="retry-btn">Пройти снова</button>
+        <button class="btn btn-secondary" id="parents-btn">Родителям</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="parents-section">
+      <h2 style="margin-bottom:14px; font-size:20px;" id="parents-title">Совет для родителей</h2>
+      <p id="parents-text" style="margin-bottom:14px; color:var(--muted); line-height:1.7; font-size:14px;">...</p>
+      <div class="result-grid">
+        <div class="result-box">
+          <h4 id="parents-h1">Как помочь</h4>
+          <p id="parents-t1">...</p>
+        </div>
+        <div class="result-box">
+          <h4 id="parents-h2">Почему важно</h4>
+          <p id="parents-t2">...</p>
+        </div>
+      </div>
+      <div class="button-group" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="back-btn">← Назад</button>
+      </div>
+    </section>
+
+    <div class="footer-note hidden" id="footer" style="margin-top:24px;"></div>
+  </main>
+
+  <script>
+    const DATA = {
+      ru: {
+        heroTitle: "Найди своё направление",
+        heroText: "24 вопроса, 6 типов, результат с профессией и кружками.",
+        startBtn: "Начать тест",
+        infoBtn: "Подробнее",
+        infoTitle: "Как это работает",
+        info1t: "24 вопроса", info1d: "Короткие и понятные, для 10-11 лет.",
+        info2t: "6 направлений", info2d: "Люди, исследование, техника, творчество, природа, экономика.",
+        info3t: "Результат", info3d: "Профессия, что учить, какие кружки.",
+        qCounter: "Вопрос {n} из 24",
+        resultBadge: "Направление",
+        resultCareerL: "Профессия",
+        resultSubjectsL: "Что учить",
+        resultClubsL: "Кружки",
+        retryBtn: "Пройти снова",
+        parentsBtn: "Родителям",
+        parentsTitle: "Совет для родителей",
+        parentsText: "Поддержите ребёнка, помогите пробовать разные занятия, не торопитесь с выбором.",
+        parentsH1: "Как помочь",
+        parentsT1: "Обсудите результаты, выберите кружок, посмотрите вместе мастер-классы.",
+        parentsH2: "Почему важно",
+        parentsT2: "В 10-11 лет развивать интересы важнее, чем выбирать профессию.",
+        backBtn: "← Назад к результату",
+        footer: "Тест даёт ориентир, но не заменяет живое общение с педагогом или карьерным консультантом.",
+        questions: [
+          { text: "Тебе нравится помогать друзьям?", answers: [
+            { text: "Да, очень", cat: "people" },
+            { text: "Скорее нет", cat: "research" },
+            { text: "Мне интереснее делать проекты", cat: "tech" }
+          ]},
+          { text: "Ты любишь рисовать или делать что-то руками?", answers: [
+            { text: "Рисовать", cat: "creative" },
+            { text: "Собирать модели", cat: "tech" },
+            { text: "Наблюдать и изучать", cat: "research" }
+          ]},
+          { text: "Какой кружок тебе нравится больше?", answers: [
+            { text: "Театр или пение", cat: "people" },
+            { text: "Робототехника", cat: "tech" },
+            { text: "Эко-клуб или туризм", cat: "nature" }
+          ]},
+          { text: "Тебе интересно, как устроен мир?", answers: [
+            { text: "Да, я люблю учиться", cat: "research" },
+            { text: "Скорее хочу творить", cat: "creative" },
+            { text: "Хочу считать и планировать", cat: "economy" }
+          ]},
+          { text: "На уроке ты предпочитаешь", answers: [
+            { text: "Говорить и обсуждать", cat: "people" },
+            { text: "Слушать рассказ", cat: "research" },
+            { text: "Собирать и строить", cat: "tech" }
+          ]},
+          { text: "Ты любишь организовывать игры?", answers: [
+            { text: "Да, люблю быть организатором", cat: "economy" },
+            { text: "Скорее придумать идею", cat: "creative" },
+            { text: "Люблю играть, а не организовывать", cat: "people" }
+          ]},
+          { text: "В свободное время", answers: [
+            { text: "Играю с друзьями", cat: "people" },
+            { text: "Читаю про природу", cat: "research" },
+            { text: "Мастерю или собираю", cat: "tech" }
+          ]},
+          { text: "Ты любишь придумывать истории?", answers: [
+            { text: "Да, очень", cat: "creative" },
+            { text: "Больше люблю решать задачи", cat: "research" },
+            { text: "Люблю планировать", cat: "economy" }
+          ]},
+          { text: "Ты предпочитаешь работать", answers: [
+            { text: "В группе с друзьями", cat: "people" },
+            { text: "Одному", cat: "research" },
+            { text: "С практическими вещами", cat: "tech" }
+          ]},
+          { text: "Тебе нравится ухаживать за животными?", answers: [
+            { text: "Да, очень", cat: "nature" },
+            { text: "Больше интересны книги", cat: "research" },
+            { text: "Хочу создавать проекты", cat: "tech" }
+          ]},
+          { text: "На перемене ты", answers: [
+            { text: "Гуляешь с друзьями", cat: "people" },
+            { text: "Изучаешь что-то новое", cat: "research" },
+            { text: "Играешь в активные игры", cat: "nature" }
+          ]},
+          { text: "Тебе нравится считать деньги в игре?", answers: [
+            { text: "Да", cat: "economy" },
+            { text: "Нет", cat: "creative" },
+            { text: "Больше люблю другое", cat: "people" }
+          ]},
+          { text: "На выставке в школе ты", answers: [
+            { text: "Показываешь свои поделки", cat: "creative" },
+            { text: "Рассказываешь про проект", cat: "research" },
+            { text: "Помогаешь приводить в порядок", cat: "people" }
+          ]},
+          { text: "Если выбирать профессию", answers: [
+            { text: "Помогать людям", cat: "people" },
+            { text: "Изучать новое", cat: "research" },
+            { text: "Делать руками", cat: "tech" }
+          ]},
+          { text: "Ты любишь планировать вечеринку?", answers: [
+            { text: "Да, люблю организовывать", cat: "economy" },
+            { text: "Скорее рисовать украшения", cat: "creative" },
+            { text: "Люблю быть гостем", cat: "people" }
+          ]},
+          { text: "Тебе важно, чтобы помогать", answers: [
+            { text: "Да, людям", cat: "people" },
+            { text: "Да, природе", cat: "nature" },
+            { text: "Да, улучшать что-то", cat: "economy" }
+          ]},
+          { text: "Ты любишь рисовать комиксы?", answers: [
+            { text: "Да", cat: "creative" },
+            { text: "Больше писать текст", cat: "research" },
+            { text: "Люблю программировать", cat: "tech" }
+          ]},
+          { text: "После школы ты ходишь", answers: [
+            { text: "Гулять в парк", cat: "nature" },
+            { text: "На кружок робототехники", cat: "tech" },
+            { text: "На занятие искусством", cat: "creative" }
+          ]},
+          { text: "Тебе легко объяснять друзьям?", answers: [
+            { text: "Да, очень", cat: "people" },
+            { text: "Люблю сначала все разобрать", cat: "research" },
+            { text: "Люблю показывать", cat: "tech" }
+          ]},
+          { text: "Ты ощущаешь себя лучше", answers: [
+            { text: "С друзьями", cat: "people" },
+            { text: "Со своими увлечениями", cat: "research" },
+            { text: "На природе", cat: "nature" }
+          ]},
+          { text: "В классе ты", answers: [
+            { text: "Рассказываешь идеи", cat: "people" },
+            { text: "Слушаешь внимательно", cat: "research" },
+            { text: "Помогаешь делать", cat: "tech" }
+          ]},
+          { text: "Ты хочешь в будущем", answers: [
+            { text: "Работать с людьми", cat: "people" },
+            { text: "Открывать новое", cat: "research" },
+            { text: "Создавать полезные вещи", cat: "tech" }
+          ]},
+          { text: "На выходе ты", answers: [
+            { text: "Играешь с друзьями", cat: "people" },
+            { text: "Читаешь или учусь", cat: "research" },
+            { text: "Конструирую или рисую", cat: "creative" }
+          ]},
+          { text: "Если ты видишь проблему", answers: [
+            { text: "Помогаешь человеку", cat: "people" },
+            { text: "Анализируешь причину", cat: "research" },
+            { text: "Организуешь помощь", cat: "economy" }
+          ]}
+        ],
+        results: {
+          people: {
+            label: "Работа с людьми",
+            title: "Тебе нравится людям помогать",
+            desc: "Ты общительный, любишь выступать и помогать друзьям. Это направление для педагогов, волонтеров, артистов.",
+            career: "Учитель, аниматор, волонтёр, организатор.",
+            subjects: "Казахский/русский, литература, обществознание, английский.",
+            clubs: "Театр, дебаты, волонтёрство, пресс-центр."
+          },
+          research: {
+            label: "Исследования",
+            title: "Тебе интересно узнавать новое",
+            desc: "Ты любишь учиться, задавать вопросы и находить ответы. Это направление для ученых, журналистов, аналитиков.",
+            career: "Научный сотрудник, журналист, исследователь, эколог.",
+            subjects: "Биология, география, математика, информатика.",
+            clubs: "Научный кружок, лаборатория, шахматы, экология."
+          },
+          tech: {
+            label: "Практика и техника",
+            title: "Ты любишь делать своими руками",
+            desc: "Ты конструируешь, собираешь, мастеришь. Это направление для инженеров, программистов, техников.",
+            career: "Робототехник, инженер, программист, техник.",
+            subjects: "Информатика, математика, физика, черчение.",
+            clubs: "Робототехника, конструирование, IT-клуб, мастерская."
+          },
+          creative: {
+            label: "Творчество",
+            title: "Ты любишь придумывать и творить",
+            desc: "Ты рисуешь, сочиняешь, поешь. Это направление для художников, дизайнеров, сценаристов.",
+            career: "Художник, дизайнер, писатель, актер.",
+            subjects: "ИЗО, музыка, литература, технология.",
+            clubs: "Рисование, театр, кино, медиа-клуб."
+          },
+          nature: {
+            label: "Природа и активность",
+            title: "Тебе нравится природа и движение",
+            desc: "Ты любишь гулять, заботиться о животных, быть активным. Это направление для экологов, тренеров, путешественников.",
+            career: "Эколог, тренер, экскурсовод, агроном.",
+            subjects: "Биология, география, физкультура, природоведение.",
+            clubs: "Экология, туризм, спорт, зооклуб."
+          },
+          economy: {
+            label: "Экономика и организация",
+            title: "Ты любишь планировать и организовывать",
+            desc: "Ты считаешь, планируешь, организуешь. Это направление для менеджеров, экономистов, организаторов.",
+            career: "Менеджер, организатор, экономист, бизнесмен.",
+            subjects: "Математика, информатика, обществознание, английский.",
+            clubs: "Школьный парламент, бизнес-клуб, проектный клуб."
+          }
+        }
+      },
+      kz: {
+        heroTitle: "Өз бағытыңды тап",
+        heroText: "24 сұрақ, 6 бағыт, нәтиже мамандық және үйірмелер бойынша.",
+        startBtn: "Тесті бастау",
+        infoBtn: "Толырақ",
+        infoTitle: "Қалай жұмыс істейді",
+        info1t: "24 сұрақ", info1d: "Қысқа және түсінікті, 10-11 жасқа арналған.",
+        info2t: "6 бағыт", info2d: "Адамдар, зерттеу, техника, шығармашылық, табиғат, экономика.",
+        info3t: "Нәтиже", info3d: "Мамандық, не оқу керек, қай үйірмелер.",
+        qCounter: "Сұрақ {n} бар 24",
+        resultBadge: "Бағыт",
+        resultCareerL: "Мамандық",
+        resultSubjectsL: "Не оқу керек",
+        resultClubsL: "Үйірмелер",
+        retryBtn: "Қайтадан өту",
+        parentsBtn: "Ата-аналарға",
+        parentsTitle: "Ата-аналарға кеңес",
+        parentsText: "Балаға қолдау көрсетіңіз, түрлі занятиялар өндіктелеу, асықпаңыз.",
+        parentsH1: "Қалай көмектесу",
+        parentsT1: "Нәтижелерді талқылаңыз, үйірме таңдауға көмектесіңіз, бірге қараңыз.",
+        parentsH2: "Неліктен маңызды",
+        parentsT2: "10-11 жаста мамандық таңдаудан интересті дамыту маңыздырақ.",
+        backBtn: "← Нәтижеге қайту",
+        footer: "Тест бағыт береді, бірақ педагог немесе кеңесшімен сөйлесудің орнына келмейді.",
+        questions: [],
+        results: {}
+      }
+    };
+
+    const state = {
+      lang: "ru",
+      index: 0,
+      scores: { people: 0, research: 0, tech: 0, creative: 0, nature: 0, economy: 0 }
+    };
+
+    const els = {
+      hTitle: document.getElementById("h-title"),
+      hText: document.getElementById("h-text"),
+      startBtn: document.getElementById("start-btn"),
+      infoBtn: document.getElementById("info-btn"),
+      introHero: document.getElementById("intro-hero"),
+      infoSection: document.getElementById("info-section"),
+      testSection: document.getElementById("test-section"),
+      resultSection: document.getElementById("result-section"),
+      parentsSection: document.getElementById("parents-section"),
+      qCounter: document.getElementById("q-counter"),
+      qText: document.getElementById("q-text"),
+      answers: document.getElementById("answers"),
+      progressFill: document.querySelector(".progress-fill"),
+      resultBadge: document.getElementById("result-badge"),
+      resultTitle: document.getElementById("result-title"),
+      resultDesc: document.getElementById("result-desc"),
+      resultCareer: document.getElementById("result-career"),
+      resultSubjects: document.getElementById("result-subjects"),
+      resultClubs: document.getElementById("result-clubs"),
+      retryBtn: document.getElementById("retry-btn"),
+      parentsBtn: document.getElementById("parents-btn"),
+      backBtn: document.getElementById("back-btn"),
+      footer: document.getElementById("footer"),
+      langBtns: document.querySelectorAll("[data-lang]")
+    };
+
+    function setLang(lang) {
+      state.lang = lang;
+      els.langBtns.forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+      const txt = DATA[lang];
+      document.getElementById("h-title").textContent = txt.heroTitle;
+      document.getElementById("h-text").textContent = txt.heroText;
+      document.getElementById("start-btn").textContent = txt.startBtn;
+      document.getElementById("info-btn").textContent = txt.infoBtn;
+      document.getElementById("info-title").textContent = txt.infoTitle;
+      document.getElementById("info-1-t").textContent = txt.info1t;
+      document.getElementById("info-1-d").textContent = txt.info1d;
+      document.getElementById("info-2-t").textContent = txt.info2t;
+      document.getElementById("info-2-d").textContent = txt.info2d;
+      document.getElementById("info-3-t").textContent = txt.info3t;
+      document.getElementById("info-3-d").textContent = txt.info3d;
+      document.getElementById("result-badge").textContent = txt.resultBadge;
+      document.getElementById("result-career-l").textContent = txt.resultCareerL;
+      document.getElementById("result-subjects-l").textContent = txt.resultSubjectsL;
+      document.getElementById("result-clubs-l").textContent = txt.resultClubsL;
+      document.getElementById("retry-btn").textContent = txt.retryBtn;
+      document.getElementById("parents-btn").textContent = txt.parentsBtn;
+      document.getElementById("parents-title").textContent = txt.parentsTitle;
+      document.getElementById("parents-text").textContent = txt.parentsText;
+      document.getElementById("parents-h1").textContent = txt.parentsH1;
+      document.getElementById("parents-t1").textContent = txt.parentsT1;
+      document.getElementById("parents-h2").textContent = txt.parentsH2;
+      document.getElementById("parents-t2").textContent = txt.parentsT2;
+      document.getElementById("back-btn").textContent = txt.backBtn;
+      els.footer.textContent = txt.footer;
+      if (!els.testSection.classList.contains("hidden")) renderQ();
+    }
+
+    function hide(el) { el.classList.add("hidden"); }
+    function show(el) { el.classList.remove("hidden"); }
+
+    function startTest() {
+      state.index = 0;
+      state.scores = { people: 0, research: 0, tech: 0, creative: 0, nature: 0, economy: 0 };
+      hide(els.introHero);
+      hide(els.infoSection);
+      hide(els.resultSection);
+      hide(els.parentsSection);
+      show(els.testSection);
+      renderQ();
+    }
+
+    function renderQ() {
+      const qs = DATA[state.lang].questions || DATA.ru.questions;
+      if (state.index >= qs.length) return showResult();
+      const q = qs[state.index];
+      const txt = DATA[state.lang];
+      els.qCounter.textContent = txt.qCounter.replace("{n}", state.index + 1);
+      els.qText.textContent = q.text;
+      els.answers.innerHTML = "";
+      q.answers.forEach((a, i) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = (String.fromCharCode(65 + i) + ". " + a.text);
+        btn.onclick = () => { state.scores[a.cat]++; state.index++; renderQ(); };
+        els.answers.appendChild(btn);
+      });
+      const pct = Math.round((state.index / qs.length) * 100);
+      els.progressFill.style.width = pct + "%";
+    }
+
+    function showResult() {
+      const txt = DATA[state.lang];
+      const cats = Object.keys(state.scores);
+      const best = cats.reduce((top, k) => state.scores[k] > state.scores[top] ? k : top);
+      const res = txt.results[best];
+      els.resultBadge.textContent = res.label;
+      els.resultTitle.textContent = res.title;
+      els.resultDesc.textContent = res.desc;
+      els.resultCareer.textContent = res.career;
+      els.resultSubjects.textContent = res.subjects;
+      els.resultClubs.textContent = res.clubs;
+      hide(els.testSection);
+      show(els.resultSection);
+      show(els.footer);
+    }
+
+    els.langBtns.forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+    els.startBtn.addEventListener("click", startTest);
+    els.infoBtn.addEventListener("click", () => { hide(els.introHero); show(els.infoSection); });
+    els.retryBtn.addEventListener("click", startTest);
+    els.parentsBtn.addEventListener("click", () => { hide(els.resultSection); show(els.parentsSection); });
+    els.backBtn.addEventListener("click", () => { hide(els.parentsSection); show(els.resultSection); });
+
+    setLang("ru");
+  </script>
+</body>
+</html>
+```
