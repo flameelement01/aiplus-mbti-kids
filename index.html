@@ -317,14 +317,63 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .star{font-size:28px;opacity:.2;transition:all .3s}
 .star.active{opacity:1;animation:starPop .4s ease}
 @keyframes starPop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
-.achievement{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ffd700,#ffaa00);
-  color:#000;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:800;
-  margin:12px 0;animation:fadeUp .5s ease}
 .progress-subjects{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
-.subj-progress{background:#f8f9fb;border-radius:10px;padding:12px;text-align:center}
+.subj-progress{background:#f8f9fb;border-radius:10px;padding:12px;text-align:center;transition:.2s;cursor:pointer}
+.subj-progress:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .subj-progress .sp-ic{font-size:20px}
 .subj-progress .sp-name{font-size:10px;font-weight:700;color:var(--muted);margin:4px 0}
 .subj-progress .sp-score{font-size:16px;font-weight:900}
+
+/* RANK BADGE */
+.rank-badge{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;
+  border-radius:50px;font-size:15px;font-weight:900;margin:8px 0;
+  animation:rankIn .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes rankIn{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.rank-badge.r-newbie{background:#e0e0e0;color:#555}
+.rank-badge.r-student{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff}
+.rank-badge.r-expert{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff}
+.rank-badge.r-master{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000}
+.rank-badge.r-genius{background:linear-gradient(135deg,#f87171,#ef4444);color:#fff;box-shadow:0 0 20px rgba(239,68,68,.4)}
+.rank-badge.r-legend{background:linear-gradient(135deg,#ffd700,#ff6b00,#ff0080);color:#fff;
+  box-shadow:0 0 30px rgba(255,107,0,.5);animation:rankIn .6s cubic-bezier(.34,1.56,.64,1),legendGlow 2s ease infinite}
+@keyframes legendGlow{0%,100%{box-shadow:0 0 20px rgba(255,107,0,.4)}50%{box-shadow:0 0 40px rgba(255,0,128,.6)}}
+
+/* STREAK */
+.streak-bar{display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 16px;border-radius:50px;font-size:13px;font-weight:800;margin:8px auto;width:fit-content}
+.streak-bar.hot{background:linear-gradient(90deg,#ff6b00,#ff0040);color:#fff;animation:streakPulse .5s ease}
+.streak-bar.cold{background:#f0ede5;color:var(--muted)}
+@keyframes streakPulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+/* SHARE CARD */
+.share-result-card{background:linear-gradient(135deg,var(--dark-bg),#0f2b3d);border-radius:20px;
+  padding:28px 24px;color:#fff;text-align:center;margin:16px 0;position:relative;overflow:hidden}
+.share-result-card::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;
+  background:radial-gradient(circle,rgba(250,163,24,.15) 0%,transparent 70%);pointer-events:none}
+.share-result-card .src-rank{font-size:40px;margin-bottom:4px}
+.share-result-card .src-title{font-size:18px;font-weight:900;margin-bottom:2px}
+.share-result-card .src-score{font-size:32px;font-weight:900;color:var(--accent);margin:8px 0}
+.share-result-card .src-subj{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px}
+.share-result-card .src-brand{font-size:10px;color:rgba(255,255,255,.3);margin-top:12px}
+.challenge-btn{background:linear-gradient(90deg,#25D366,#128C7E);color:#fff;border:none;
+  padding:14px 28px;border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;
+  font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .2s;margin:6px}
+.challenge-btn:hover{transform:translateY(-2px) scale(1.02)}
+.challenge-btn.copy{background:var(--dark)}
+.challenge-btn.retry{background:linear-gradient(90deg,var(--accent),#ff8800);color:#000}
+
+/* CONFETTI */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confettiFall 3s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg) scale(0);opacity:0}}
+
+/* CORRECT STREAK INDICATOR IN QUIZ */
+.streak-indicator{position:fixed;top:60px;right:12px;z-index:100;background:rgba(0,0,0,.8);
+  color:#fff;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;
+  transition:all .3s;opacity:0;transform:translateY(-10px)}
+.streak-indicator.visible{opacity:1;transform:translateY(0)}
 
 /* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -377,7 +426,7 @@ const S={
   tab:"home",screen:"welcome",lang:"ru",idx:0,
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
-  diagSubject:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},
+  diagSubject:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},
   chatMessages:[],articleOpen:null
 };
 const $=id=>document.getElementById(id);
@@ -889,53 +938,104 @@ function rDiag(a){
     <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
     <div class="diag-grid">${subH}</div></div>`;
 }
-function startDiag(subj){S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;rDiag(app())}
+function startDiag(subj){S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;S.diagStreak=0;S.diagMaxStreak=0;rDiag(app())}
 function rDiagQuiz(a){
   const qs=DIAG[S.diagSubject].questions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
   const qText=S.lang==='kz'?q.kz:q.ru;
   let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
+  const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:12px" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button>
     <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
-    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>`;
+    ${streakH}
+    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>
+    <div class="streak-indicator" id="streakInd"></div>`;
 }
 function diagAnswer(chosen,correct){
   if(S.diagAnswered)return;S.diagAnswered=true;
-  if(chosen===correct)S.diagScore++;
+  const isCorrect=chosen===correct;
+  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak}
+  else{S.diagStreak=0}
   document.querySelectorAll('.diag-opt').forEach((el,i)=>{
     if(i===correct)el.classList.add('correct');
     else if(i===chosen)el.classList.add('wrong');
     el.style.pointerEvents='none';});
+  // Show streak indicator
+  const si=document.getElementById('streakInd');
+  if(si){if(S.diagStreak>=2){si.className='streak-indicator visible';si.innerHTML='🔥 '+S.diagStreak+' '+(S.lang==='kz'?'қатарынан!':'подряд!')}
+    else if(!isCorrect){si.className='streak-indicator visible';si.textContent='😢';setTimeout(()=>si.classList.remove('visible'),800)}
+    else{si.classList.remove('visible')}}
   setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
 }
+// RANKS
+const RANKS=[
+  {min:0,ru:'Новичок',kz:'Жаңадан бастаушы',icon:'🐣',cls:'r-newbie'},
+  {min:30,ru:'Ученик',kz:'Оқушы',icon:'📖',cls:'r-student'},
+  {min:50,ru:'Знаток',kz:'Білгір',icon:'🧠',cls:'r-expert'},
+  {min:70,ru:'Мастер',kz:'Шебер',icon:'⚡',cls:'r-master'},
+  {min:90,ru:'Гений',kz:'Данышпан',icon:'🔥',cls:'r-genius'},
+  {min:100,ru:'Легенда',kz:'Аңыз',icon:'👑',cls:'r-legend'}
+];
+function getRank(pct){let r=RANKS[0];for(const rank of RANKS){if(pct>=rank.min)r=rank}return r}
+function confetti(){const c=document.createElement('div');c.className='confetti-container';document.body.appendChild(c);
+  const colors=['#ff0080','#ff8c00','#ffd700','#00ff88','#00bfff','#8b5cf6','#ef4444'];
+  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};
+    width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};
+    animation-delay:${Math.random()*1.5}s;animation-duration:${2+Math.random()*2}s`;c.appendChild(p)}
+  setTimeout(()=>c.remove(),4500)}
+
 function rDiagResult(a){
   const qs=DIAG[S.diagSubject].questions;const pct=Math.round(S.diagScore/qs.length*100);
-  let grade,msg,achievement;
-  if(pct>=90){grade="🏆";msg=t('diagExcellent');achievement=S.lang==='kz'?'🏆 Гений!':'🏆 Гений!'}
-  else if(pct>=80){grade="🌟";msg=t('diagExcellent');achievement=S.lang==='kz'?'🌟 Білімпаз!':'🌟 Отличник!'}
-  else if(pct>=60){grade="👍";msg=t('diagGood');achievement=S.lang==='kz'?'👍 Жақсы нәтиже!':'👍 Хороший результат!'}
-  else if(pct>=40){grade="📚";msg=t('diagNeed');achievement=S.lang==='kz'?'📚 Жаттығу керек':'📚 Нужна практика'}
-  else{grade="💪";msg=t('diagNeed');achievement=S.lang==='kz'?'💪 Қайтадан байқап көр!':'💪 Попробуй ещё раз!'}
+  const rank=getRank(pct);const subName=DIAG[S.diagSubject][S.lang].name;
+  const rankName=S.lang==='kz'?rank.kz:rank.ru;
+  let msg;if(pct>=80)msg=t('diagExcellent');else if(pct>=50)msg=t('diagGood');else msg=t('diagNeed');
   const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
   let starsH='';for(let i=0;i<5;i++){starsH+=`<div class="star ${i<starCount?'active':''}" style="animation-delay:${i*0.15}s">⭐</div>`}
+  // Streak info
+  const streakH=S.diagMaxStreak>=3?`<div style="margin:8px 0;font-size:13px;font-weight:700">🔥 ${S.lang==='kz'?'Макс. серия:':'Макс. серия:'} ${S.diagMaxStreak} ${S.lang==='kz'?'қатарынан':'подряд'}</div>`:'';
+  // Best score tracking
+  const prevBest=S.diagBest[S.diagSubject]||0;
+  const isNewRecord=pct>prevBest;
+  if(isNewRecord)S.diagBest[S.diagSubject]=pct;
+  const recordH=isNewRecord&&prevBest>0?`<div style="color:var(--accent);font-size:12px;font-weight:800;margin:4px 0">🎉 ${S.lang==='kz'?'ЖАҢА РЕКОРД!':'НОВЫЙ РЕКОРД!'} (${S.lang==='kz'?'бұрынғы':'было'}: ${prevBest}%)</div>`:'';
   // Save progress
   if(!S.diagProgress)S.diagProgress={};
-  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount};
-  // Show all progress
-  let progressH='';const subjects=Object.keys(DIAG);
-  subjects.forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
-    progressH+=`<div class="subj-progress"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:10px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
-  a.innerHTML=`<div class="card diag-result" style="margin-top:20px">
-    <div class="diag-score">${S.diagScore}/${qs.length}</div>
-    <div class="stars-row">${starsH}</div>
-    <div class="achievement">${achievement}</div>
-    <div class="diag-grade">${pct}% — ${msg}</div>
+  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount,rank:rankName};
+  // All progress
+  let progressH='';Object.keys(DIAG).forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
+    progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:10px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
+  // Challenge text
+  const challengeText=S.lang==='kz'
+    ?`${rank.icon} Мен "${subName}" бойынша ${S.diagScore}/${qs.length} жинадым — ${rankName} дәрежесі! Сен жеңе аласың ба? 👉 ${SITE_URL}`
+    :`${rank.icon} Я набрал ${S.diagScore}/${qs.length} по "${subName}" — ранг ${rankName}! Сможешь лучше? 👉 ${SITE_URL}`;
+
+  a.innerHTML=`<div style="margin-top:16px">
+    <div class="share-result-card">
+      <div class="src-rank">${rank.icon}</div>
+      <div class="src-title">${rankName}</div>
+      <div class="src-score">${S.diagScore}/${qs.length}</div>
+      <div class="src-subj">${subName} · ${pct}%</div>
+      <div class="stars-row">${starsH}</div>
+      ${streakH}${recordH}
+      <div class="src-brand">AIPLUS KIDS</div>
+    </div>
+    <div class="rank-badge ${rank.cls}">${rank.icon} ${rankName}</div>
+    <div style="font-size:13px;color:var(--muted);margin:6px 0">${msg}</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0">
+      <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(\`${challengeText.replace(/`/g,"'")}\`),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
+      <button class="challenge-btn copy" onclick="navigator.clipboard.writeText(\`${challengeText.replace(/`/g,"'")}\`);toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">
+      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Қайталау — рекорд жаңарт!':'Ещё раз — побей рекорд!'}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button>
+    </div>
     <div style="margin-top:20px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4>
       <div class="progress-subjects">${progressH}</div></div>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
-      <button class="btn" onclick="startDiag('${S.diagSubject}')">${t('diagRetry')}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button></div></div>`;
+  </div>`;
+  // Confetti for high scores
+  if(pct>=70)setTimeout(confetti,300);
 }
 
 // ============================================================
