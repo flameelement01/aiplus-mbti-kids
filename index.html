@@ -375,6 +375,47 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
   transition:all .3s;opacity:0;transform:translateY(-10px)}
 .streak-indicator.visible{opacity:1;transform:translateY(0)}
 
+/* LIVES */
+.lives-bar{display:flex;align-items:center;gap:4px;justify-content:center;margin:8px 0}
+.life{font-size:22px;transition:all .3s}
+.life.lost{opacity:.15;transform:scale(.7);filter:grayscale(1)}
+.life-lost-anim{animation:lifeLost .5s ease}
+@keyframes lifeLost{0%{transform:scale(1)}30%{transform:scale(1.4) rotate(15deg)}60%{transform:scale(.5) rotate(-10deg)}100%{transform:scale(.7)}}
+
+/* GAME OVER */
+.game-over{text-align:center;padding:40px 20px;animation:fadeUp .5s ease}
+.game-over .go-icon{font-size:60px;margin-bottom:12px;animation:goShake .5s ease}
+@keyframes goShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.game-over h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.game-over p{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* LEADERBOARD */
+.leaderboard{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:16px;margin:16px 0;box-shadow:var(--shadow)}
+.leaderboard h4{font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+  margin-bottom:4px;font-size:12px;font-weight:600;transition:.2s}
+.lb-row.me{background:linear-gradient(90deg,rgba(250,163,24,.15),rgba(250,163,24,.05));
+  border:1.5px solid var(--accent);font-weight:800}
+.lb-pos{width:22px;text-align:center;font-weight:900;font-size:13px}
+.lb-name{flex:1}
+.lb-score{font-weight:800;color:var(--dark)}
+.lb-rank{font-size:14px}
+
+/* NAME INPUT MODAL */
+.diag-name-wrap{text-align:center;padding:30px 0}
+.diag-name-wrap h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.diag-name-wrap p{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* COLLECT ALL BADGE */
+.collect-bar{background:linear-gradient(135deg,var(--dark-bg),#0f2b3d);border-radius:14px;
+  padding:16px 18px;color:#fff;margin:16px 0;display:flex;align-items:center;gap:12px}
+.collect-bar .cb-prog{flex:1}
+.collect-bar .cb-label{font-size:11px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,.7)}
+.collect-bar .cb-track{height:8px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden}
+.collect-bar .cb-fill{height:100%;background:linear-gradient(90deg,var(--accent),#ff6b00);border-radius:8px;transition:width .6s ease}
+.collect-bar .cb-count{font-size:24px;font-weight:900;color:var(--accent);min-width:50px;text-align:center}
+
 /* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);
   background:var(--dark-bg);color:#fff;padding:12px 24px;border-radius:50px;
@@ -426,7 +467,7 @@ const S={
   tab:"home",screen:"welcome",lang:"ru",idx:0,
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
-  diagSubject:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},
+  diagSubject:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},diagLives:3,diagGameOver:false,diagName:null,diagQuestions:null,
   chatMessages:[],articleOpen:null
 };
 const $=id=>document.getElementById(id);
@@ -927,47 +968,6 @@ function downloadPDF(){const best=S.bestCat||"people";const res=RESULTS[best];co
 // ============================================================
 // DIAGNOSTIC
 // ============================================================
-function rDiag(a){
-  if(S.diagSubject&&S.diagIdx<DIAG[S.diagSubject].questions.length) return rDiagQuiz(a);
-  if(S.diagSubject&&S.diagIdx>=DIAG[S.diagSubject].questions.length) return rDiagResult(a);
-  const subjects=Object.keys(DIAG);
-  let subH='';subjects.forEach(s=>{const d=DIAG[s][S.lang];const p=S.diagProgress[s];
-    const badge=p?`<div style="color:#f59e0b;font-size:10px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:10px;color:var(--muted)">10 ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
-    subH+=`<div class="diag-subject" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
-  a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2><p class="section-sub">${t('diagSub')}</p>
-    <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
-    <div class="diag-grid">${subH}</div></div>`;
-}
-function startDiag(subj){S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;S.diagStreak=0;S.diagMaxStreak=0;rDiag(app())}
-function rDiagQuiz(a){
-  const qs=DIAG[S.diagSubject].questions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
-  const qText=S.lang==='kz'?q.kz:q.ru;
-  let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
-  const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
-  a.innerHTML=`<div class="card" style="margin-top:16px">
-    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:12px" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button>
-    <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
-    <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
-    ${streakH}
-    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>
-    <div class="streak-indicator" id="streakInd"></div>`;
-}
-function diagAnswer(chosen,correct){
-  if(S.diagAnswered)return;S.diagAnswered=true;
-  const isCorrect=chosen===correct;
-  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak}
-  else{S.diagStreak=0}
-  document.querySelectorAll('.diag-opt').forEach((el,i)=>{
-    if(i===correct)el.classList.add('correct');
-    else if(i===chosen)el.classList.add('wrong');
-    el.style.pointerEvents='none';});
-  // Show streak indicator
-  const si=document.getElementById('streakInd');
-  if(si){if(S.diagStreak>=2){si.className='streak-indicator visible';si.innerHTML='🔥 '+S.diagStreak+' '+(S.lang==='kz'?'қатарынан!':'подряд!')}
-    else if(!isCorrect){si.className='streak-indicator visible';si.textContent='😢';setTimeout(()=>si.classList.remove('visible'),800)}
-    else{si.classList.remove('visible')}}
-  setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
-}
 // RANKS
 const RANKS=[
   {min:0,ru:'Новичок',kz:'Жаңадан бастаушы',icon:'🐣',cls:'r-newbie'},
@@ -980,63 +980,194 @@ const RANKS=[
 function getRank(pct){let r=RANKS[0];for(const rank of RANKS){if(pct>=rank.min)r=rank}return r}
 function confetti(){const c=document.createElement('div');c.className='confetti-container';document.body.appendChild(c);
   const colors=['#ff0080','#ff8c00','#ffd700','#00ff88','#00bfff','#8b5cf6','#ef4444'];
-  for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';
+  for(let i=0;i<80;i++){const p=document.createElement('div');p.className='confetti-piece';
     p.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};
-    width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};
-    animation-delay:${Math.random()*1.5}s;animation-duration:${2+Math.random()*2}s`;c.appendChild(p)}
-  setTimeout(()=>c.remove(),4500)}
+    width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;border-radius:${Math.random()>.5?'50%':'2px'};
+    animation-delay:${Math.random()*2}s;animation-duration:${2+Math.random()*2}s`;c.appendChild(p)}
+  setTimeout(()=>c.remove(),5000)}
+// Sound effects via Web Audio API
+const AC=window.AudioContext||window.webkitAudioContext;let audioCtx;
+function playSound(type){
+  try{if(!audioCtx)audioCtx=new AC();const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+  o.connect(g);g.connect(audioCtx.destination);g.gain.value=0.08;
+  if(type==='correct'){o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(0.08,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.2);o.start();o.stop(audioCtx.currentTime+0.2)}
+  else if(type==='wrong'){o.frequency.value=200;o.type='sawtooth';g.gain.setValueAtTime(0.06,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.3);o.start();o.stop(audioCtx.currentTime+0.3)}
+  else if(type==='streak'){o.frequency.value=660;o.type='sine';g.gain.setValueAtTime(0.07,audioCtx.currentTime);
+    const o2=audioCtx.createOscillator();o2.connect(g);o2.frequency.value=990;o2.type='sine';
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);o.start();o2.start(audioCtx.currentTime+0.1);
+    o.stop(audioCtx.currentTime+0.2);o2.stop(audioCtx.currentTime+0.4)}
+  else if(type==='gameover'){o.frequency.value=440;o.type='sawtooth';
+    o.frequency.exponentialRampToValueAtTime(100,audioCtx.currentTime+0.5);
+    g.gain.setValueAtTime(0.06,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.5);
+    o.start();o.stop(audioCtx.currentTime+0.5)}
+  else if(type==='win'){[523,659,784].forEach((f,i)=>{const oo=audioCtx.createOscillator();const gg=audioCtx.createGain();
+    oo.connect(gg);gg.connect(audioCtx.destination);oo.frequency.value=f;oo.type='sine';
+    gg.gain.setValueAtTime(0.06,audioCtx.currentTime+i*0.15);
+    gg.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+i*0.15+0.3);
+    oo.start(audioCtx.currentTime+i*0.15);oo.stop(audioCtx.currentTime+i*0.15+0.3)})}
+  }catch(e){}}
+// Shuffle array
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// Fake leaderboard
+const FAKE_NAMES=["Аружан","Данияр","Айлин","Алихан","Амина","Тимур","Дарина","Нурали","Камила","Ернар","Айару","Мадияр","Инжу","Адиль","Жансая"];
+function genLeaderboard(myScore,total){
+  const board=[];const used=new Set();
+  for(let i=0;i<7;i++){let ni;do{ni=Math.floor(Math.random()*FAKE_NAMES.length)}while(used.has(ni));used.add(ni);
+    let sc=Math.max(0,Math.min(total,myScore+Math.floor(Math.random()*5)-2));
+    if(Math.random()>.6)sc=Math.min(total,myScore+1+Math.floor(Math.random()*2));
+    board.push({name:FAKE_NAMES[ni],score:sc,isMe:false})}
+  board.push({name:S.diagName||'—',score:myScore,isMe:true});
+  board.sort((a,b)=>b.score-a.score||(a.isMe?-1:1));
+  return board.slice(0,8)}
 
+function rDiag(a){
+  if(!S.diagName&&!S.diagSubject) return rDiagName(a);
+  if(S.diagGameOver) return rDiagGameOver(a);
+  if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length&&S.diagLives>0) return rDiagQuiz(a);
+  if(S.diagSubject&&S.diagQuestions&&(S.diagIdx>=S.diagQuestions.length||S.diagLives<=0)) return rDiagResult(a);
+  const subjects=Object.keys(DIAG);
+  const completed=Object.keys(S.diagProgress).length;const totalSubj=subjects.length;
+  const collectPct=Math.round(completed/totalSubj*100);
+  let subH='';subjects.forEach(s=>{const d=DIAG[s][S.lang];const p=S.diagProgress[s];
+    const badge=p?`<div style="color:#f59e0b;font-size:10px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:10px;color:var(--muted)">10 ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
+    subH+=`<div class="diag-subject${p?' active':''}" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
+  a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
+    <p class="section-sub">${t('diagSub')}</p>
+    <div style="font-size:13px;margin-bottom:6px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>! <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagName=null;rDiag(app())">${S.lang==='kz'?'атын өзгерту':'сменить имя'}</span></div>
+    ${completed>0?`<div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed}/${totalSubj}</div></div>`:''}
+    <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
+    <div class="diag-grid">${subH}</div>
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">❤️❤️❤️ — ${S.lang==='kz'?'3 қате жасасаң, ойын бітеді!':'3 ошибки — и игра окончена!'}</div></div>`;
+}
+function rDiagName(a){
+  a.innerHTML=`<div class="card" style="margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🧠</div>
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">${S.lang==='kz'?'Сенің атың кім?':'Как тебя зовут?'}</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">${S.lang==='kz'?'Атыңды жаз — рейтингте көрінесің!':'Напиши имя — появишься в рейтинге!'}</p>
+    <input class="inp" id="diagNameInp" placeholder="${S.lang==='kz'?'Сенің атың':'Твоё имя'}" style="text-align:center">
+    <button class="btn" style="width:100%;margin-top:8px" onclick="setDiagName()">🚀 ${S.lang==='kz'?'Бастау':'Поехали!'}</button></div>`;
+  setTimeout(()=>{const inp=$('diagNameInp');if(inp)inp.focus()},100);
+}
+function setDiagName(){
+  const inp=$('diagNameInp');const name=inp?inp.value.trim():'';
+  if(!name){inp.style.borderColor='var(--red)';return}
+  S.diagName=name;rDiag(app())}
+function startDiag(subj){
+  S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;
+  S.diagStreak=0;S.diagMaxStreak=0;S.diagLives=3;S.diagGameOver=false;
+  S.diagQuestions=shuffle(DIAG[subj].questions);
+  rDiag(app())}
+function rDiagQuiz(a){
+  const qs=S.diagQuestions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
+  const qText=S.lang==='kz'?q.kz:q.ru;
+  let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
+  const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
+  let livesH='<div class="lives-bar">';for(let i=0;i<3;i++){livesH+=`<div class="life${i>=S.diagLives?' lost':''}">❤️</div>`}livesH+='</div>';
+  a.innerHTML=`<div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <button class="btn-outline" style="padding:6px 12px;font-size:10px" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
+      ${livesH}
+    </div>
+    <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
+    <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
+    ${streakH}
+    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>
+    <div class="streak-indicator" id="streakInd"></div>`;
+}
+function diagAnswer(chosen,correct){
+  if(S.diagAnswered)return;S.diagAnswered=true;
+  const isCorrect=chosen===correct;
+  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;
+    playSound(S.diagStreak>=3?'streak':'correct')}
+  else{S.diagStreak=0;S.diagLives--;playSound(S.diagLives<=0?'gameover':'wrong');
+    const lives=document.querySelectorAll('.life');
+    if(lives[S.diagLives])lives[S.diagLives].classList.add('lost','life-lost-anim')}
+  document.querySelectorAll('.diag-opt').forEach((el,i)=>{
+    if(i===correct)el.classList.add('correct');
+    else if(i===chosen)el.classList.add('wrong');
+    el.style.pointerEvents='none';});
+  const si=document.getElementById('streakInd');
+  if(si){if(S.diagStreak>=2){si.className='streak-indicator visible';si.innerHTML='🔥 '+S.diagStreak+' '+(S.lang==='kz'?'қатарынан!':'подряд!')}
+    else if(!isCorrect&&S.diagLives>0){si.className='streak-indicator visible';si.textContent='💔';setTimeout(()=>si.classList.remove('visible'),800)}
+    else{si.classList.remove('visible')}}
+  if(S.diagLives<=0){setTimeout(()=>{S.diagGameOver=true;rDiag(app())},1500);return}
+  setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
+}
+function rDiagGameOver(a){
+  playSound('gameover');
+  const qs=S.diagQuestions;const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
+  const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
+  const rank=getRank(pct);const rankName=S.lang==='kz'?rank.kz:rank.ru;
+  if(!S.diagProgress)S.diagProgress={};
+  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount,rank:rankName};
+  a.innerHTML=`<div class="card" style="margin-top:20px;text-align:center;animation:fadeUp .5s ease">
+    <div style="font-size:60px;margin-bottom:12px">💀</div>
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">${S.lang==='kz'?'Ойын бітті!':'Игра окончена!'}</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:6px">${S.lang==='kz'?'3 қате жасадың':'3 ошибки!'}</p>
+    <div style="font-size:28px;font-weight:900;margin:12px 0">${S.diagScore}/${qs.length}</div>
+    <div class="rank-badge ${rank.cls}" style="margin:8px auto">${rank.icon} ${rankName}</div>
+    <p style="font-size:13px;margin:16px 0">${S.lang==='kz'?'Қайталап көр — бұл жолы жеңесің! 💪':'Попробуй ещё — в этот раз точно лучше! 💪'}</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Қайталау!':'Ещё раз!'}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
+    </div></div>`;
+}
 function rDiagResult(a){
-  const qs=DIAG[S.diagSubject].questions;const pct=Math.round(S.diagScore/qs.length*100);
+  const qs=S.diagQuestions;const pct=Math.round(S.diagScore/qs.length*100);
   const rank=getRank(pct);const subName=DIAG[S.diagSubject][S.lang].name;
   const rankName=S.lang==='kz'?rank.kz:rank.ru;
   let msg;if(pct>=80)msg=t('diagExcellent');else if(pct>=50)msg=t('diagGood');else msg=t('diagNeed');
   const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
   let starsH='';for(let i=0;i<5;i++){starsH+=`<div class="star ${i<starCount?'active':''}" style="animation-delay:${i*0.15}s">⭐</div>`}
-  // Streak info
-  const streakH=S.diagMaxStreak>=3?`<div style="margin:8px 0;font-size:13px;font-weight:700">🔥 ${S.lang==='kz'?'Макс. серия:':'Макс. серия:'} ${S.diagMaxStreak} ${S.lang==='kz'?'қатарынан':'подряд'}</div>`:'';
-  // Best score tracking
-  const prevBest=S.diagBest[S.diagSubject]||0;
-  const isNewRecord=pct>prevBest;
+  const streakH=S.diagMaxStreak>=3?`<div style="margin:8px 0;font-size:13px;font-weight:700;color:#fff">🔥 ${S.lang==='kz'?'Серия:':'Серия:'} ${S.diagMaxStreak} ${S.lang==='kz'?'қатарынан':'подряд'}</div>`:'';
+  const prevBest=S.diagBest[S.diagSubject]||0;const isNewRecord=pct>prevBest;
   if(isNewRecord)S.diagBest[S.diagSubject]=pct;
-  const recordH=isNewRecord&&prevBest>0?`<div style="color:var(--accent);font-size:12px;font-weight:800;margin:4px 0">🎉 ${S.lang==='kz'?'ЖАҢА РЕКОРД!':'НОВЫЙ РЕКОРД!'} (${S.lang==='kz'?'бұрынғы':'было'}: ${prevBest}%)</div>`:'';
-  // Save progress
+  const recordH=isNewRecord&&prevBest>0?`<div style="color:var(--accent);font-size:13px;font-weight:800;margin:6px 0">🎉 ${S.lang==='kz'?'ЖАҢА РЕКОРД!':'НОВЫЙ РЕКОРД!'} (${S.lang==='kz'?'бұрынғы':'было'}: ${prevBest}%)</div>`:'';
   if(!S.diagProgress)S.diagProgress={};
   S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount,rank:rankName};
-  // All progress
+  const board=genLeaderboard(S.diagScore,qs.length);
+  let lbH='';board.forEach((entry,i)=>{
+    const pos=i+1;const posIcon=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':pos;
+    const eRank=getRank(Math.round(entry.score/qs.length*100));
+    lbH+=`<div class="lb-row ${entry.isMe?'me':''}"><div class="lb-pos">${posIcon}</div><div class="lb-name">${entry.isMe?'👉 ':''}<b>${entry.name}</b></div><div class="lb-score">${entry.score}/${qs.length}</div><div class="lb-rank">${eRank.icon}</div></div>`;});
   let progressH='';Object.keys(DIAG).forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
     progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:10px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
-  // Challenge text
-  const challengeText=S.lang==='kz'
-    ?`${rank.icon} Мен "${subName}" бойынша ${S.diagScore}/${qs.length} жинадым — ${rankName} дәрежесі! Сен жеңе аласың ба? 👉 ${SITE_URL}`
-    :`${rank.icon} Я набрал ${S.diagScore}/${qs.length} по "${subName}" — ранг ${rankName}! Сможешь лучше? 👉 ${SITE_URL}`;
+  const completed=Object.keys(S.diagProgress).length;const totalSubj=Object.keys(DIAG).length;
+  const collectPct=Math.round(completed/totalSubj*100);
+  const nm=S.diagName||'';
+  const chTxt=S.lang==='kz'
+    ?`${rank.icon} ${nm} "${subName}" бойынша ${S.diagScore}/${qs.length} жинады — ${rankName}! Сен жеңе аласың ба? 👉 ${SITE_URL}`
+    :`${rank.icon} ${nm} набрал ${S.diagScore}/${qs.length} по "${subName}" — ранг ${rankName}! Сможешь лучше? 👉 ${SITE_URL}`;
+  const chSafe=chTxt.replace(/'/g,"\\'");
 
   a.innerHTML=`<div style="margin-top:16px">
     <div class="share-result-card">
-      <div class="src-rank">${rank.icon}</div>
+      <div class="src-rank" style="font-size:50px">${rank.icon}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:2px">${nm}</div>
       <div class="src-title">${rankName}</div>
       <div class="src-score">${S.diagScore}/${qs.length}</div>
       <div class="src-subj">${subName} · ${pct}%</div>
       <div class="stars-row">${starsH}</div>
       ${streakH}${recordH}
-      <div class="src-brand">AIPLUS KIDS</div>
+      <div class="src-brand">AIPLUS KIDS · aiplus.kz</div>
     </div>
-    <div class="rank-badge ${rank.cls}">${rank.icon} ${rankName}</div>
-    <div style="font-size:13px;color:var(--muted);margin:6px 0">${msg}</div>
+    <div class="leaderboard"><h4>🏆 ${S.lang==='kz'?'Рейтинг':'Рейтинг'}</h4>${lbH}</div>
+    <div style="text-align:center"><div class="rank-badge ${rank.cls}">${rank.icon} ${rankName}</div>
+      <div style="font-size:13px;color:var(--muted);margin:6px 0">${msg}</div></div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0">
-      <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(\`${challengeText.replace(/`/g,"'")}\`),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
-      <button class="challenge-btn copy" onclick="navigator.clipboard.writeText(\`${challengeText.replace(/`/g,"'")}\`);toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button>
-    </div>
+      <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent('${chSafe}'),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
+      <button class="challenge-btn copy" onclick="navigator.clipboard.writeText('${chSafe}');toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button></div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">
-      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Қайталау — рекорд жаңарт!':'Ещё раз — побей рекорд!'}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button>
-    </div>
-    <div style="margin-top:20px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4>
-      <div class="progress-subjects">${progressH}</div></div>
-  </div>`;
-  // Confetti for high scores
-  if(pct>=70)setTimeout(confetti,300);
+      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Рекорд жаңарт!':'Побей рекорд!'}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button></div>
+    <div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed===totalSubj?'🏆':completed+'/'+totalSubj}</div></div>
+    <div style="margin-top:12px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4>
+      <div class="progress-subjects">${progressH}</div></div></div>`;
+  if(pct>=70){setTimeout(confetti,300);playSound('win')}else if(pct>=50)playSound('correct');
 }
+
 
 // ============================================================
 // COURSES
