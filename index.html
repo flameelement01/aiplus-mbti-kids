@@ -1,604 +1,1041 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Aiplus Kids — профориентация для 5-6 классов</title>
-  <style>
-    :root {
-      --accent: #ffb703;
-      --dark: #102a43;
-      --muted: #52667a;
-      --bg: #f2fbff;
-      --card: #fff;
-      --border: #d6e5ee;
-      --radius: 18px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: linear-gradient(135deg, #e2f5ff 0%, #f7fcff 100%);
-      color: var(--dark);
-    }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 20px;
-      background: rgba(255,255,255,0.96);
-      border-bottom: 1px solid rgba(16,42,67,0.08);
-      backdrop-filter: blur(10px);
-    }
-    .brand { font-weight: 900; font-size: 18px; }
-    .lang-btn {
-      border: 1px solid rgba(16,42,67,0.12);
-      background: #fff;
-      color: var(--dark);
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all .2s;
-      margin: 0 4px;
-      font-weight: 700;
-    }
-    .lang-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #102a43;
-    }
-    .page { max-width: 900px; margin: 0 auto; padding: 24px 18px 50px; }
-    .hero {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      margin-bottom: 20px;
-      border: 1px solid rgba(16,42,67,.05);
-    }
-    .hero h1 { font-size: clamp(24px,5vw,40px); line-height: 1.1; margin-bottom: 14px; }
-    .hero p { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
-    .btn {
-      border: none;
-      border-radius: 14px;
-      padding: 14px 24px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: transform .2s, box-shadow .2s;
-      display: inline-block;
-      font-size: 14px;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #102a43;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,183,3,.2); }
-    .btn-secondary {
-      background: rgba(16,42,67,.08);
-      color: var(--dark);
-      margin-left: 10px;
-    }
-    .button-group { display: flex; flex-wrap: wrap; gap: 10px; }
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 12px rgba(0,0,0,.06);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-    .hidden { display: none !important; }
-    .progress-wrap { margin: 16px 0 12px; }
-    .progress-bar {
-      width: 100%;
-      height: 10px;
-      background: rgba(16,42,67,.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0;
-      background: var(--accent);
-      transition: width .3s ease;
-    }
-    .question-card {
-      background: #f8fbff;
-      border-radius: 14px;
-      padding: 20px;
-      border: 1px solid rgba(16,42,67,.08);
-    }
-    .q-counter { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .1em; }
-    .q-text { font-size: clamp(18px,3vw,24px); font-weight: 800; line-height: 1.3; margin-bottom: 18px; }
-    .answers { display: grid; gap: 10px; }
-    .answer-btn {
-      border: 1px solid rgba(16,42,67,.12);
-      border-radius: 12px;
-      padding: 16px 18px;
-      background: #fff;
-      text-align: left;
-      cursor: pointer;
-      transition: all .2s;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .answer-btn:hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: 0 8px 16px rgba(255,183,3,.12); }
-    .result-badge {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,183,3,.16);
-      color: #7a4c00;
-      font-weight: 700;
-      margin-bottom: 12px;
-      font-size: 12px;
-    }
-    .result-title { font-size: 28px; font-weight: 900; margin-bottom: 12px; line-height: 1.1; }
-    .result-desc { color: var(--muted); margin-bottom: 16px; line-height: 1.7; font-size: 15px; }
-    .result-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 12px; }
-    .result-box {
-      background: #f7fcff;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid rgba(16,42,67,.08);
-    }
-    .result-box h4 { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
-    .result-box p { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 0; }
-    .footer-note { color: var(--muted); font-size: 12px; padding: 12px; background: rgba(16,42,67,.04); border-radius: 10px; margin-top: 16px; line-height: 1.6; }
-    @media(max-width:640px) {
-      .button-group { flex-direction: column; }
-      .btn-secondary { margin-left: 0; }
-      .result-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aiplus Kids — образовательная платформа для 5-6 классов</title>
+<meta name="description" content="Профориентация, диагностика знаний, видеоуроки и ИИ-консультант для детей 10-12 лет.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--dark:#1472c2;--card:#ffffff;--accent:#faa318;--accent2:#f1ac3f;
+  --muted:#777;--border:rgba(0,0,0,.08);--radius:18px;
+  --shadow:0 2px 20px rgba(0,0,0,.06);--dark-bg:#193b53;
+  --green:#2d7d46;--red:#c03000;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
+  min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
+  padding-bottom:70px}
+
+/* TOPBAR */
+.topbar{background:var(--dark-bg);color:#fff;padding:10px 20px;display:flex;
+  align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:8px}
+.logo img{height:36px;transform:rotate(270deg)}
+.logo-text{font-size:17px;font-weight:900;color:#fff}
+.logo-text span{color:var(--accent)}
+.badge{background:var(--accent);color:#000;font-size:10px;font-weight:700;
+  padding:4px 11px;border-radius:20px;letter-spacing:.4px}
+
+/* BOTTOM NAV */
+.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--dark-bg);display:flex;justify-content:space-around;
+  padding:6px 0 env(safe-area-inset-bottom,6px);border-top:1px solid rgba(255,255,255,.08)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 4px;cursor:pointer;color:rgba(255,255,255,.45);
+  font-size:9px;font-weight:700;transition:.2s;min-width:56px;text-decoration:none;
+  -webkit-tap-highlight-color:transparent}
+.nav-item.active{color:var(--accent)}
+.nav-item .nav-ic{font-size:20px;line-height:1}
+
+/* WRAP */
+.wrap{max-width:780px;margin:0 auto;padding:16px 14px 20px}
+
+/* COMMON */
+.card{background:var(--card);border-radius:var(--radius);padding:28px 22px;
+  border:1px solid var(--border);box-shadow:var(--shadow)}
+.btn{background:var(--dark);color:#fff;border:none;padding:16px 36px;
+  border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;display:inline-block;text-align:center}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,114,194,.3)}
+.btn-outline{background:transparent;border:2px solid var(--dark);color:var(--dark);
+  padding:13px 28px;border-radius:50px;font-family:'Inter',sans-serif;font-size:13px;
+  font-weight:700;cursor:pointer;transition:all .2s}
+.btn-outline:hover{background:var(--dark);color:#fff}
+.btn-accent{background:var(--accent);color:#000;border:none;padding:15px 32px;
+  border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;
+  cursor:pointer;transition:transform .2s}
+.btn-accent:hover{transform:translateY(-2px)}
+.btn-sm{border:none;padding:8px 14px;border-radius:20px;font-size:11px;
+  font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.hidden{display:none!important}
+.section-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:900;
+  letter-spacing:-.5px;margin-bottom:6px}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+/* PROGRESS */
+.prog{height:4px;background:rgba(0,0,0,.07);border-radius:4px;margin:16px 0 4px}
+.prog-bar{height:4px;background:var(--accent);border-radius:4px;transition:width .4s ease}
+.prog-info{font-size:11px;color:var(--muted);font-weight:600;display:flex;
+  justify-content:space-between;margin-bottom:14px}
+
+/* OPTIONS */
+.opt{background:#f0ede5;border:2px solid transparent;border-radius:13px;
+  padding:16px 20px;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:600;color:var(--dark);transition:all .18s;
+  display:flex;align-items:center;gap:11px}
+.opt:hover{border-color:var(--dark);background:#fff;transform:translateX(4px)}
+.opt:active{background:var(--dark);color:#fff}
+.opt:active .opt-let{background:#fff;color:var(--dark)}
+.opt-let{display:flex;align-items:center;justify-content:center;background:var(--dark);
+  color:#fff;border-radius:8px;width:28px;height:28px;font-size:11px;
+  font-weight:900;flex-shrink:0}
+.opts{display:flex;flex-direction:column;gap:9px}
+.q-text{font-family:'Inter',sans-serif;font-size:clamp(17px,3vw,22px);font-weight:800;
+  line-height:1.35;margin-bottom:26px;letter-spacing:-.3px}
+
+/* HOME GRID */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.home-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:22px 18px;cursor:pointer;transition:all .2s;text-align:left}
+.home-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.home-card.full{grid-column:1/-1}
+.home-card .hc-ic{font-size:28px;margin-bottom:10px}
+.home-card h3{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
+.home-card p{font-size:11px;color:var(--muted);line-height:1.5}
+.home-card .hc-badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 8px;
+  border-radius:20px;margin-top:8px}
+
+/* HERO (welcome) */
+.hero{padding:36px 0 24px;text-align:center}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--dark-bg);
+  color:#fff;font-size:10px;font-weight:700;padding:6px 14px;
+  border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
+.hero-title{font-family:'Inter',sans-serif;font-size:clamp(22px,4.5vw,36px);
+  font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:16px}
+.hero-title .hl{color:#fff;background:var(--dark);padding:2px 14px;
+  border-radius:10px;display:inline-block}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto 24px}
+.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:10px 16px;text-align:center;min-width:72px}
+.stat b{font-size:20px;font-weight:900;display:block}
+.stat small{font-size:10px;color:var(--muted);font-weight:600}
+
+/* TRUST */
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:28px}
+.trust-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:left}
+.trust-card .ic{font-size:20px;margin-bottom:8px}
+.trust-card h4{font-size:13px;font-weight:700;margin-bottom:3px}
+.trust-card p{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* WHY */
+.why{background:var(--dark-bg);color:#fff;border-radius:18px;padding:22px;margin:20px 0}
+.why h3{font-size:15px;font-weight:800;margin-bottom:12px;color:var(--accent)}
+.why-item{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.6;color:#bbb;margin-bottom:7px}
+.why-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:6px}
+
+/* LANG */
+.lang-wrap{text-align:center;padding:50px 0}
+.lang-title{font-size:26px;font-weight:900;margin-bottom:28px}
+.lang-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.lang-btn{background:var(--card);border:2px solid var(--border);border-radius:16px;
+  padding:24px 36px;cursor:pointer;transition:all .2s;text-align:center;min-width:150px}
+.lang-btn:hover{border-color:var(--dark);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.lang-btn .flag{font-size:32px;margin-bottom:6px}
+.lang-btn .lbl{font-size:15px;font-weight:800}
+
+/* REGISTER */
+.inp{width:100%;padding:15px 18px;background:#f0ede5;border:2px solid transparent;
+  border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--dark);
+  margin-bottom:10px;transition:border .2s}
+.inp:focus{outline:none;border-color:var(--dark);background:#fff}
+
+/* LOADER */
+.loader{text-align:center;padding:80px 20px}
+.spinner{width:44px;height:44px;border:4px solid rgba(0,0,0,.1);border-top-color:var(--dark);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 22px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESULT */
+.result{animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.share-bar{background:var(--dark-bg);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.share-bar .lbl{color:#fff;font-size:12px;font-weight:600;flex:1;min-width:140px}
+.share-bar .lbl span{color:var(--accent)}
+.share-btns{display:flex;gap:7px;flex-wrap:wrap}
+.btn-copy{background:var(--accent);color:#000}
+.btn-wa{background:#25D366;color:#fff}
+.btn-pdf{background:#E74C3C;color:#fff}
+
+.slide{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 6px 32px rgba(0,0,0,.08);margin-bottom:16px}
+.slide-hdr{padding:12px 22px;display:flex;justify-content:space-between;
+  align-items:center;font-size:10px;font-weight:700;letter-spacing:1px;color:#fff}
+.slide-body{display:flex;background:#fff;flex-wrap:wrap}
+.slide-l{flex:0 0 240px;padding:24px 20px;background:#fafafa;border-right:1px solid var(--border)}
+.slide-r{flex:1;min-width:240px;padding:24px 20px}
+.type-big{font-size:44px;margin-bottom:4px}
+.type-name{font-size:17px;font-weight:900;margin-bottom:4px}
+.type-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:12px}
+.type-desc{font-size:12px;line-height:1.7;color:#555}
+.pro-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:#fff;padding:6px 12px;border-radius:7px;display:inline-block;margin-bottom:8px}
+.pro-list{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pro-item{font-size:11px;color:#555;font-weight:600;padding:5px 8px;background:#f5f2eb;border-radius:5px}
+.bars{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.bars-title{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.bar-row{margin-bottom:6px}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:3px}
+.bar-track{height:6px;background:rgba(0,0,0,.06);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.sec{background:var(--card);border-radius:var(--radius);padding:22px;
+  border:1px solid var(--border);margin-bottom:16px;box-shadow:var(--shadow)}
+.sec-title{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px}
+.sec-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.cta{background:var(--accent);border-radius:var(--radius);padding:24px;text-align:center;margin-bottom:16px}
+.cta h2{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.cta p{font-size:13px;color:#333;margin-bottom:16px;line-height:1.6}
+.cta a{background:var(--dark-bg);color:#fff;text-decoration:none;padding:14px 28px;
+  border-radius:50px;font-size:12px;font-weight:800;display:inline-block}
+.disclaimer{font-size:11px;color:#888;padding:12px;background:#f0ede5;border-radius:9px;line-height:1.7;text-align:center}
+
+/* COLORS */
+.b-people{background:linear-gradient(90deg,#6366f1,#818cf8)}
+.b-research{background:linear-gradient(90deg,#10b981,#34d399)}
+.b-tech{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.b-creative{background:linear-gradient(90deg,#f43f5e,#fb7185)}
+.b-nature{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.b-economy{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+
+/* ===== DIAGNOSTIC ===== */
+.diag-subject{background:var(--card);border:2px solid var(--border);border-radius:14px;
+  padding:20px;cursor:pointer;transition:.2s;text-align:center}
+.diag-subject:hover{border-color:var(--dark);transform:translateY(-2px)}
+.diag-subject.active{border-color:var(--dark);background:#f0f6ff}
+.diag-subject .ds-ic{font-size:32px;margin-bottom:8px}
+.diag-subject h4{font-size:14px;font-weight:800}
+.diag-subject p{font-size:11px;color:var(--muted)}
+.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.diag-opt{background:#f0ede5;border:2px solid transparent;border-radius:13px;padding:14px 18px;
+  cursor:pointer;font-size:14px;font-weight:600;transition:.18s;display:flex;align-items:center;gap:10px}
+.diag-opt:hover{border-color:var(--dark);background:#fff}
+.diag-opt.correct{border-color:var(--green);background:#e6f4d7;color:var(--green)}
+.diag-opt.wrong{border-color:var(--red);background:#ffe8e0;color:var(--red)}
+.diag-result{text-align:center;padding:30px}
+.diag-score{font-size:48px;font-weight:900;margin-bottom:8px}
+.diag-grade{font-size:14px;color:var(--muted);margin-bottom:20px}
+
+/* ===== COURSES ===== */
+.course-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px;margin-bottom:12px;transition:.2s}
+.course-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.course-card .cc-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.course-card .cc-ic{font-size:28px}
+.course-card h4{font-size:14px;font-weight:800}
+.course-card .cc-sub{font-size:11px;color:var(--muted)}
+.course-card .cc-lessons{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.lesson-item{display:flex;align-items:center;gap:8px;padding:10px 12px;
+  background:#f8f9fb;border-radius:10px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:.2s}
+.lesson-item:hover{background:#eef3ff}
+.lesson-item .li-play{color:var(--dark);font-size:14px}
+
+/* ===== AI CHAT ===== */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 170px);
+  max-height:600px;background:var(--card);border-radius:var(--radius);
+  border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.chat-header{padding:16px 20px;background:var(--dark-bg);color:#fff;
+  display:flex;align-items:center;gap:10px}
+.chat-header .ch-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.chat-header h3{font-size:14px;font-weight:800}
+.chat-header p{font-size:10px;color:rgba(255,255,255,.6)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6}
+.chat-msg.bot{background:#f0f4f8;color:var(--dark);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:var(--dark);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input-wrap{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
+.chat-input{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--dark)}
+.chat-input:focus{outline:none;border-color:var(--dark)}
+.chat-send{background:var(--dark);color:#fff;border:none;border-radius:50%;
+  width:42px;height:42px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chat-faq{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
+.faq-btn{background:#f0ede5;border:1px solid var(--border);border-radius:20px;
+  padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:.2s;
+  font-family:'Inter',sans-serif;color:var(--dark)}
+.faq-btn:hover{background:#fff;border-color:var(--dark)}
+
+/* INFO ARTICLES */
+.article-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px;margin-bottom:12px;cursor:pointer;transition:.2s}
+.article-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.article-card .ac-tag{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;
+  background:#e6f4d7;color:var(--green);margin-bottom:8px;display:inline-block}
+.article-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
+.article-card p{font-size:12px;color:var(--muted);line-height:1.6}
+.article-body{font-size:13px;line-height:1.8;color:#444}
+.article-body h3{font-size:16px;font-weight:800;color:var(--dark);margin:18px 0 8px}
+.article-body p{margin-bottom:12px}
+.article-body ul{margin:0 0 12px 20px}
+.article-body li{margin-bottom:6px}
+
+/* REVIEWS */
+.reviews{margin-top:24px}
+.review-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px 18px;margin-bottom:10px}
+.review-card .rv-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.review-card .rv-avatar{width:36px;height:36px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+.review-card .rv-name{font-size:13px;font-weight:700}
+.review-card .rv-role{font-size:10px;color:var(--muted)}
+.review-card .rv-stars{color:#f59e0b;font-size:12px;letter-spacing:1px}
+.review-card .rv-text{font-size:12px;color:#555;line-height:1.6;font-style:italic}
+
+/* ABOUT */
+.about-block{background:var(--dark-bg);color:#fff;border-radius:18px;padding:24px;margin:20px 0}
+.about-block h3{font-size:16px;font-weight:800;margin-bottom:12px;color:var(--accent)}
+.about-block p{font-size:12px;line-height:1.7;color:#ccc;margin-bottom:10px}
+.about-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.about-stat{background:rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;text-align:center;flex:1;min-width:70px}
+.about-stat b{font-size:20px;font-weight:900;display:block;color:var(--accent)}
+.about-stat small{font-size:9px;color:#aaa;font-weight:600}
+
+/* CONTACTS */
+.contacts{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:22px;margin-top:20px;text-align:center}
+.contacts h3{font-size:15px;font-weight:800;margin-bottom:14px}
+.social-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.social-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;
+  border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+.social-btn:hover{transform:translateY(-2px)}
+.social-btn.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
+.social-btn.tg{background:#2AABEE;color:#fff}
+.social-btn.wa2{background:#25D366;color:#fff}
+.social-btn.ph{background:var(--dark);color:#fff}
+.contact-info{font-size:11px;color:var(--muted);line-height:1.8}
+
+/* GAMIFICATION */
+.stars-row{display:flex;justify-content:center;gap:4px;margin:12px 0}
+.star{font-size:28px;opacity:.2;transition:all .3s}
+.star.active{opacity:1;animation:starPop .4s ease}
+@keyframes starPop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+.achievement{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ffd700,#ffaa00);
+  color:#000;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:800;
+  margin:12px 0;animation:fadeUp .5s ease}
+.progress-subjects{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.subj-progress{background:#f8f9fb;border-radius:10px;padding:12px;text-align:center}
+.subj-progress .sp-ic{font-size:20px}
+.subj-progress .sp-name{font-size:10px;font-weight:700;color:var(--muted);margin:4px 0}
+.subj-progress .sp-score{font-size:16px;font-weight:900}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--dark-bg);color:#fff;padding:12px 24px;border-radius:50px;
+  font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,.2);
+  z-index:999;opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+#pdf-capture{position:absolute;left:-9999px;top:0;width:600px;padding:40px;background:#fff;font-family:'Inter',sans-serif}
+
+@media(max-width:580px){
+  .slide-l{flex:0 0 100%;border-right:none;border-bottom:1px solid var(--border)}
+  .card{padding:22px 16px}
+  .share-bar{flex-direction:column;align-items:flex-start}
+  .home-grid{grid-template-columns:1fr}
+  .pro-list{grid-template-columns:1fr}
+  .diag-grid{grid-template-columns:1fr}
+  .chat-container{height:calc(100vh - 160px);max-height:none}
+}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">Aiplus Kids</div>
-    <div>
-      <button class="lang-btn active" data-lang="ru">RU</button>
-      <button class="lang-btn" data-lang="kz">KZ</button>
+
+<div class="topbar">
+  <div class="logo">
+    <img src="https://static.tildacdn.pro/tild6138-6238-4632-b230-313838323361/logo.svg" alt="Aiplus">
+    <div class="logo-text">Aiplus <span>Kids</span></div>
+  </div>
+  <div class="badge">5-6 КЛАСС</div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<nav class="bottomnav" id="bottomnav">
+  <div class="nav-item active" onclick="goTab('home')"><div class="nav-ic">🏠</div>Главная</div>
+  <div class="nav-item" onclick="goTab('test')"><div class="nav-ic">🎯</div>Тест</div>
+  <div class="nav-item" onclick="goTab('diag')"><div class="nav-ic">📝</div>Знания</div>
+  <div class="nav-item" onclick="goTab('courses')"><div class="nav-ic">🎬</div>Курсы</div>
+  <div class="nav-item" onclick="goTab('ai')"><div class="nav-ic">🤖</div>ИИ</div>
+</nav>
+
+<div id="pdf-capture"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const S={
+  tab:"home",screen:"welcome",lang:"ru",idx:0,
+  scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
+  user:{},testDone:false,bestCat:null,
+  diagSubject:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},
+  chatMessages:[],articleOpen:null
+};
+const $=id=>document.getElementById(id);
+const app=()=>$("app");
+const SITE_URL="https://flameelement01.github.io/aiplus-mbti-kids";
+
+// ============================================================
+// CATEGORIES & ICONS
+// ============================================================
+const CAT_ORDER=["people","research","tech","creative","nature","economy"];
+const ICONS={people:"\u{1F465}",research:"\u{1F52C}",tech:"\u{2699}\uFE0F",creative:"\u{1F3A8}",nature:"\u{1F33F}",economy:"\u{1F4CA}"};
+const COLORS={people:"#6366f1",research:"#10b981",tech:"#3b82f6",creative:"#f43f5e",nature:"#22c55e",economy:"#f59e0b"};
+
+// ============================================================
+// QUESTIONS (24)
+// ============================================================
+const QUESTIONS=[
+  {ru:"Тебе нравится помогать друзьям?",kz:"Саған достарыңа көмектесу ұнай ма?",opts:[{ru:"Да, очень",kz:"Иә, өте ұнайды",cat:"people"},{ru:"Скорее нет",kz:"Онша емес",cat:"research"},{ru:"Мне интереснее делать проекты",kz:"Маған жоба жасау қызықтырақ",cat:"tech"}]},
+  {ru:"Ты любишь рисовать или делать что-то руками?",kz:"Сен сурет салуды ұнатасың ба?",opts:[{ru:"Рисовать",kz:"Сурет салу",cat:"creative"},{ru:"Собирать модели",kz:"Модельдер жинау",cat:"tech"},{ru:"Наблюдать и изучать",kz:"Бақылау және зерттеу",cat:"research"}]},
+  {ru:"Какой кружок тебе нравится больше?",kz:"Қай үйірме саған көбірек ұнайды?",opts:[{ru:"Театр или пение",kz:"Театр немесе ән",cat:"people"},{ru:"Робототехника",kz:"Робототехника",cat:"tech"},{ru:"Эко-клуб или туризм",kz:"Эко-клуб немесе туризм",cat:"nature"}]},
+  {ru:"Тебе интересно, как устроен мир?",kz:"Саған әлем қалай құрылғаны қызық па?",opts:[{ru:"Да, я люблю учиться",kz:"Иә, оқуды жақсы көремін",cat:"research"},{ru:"Скорее хочу творить",kz:"Маған жасау қызықтырақ",cat:"creative"},{ru:"Хочу считать и планировать",kz:"Санау мен жоспарлау ұнайды",cat:"economy"}]},
+  {ru:"На уроке ты предпочитаешь",kz:"Сабақта сен нені артық көресің?",opts:[{ru:"Говорить и обсуждать",kz:"Сөйлесу және талқылау",cat:"people"},{ru:"Слушать рассказ",kz:"Әңгіме тыңдау",cat:"research"},{ru:"Собирать и строить",kz:"Жинау және құрастыру",cat:"tech"}]},
+  {ru:"Ты любишь организовывать игры?",kz:"Сен ойындар ұйымдастыруды ұнатасың ба?",opts:[{ru:"Да, люблю быть организатором",kz:"Иә, ұйымдастырушы болғым келеді",cat:"economy"},{ru:"Скорее придумать идею",kz:"Идея ойлап табу ұнайды",cat:"creative"},{ru:"Люблю играть, а не организовывать",kz:"Ойнағанды ұнатамын",cat:"people"}]},
+  {ru:"В свободное время ты",kz:"Бос уақытта сен",opts:[{ru:"Играю с друзьями",kz:"Достарыммен ойнаймын",cat:"people"},{ru:"Читаю про природу",kz:"Табиғат туралы оқимын",cat:"research"},{ru:"Мастерю или собираю",kz:"Бірдеңе жасаймын",cat:"tech"}]},
+  {ru:"Ты любишь придумывать истории?",kz:"Сен әңгімелер ойлап табуды ұнатасың ба?",opts:[{ru:"Да, очень",kz:"Иә, өте ұнатамын",cat:"creative"},{ru:"Больше люблю решать задачи",kz:"Есептер шешуді ұнатамын",cat:"research"},{ru:"Люблю планировать",kz:"Жоспарлауды ұнатамын",cat:"economy"}]},
+  {ru:"Ты предпочитаешь работать",kz:"Сен қалай жұмыс істегенді ұнатасың?",opts:[{ru:"В группе с друзьями",kz:"Достарыммен топта",cat:"people"},{ru:"Одному",kz:"Жалғыз",cat:"research"},{ru:"С практическими вещами",kz:"Тәжірибелік нәрселермен",cat:"tech"}]},
+  {ru:"Тебе нравится ухаживать за животными?",kz:"Саған жануарларға қамқорлық ұнай ма?",opts:[{ru:"Да, очень",kz:"Иә, өте ұнайды",cat:"nature"},{ru:"Больше интересны книги",kz:"Кітаптар қызықтырақ",cat:"research"},{ru:"Хочу создавать проекты",kz:"Жобалар жасағым келеді",cat:"tech"}]},
+  {ru:"На перемене ты",kz:"Үзілісте сен",opts:[{ru:"Гуляешь с друзьями",kz:"Достарыммен серуендеймін",cat:"people"},{ru:"Изучаешь что-то новое",kz:"Жаңа нәрсе зерттеймін",cat:"research"},{ru:"Играешь в активные игры",kz:"Белсенді ойындар ойнаймын",cat:"nature"}]},
+  {ru:"Тебе нравится считать деньги в игре?",kz:"Саған ойында ақша санау ұнай ма?",opts:[{ru:"Да",kz:"Иә",cat:"economy"},{ru:"Нет",kz:"Жоқ",cat:"creative"},{ru:"Больше люблю другое",kz:"Басқаны ұнатамын",cat:"people"}]},
+  {ru:"На выставке в школе ты",kz:"Мектептегі көрмеде сен",opts:[{ru:"Показываешь свои поделки",kz:"Қолөнеріңді көрсетесің",cat:"creative"},{ru:"Рассказываешь про проект",kz:"Жоба туралы айтасың",cat:"research"},{ru:"Помогаешь приводить в порядок",kz:"Ретке келтіруге көмектесесің",cat:"people"}]},
+  {ru:"Если выбирать профессию",kz:"Мамандық таңдау керек болса",opts:[{ru:"Помогать людям",kz:"Адамдарға көмектесу",cat:"people"},{ru:"Изучать новое",kz:"Жаңа нәрсе зерттеу",cat:"research"},{ru:"Делать руками",kz:"Қолмен жасау",cat:"tech"}]},
+  {ru:"Ты любишь планировать вечеринку?",kz:"Сен мереке жоспарлауды ұнатасың ба?",opts:[{ru:"Да, люблю организовывать",kz:"Иә, ұйымдастыруды ұнатамын",cat:"economy"},{ru:"Скорее рисовать украшения",kz:"Безендіруді ұнатамын",cat:"creative"},{ru:"Люблю быть гостем",kz:"Қонақ болғанды ұнатамын",cat:"people"}]},
+  {ru:"Тебе важно помогать",kz:"Саған көмектесу маңызды ма?",opts:[{ru:"Да, людям",kz:"Иә, адамдарға",cat:"people"},{ru:"Да, природе",kz:"Иә, табиғатқа",cat:"nature"},{ru:"Да, улучшать что-то",kz:"Бірдеңені жақсарту",cat:"economy"}]},
+  {ru:"Ты любишь рисовать комиксы?",kz:"Сен комикстер салуды ұнатасың ба?",opts:[{ru:"Да",kz:"Иә",cat:"creative"},{ru:"Больше писать текст",kz:"Мәтін жазуды ұнатамын",cat:"research"},{ru:"Люблю программировать",kz:"Бағдарламалауды ұнатамын",cat:"tech"}]},
+  {ru:"После школы ты ходишь",kz:"Мектептен кейін сен",opts:[{ru:"Гулять в парк",kz:"Саябаққа барасың",cat:"nature"},{ru:"На кружок робототехники",kz:"Робототехникаға барасың",cat:"tech"},{ru:"На занятие искусством",kz:"Өнер сабағына барасың",cat:"creative"}]},
+  {ru:"Тебе легко объяснять друзьям?",kz:"Саған достарыңа түсіндіру оңай ма?",opts:[{ru:"Да, очень",kz:"Иә, өте оңай",cat:"people"},{ru:"Люблю сначала всё разобрать",kz:"Алдымен өзім түсінгім келеді",cat:"research"},{ru:"Люблю показывать",kz:"Көрсетуді ұнатамын",cat:"tech"}]},
+  {ru:"Ты чувствуешь себя лучше",kz:"Сен өзіңді жақсы сезінесің",opts:[{ru:"С друзьями",kz:"Достарыммен",cat:"people"},{ru:"Со своими увлечениями",kz:"Хоббилеріммен",cat:"research"},{ru:"На природе",kz:"Табиғатта",cat:"nature"}]},
+  {ru:"В классе ты обычно",kz:"Сыныпта сен",opts:[{ru:"Рассказываешь идеи",kz:"Идеяларыңды айтасың",cat:"people"},{ru:"Слушаешь внимательно",kz:"Мұқият тыңдайсың",cat:"research"},{ru:"Помогаешь делать",kz:"Жасауға көмектесесің",cat:"tech"}]},
+  {ru:"Ты хочешь в будущем",kz:"Болашақта сен қалайсың",opts:[{ru:"Работать с людьми",kz:"Адамдармен жұмыс",cat:"people"},{ru:"Открывать новое",kz:"Жаңалық ашу",cat:"research"},{ru:"Создавать полезные вещи",kz:"Пайдалы заттар жасау",cat:"tech"}]},
+  {ru:"На выходных ты",kz:"Демалыс күндері сен",opts:[{ru:"Играешь с друзьями",kz:"Достарыммен ойнаймын",cat:"people"},{ru:"Читаешь или учишься",kz:"Оқимын",cat:"research"},{ru:"Конструируешь или рисуешь",kz:"Құрастырамын",cat:"creative"}]},
+  {ru:"Если ты видишь проблему",kz:"Мәселе көрсең",opts:[{ru:"Помогаешь человеку",kz:"Адамға көмектесесің",cat:"people"},{ru:"Анализируешь причину",kz:"Себебін талдайсың",cat:"research"},{ru:"Организуешь помощь",kz:"Көмек ұйымдастырасың",cat:"economy"}]}
+];
+
+// ============================================================
+// RESULTS DATA
+// ============================================================
+const RESULTS={
+  people:{icon:"\u{1F465}",color:"#6366f1",
+    ru:{label:"Работа с людьми",title:"Тебе нравится помогать людям!",desc:"Ты общительный, любишь выступать и помогать друзьям. Из тебя может вырасти отличный педагог или организатор.",career:["Учитель","Аниматор","Волонтёр","Организатор","Психолог","Логопед"],subjects:"Казахский/русский, литература, обществознание, английский",clubs:"Театр, дебаты, волонтерство, пресс-центр",parent:"Ваш ребёнок — прирождённый коммуникатор. Запишите в театральный кружок или дебатный клуб.",parentTip:"Давайте возможность организовывать семейные мероприятия."},
+    kz:{label:"Адамдармен жұмыс",title:"Саған адамдарға көмектесу ұнайды!",desc:"Сен ашық, достарыңа көмектесуді ұнатасың. Сеннен тамаша педагог немесе ұйымдастырушы шығуы мүмкін.",career:["Мұғалім","Аниматор","Волонтер","Ұйымдастырушы","Психолог","Логопед"],subjects:"Қазақ/орыс тілі, әдебиет, қоғамтану, ағылшын",clubs:"Театр, пікірталас, волонтерлік",parent:"Балаңыз — туа біткен коммуникатор.",parentTip:"Отбасылық іс-шараларды ұйымдастыруға мүмкіндік беріңіз."}},
+  research:{icon:"\u{1F52C}",color:"#10b981",
+    ru:{label:"Исследования",title:"Тебе интересно узнавать новое!",desc:"Ты любишь учиться, задавать вопросы и находить ответы. Направление для будущих учёных и аналитиков.",career:["Учёный","Журналист","Исследователь","Эколог","Аналитик","Программист"],subjects:"Биология, география, математика, информатика",clubs:"Научный кружок, лаборатория, шахматы, экология",parent:"Ваш ребёнок — будущий исследователь. Поощряйте любознательность.",parentTip:"Не отмахивайтесь от бесконечных «почему?» — это его сильная сторона."},
+    kz:{label:"Зерттеу",title:"Саған жаңа нәрсе білу қызық!",desc:"Сен оқуды, сұрақтар қоюды және жауап табуды ұнатасың.",career:["Ғалым","Журналист","Зерттеуші","Эколог","Талдаушы","Бағдарламашы"],subjects:"Биология, география, математика, информатика",clubs:"Ғылыми үйірме, зертхана, шахмат",parent:"Балаңыз — болашақ зерттеуші.",parentTip:"Шексіз «неге?» сұрақтарынан шаршамаңыз."}},
+  tech:{icon:"\u{2699}\uFE0F",color:"#3b82f6",
+    ru:{label:"Практика и техника",title:"Ты любишь делать своими руками!",desc:"Ты конструируешь, собираешь, мастеришь. Из тебя может получиться инженер или программист.",career:["Робототехник","Инженер","Программист","Техник","3D-дизайнер","Архитектор"],subjects:"Информатика, математика, физика, черчение",clubs:"Робототехника, конструирование, IT-клуб, мастерская",parent:"Ваш ребёнок — практик. Поддержите: конструкторы, робототехника.",parentTip:"Дайте ему инструменты — и не мешайте творить."},
+    kz:{label:"Тәжірибе және техника",title:"Сен өз қолыңмен жасауды ұнатасың!",desc:"Сен құрастырасың, жинайсың. Сеннен инженер немесе бағдарламашы шығуы мүмкін.",career:["Робототехник","Инженер","Бағдарламашы","Техник","3D-дизайнер","Сәулетші"],subjects:"Информатика, математика, физика, сызу",clubs:"Робототехника, құрастыру, IT-клуб",parent:"Балаңыз — практик және құрастырушы.",parentTip:"Оған құралдар мен материалдар беріңіз."}},
+  creative:{icon:"\u{1F3A8}",color:"#f43f5e",
+    ru:{label:"Творчество",title:"Ты любишь придумывать и творить!",desc:"Ты рисуешь, сочиняешь, поёшь. Направление для художников и дизайнеров.",career:["Художник","Дизайнер","Писатель","Актёр","Режиссёр","Музыкант"],subjects:"ИЗО, черчение, литература, музыка",clubs:"Рисование, театр, кино, медиа-клуб",parent:"Ваш ребёнок — творческая личность. Давайте пространство для самовыражения.",parentTip:"Не критикуйте идеи — поддерживайте эксперименты."},
+    kz:{label:"Шығармашылық",title:"Сен ойлап табуды ұнатасың!",desc:"Сен сурет саласың, шығарма жазасың, ән айтасың.",career:["Суретші","Дизайнер","Жазушы","Актер","Режиссер","Музыкант"],subjects:"Бейнелеу өнері, сызу, әдебиет, музыка",clubs:"Сурет, театр, кино, медиа-клуб",parent:"Балаңыз — шығармашыл тұлға.",parentTip:"Идеяларын сынамаңыз — эксперименттерді қолдаңыз."}},
+  nature:{icon:"\u{1F33F}",color:"#22c55e",
+    ru:{label:"Природа и активность",title:"Тебе нравится природа и движение!",desc:"Ты любишь гулять, заботиться о животных. Направление для экологов и тренеров.",career:["Эколог","Тренер","Экскурсовод","Ветеринар","Агроном","Спасатель"],subjects:"Биология, география, физкультура, природоведение",clubs:"Экология, туризм, спорт, зооклуб",parent:"Ваш ребёнок — любитель природы. Походы и забота о животных — его стихия.",parentTip:"Чаще бывайте на природе вместе."},
+    kz:{label:"Табиғат және белсенділік",title:"Саған табиғат пен қозғалыс ұнайды!",desc:"Сен серуендеуді, жануарларға қамқорлық жасауды ұнатасың.",career:["Эколог","Жаттықтырушы","Ветеринар","Агроном","Құтқарушы","Экскурсиявод"],subjects:"Биология, география, дене шынықтыру",clubs:"Экология, туризм, спорт, зооклуб",parent:"Балаңыз — табиғат сүйгіш.",parentTip:"Табиғатта бірге жиірек болыңыз."}},
+  economy:{icon:"\u{1F4CA}",color:"#f59e0b",
+    ru:{label:"Экономика и организация",title:"Ты любишь планировать и организовывать!",desc:"Ты считаешь, планируешь, организуешь. Путь менеджеров и предпринимателей.",career:["Менеджер","Организатор","Экономист","Предприниматель","Бухгалтер","Маркетолог"],subjects:"Математика, информатика, обществознание, английский",clubs:"Школьный парламент, бизнес-клуб, проектный клуб",parent:"Ваш ребёнок — будущий лидер. Школьный парламент, бизнес-игры — его стихия.",parentTip:"Доверяйте организацию дел — это развивает лидерство."},
+    kz:{label:"Экономика және ұйымдастыру",title:"Сен жоспарлауды ұнатасың!",desc:"Сен санайсың, жоспарлайсың, ұйымдастырасың.",career:["Менеджер","Ұйымдастырушы","Экономист","Кәсіпкер","Бухгалтер","Маркетолог"],subjects:"Математика, информатика, қоғамтану, ағылшын",clubs:"Мектеп парламенті, бизнес-клуб",parent:"Балаңыз — болашақ көшбасшы.",parentTip:"Ұсақ-түйек істерді ұйымдастыруға сеніңіз."}}
+};
+
+// ============================================================
+// DIAGNOSTIC QUESTIONS
+// ============================================================
+const DIAG={
+  math:{
+    ru:{name:"Математика",icon:"📐"},kz:{name:"Математика",icon:"📐"},
+    questions:[
+      {ru:"Чему равно 3/5 + 1/5?",kz:"3/5 + 1/5 нешеге тең?",opts:["2/5","4/5","4/10","1"],correct:1},
+      {ru:"Найдите 25% от 80",kz:"80-нің 25%-ін табыңыз",opts:["15","20","25","40"],correct:1},
+      {ru:"Решите: 12 × 15",kz:"Шешіңіз: 12 × 15",opts:["170","180","175","160"],correct:1},
+      {ru:"Площадь прямоугольника 6×8 см:",kz:"6×8 см тіктөртбұрыштың ауданы:",opts:["42 см²","48 см²","56 см²","36 см²"],correct:1},
+      {ru:"Чему равно 1000 - 387?",kz:"1000 - 387 нешеге тең?",opts:["613","623","713","603"],correct:0},
+      {ru:"Упростите: 2а + 3а",kz:"Жеңілдетіңіз: 2а + 3а",opts:["5а","6а","5а²","23а"],correct:0},
+      {ru:"Сколько минут в 2,5 часах?",kz:"2,5 сағатта неше минут?",opts:["120","150","130","200"],correct:1},
+      {ru:"Найдите периметр квадрата со стороной 9 см",kz:"Қабырғасы 9 см шаршының периметрін табыңыз",opts:["27 см","36 см","81 см","18 см"],correct:1},
+      {ru:"Чему равно 0,5 × 0,4?",kz:"0,5 × 0,4 нешеге тең?",opts:["0,2","0,9","2,0","0,02"],correct:0},
+      {ru:"Какая дробь больше: 2/3 или 3/5?",kz:"Қай бөлшек үлкен: 2/3 немесе 3/5?",opts:["2/3","3/5","Равны","Нельзя сравнить"],correct:0}
+    ]
+  },
+  english:{
+    ru:{name:"Английский язык",icon:"🇬🇧"},kz:{name:"Ағылшын тілі",icon:"🇬🇧"},
+    questions:[
+      {ru:"Choose the correct: She ___ to school every day.",kz:"Дұрысын таңдаңыз: She ___ to school every day.",opts:["go","goes","going","gone"],correct:1},
+      {ru:"What is the plural of 'child'?",kz:"'Child' сөзінің көпше түрі:",opts:["childs","childes","children","childen"],correct:2},
+      {ru:"Choose: I ___ watching TV now.",kz:"Таңдаңыз: I ___ watching TV now.",opts:["is","am","are","be"],correct:1},
+      {ru:"Translate: 'библиотека'",kz:"Аударыңыз: 'кітапхана'",opts:["hospital","library","school","museum"],correct:1},
+      {ru:"Choose: There ___ many books on the table.",kz:"Таңдаңыз: There ___ many books on the table.",opts:["is","am","are","be"],correct:2},
+      {ru:"What time is it? 3:30",kz:"Сағат неше? 3:30",opts:["half past three","three thirty","A and B both","quarter past three"],correct:2},
+      {ru:"Choose the opposite of 'hot':",kz:"'Hot' сөзінің антонимі:",opts:["warm","cold","cool","nice"],correct:1},
+      {ru:"Choose: Yesterday I ___ a book.",kz:"Таңдаңыз: Yesterday I ___ a book.",opts:["read","readed","reading","reads"],correct:0},
+      {ru:"What color is the sky?",kz:"Аспанның түсі қандай?",opts:["green","blue","red","yellow"],correct:1},
+      {ru:"Choose: My sister is ___ than me.",kz:"Таңдаңыз: My sister is ___ than me.",opts:["tall","taller","tallest","more tall"],correct:1}
+    ]
+  },
+  kazakh:{
+    ru:{name:"Казахский язык",icon:"🇰🇿"},kz:{name:"Қазақ тілі",icon:"🇰🇿"},
+    questions:[
+      {ru:"Қазақ тілінде неше дауысты дыбыс бар?",kz:"Қазақ тілінде неше дауысты дыбыс бар?",opts:["9","12","15","10"],correct:2},
+      {ru:"'Кітап' сөзінің көпше түрі:",kz:"'Кітап' сөзінің көпше түрі:",opts:["кітаптар","кітаптер","кітаплар","кітапдар"],correct:0},
+      {ru:"Сөйлемнің бас мүшелерін ата:",kz:"Сөйлемнің бас мүшелерін ата:",opts:["Бастауыш, баяндауыш","Толықтауыш, анықтауыш","Пысықтауыш, толықтауыш","Анықтауыш, пысықтауыш"],correct:0},
+      {ru:"'Мен мектепке барамын' — бұл қандай сөйлем?",kz:"'Мен мектепке барамын' — бұл қандай сөйлем?",opts:["Сұраулы","Хабарлы","Лепті","Бұйрықты"],correct:1},
+      {ru:"Синоним дегеніміз не?",kz:"Синоним дегеніміз не?",opts:["Қарама-қарсы мағыналы сөздер","Мағынасы ұқсас сөздер","Көп мағыналы сөздер","Бір тұлғалы сөздер"],correct:1},
+      {ru:"'Ана' сөзінің антонимі:",kz:"'Ана' сөзінің антонимі:",opts:["Әке","Апа","Бала","Әже"],correct:0},
+      {ru:"Зат есім дегеніміз не?",kz:"Зат есім дегеніміз не?",opts:["Заттың қимылын білдіреді","Заттың атын білдіреді","Заттың санын білдіреді","Заттың сынын білдіреді"],correct:1},
+      {ru:"'Үлкен' сөзі сөйлемнің қай мүшесі?",kz:"'Үлкен үй' — 'үлкен' сөйлемнің қай мүшесі?",opts:["Бастауыш","Баяндауыш","Анықтауыш","Толықтауыш"],correct:2},
+      {ru:"Жіңішке дауысты дыбыстар:",kz:"Жіңішке дауысты дыбыстар қатарын көрсет:",opts:["а, о, ұ, ы","ә, ө, ү, і, е","а, ә, е, о","ұ, ү, ы, і"],correct:1},
+      {ru:"'Оқушылар кітап оқиды' — бастауышты тап:",kz:"'Оқушылар кітап оқиды' — бастауышты тап:",opts:["кітап","оқиды","оқушылар","кітап оқиды"],correct:2}
+    ]
+  },
+  logic:{
+    ru:{name:"Логика / IQ",icon:"🧩"},kz:{name:"Логика / IQ",icon:"🧩"},
+    questions:[
+      {ru:"Продолжи ряд: 2, 4, 8, 16, ...",kz:"Қатарды жалғастыр: 2, 4, 8, 16, ...",opts:["20","24","32","30"],correct:2},
+      {ru:"Какая фигура лишняя: круг, квадрат, треугольник, яблоко?",kz:"Артық фигураны тап: дөңгелек, шаршы, үшбұрыш, алма?",opts:["Круг","Квадрат","Треугольник","Яблоко"],correct:3},
+      {ru:"У Маши 3 яблока, у Пети вдвое больше. Сколько у обоих?",kz:"Машада 3 алма, Петяда 2 есе көп. Екеуінде неше?",opts:["6","9","12","8"],correct:1},
+      {ru:"Если КОШКА = 5 букв, то СОБАКА = ?",kz:"Егер МЫСЫҚ = 5 әріп, онда ИТБАЛАҚ = ?",opts:["5","6","7","4"],correct:2},
+      {ru:"Что тяжелее: 1 кг железа или 1 кг ваты?",kz:"Не ауырырақ: 1 кг темір немесе 1 кг мақта?",opts:["Железо","Вата","Одинаково","Зависит от объёма"],correct:2},
+      {ru:"Часы показывают 15:45. Какой угол между стрелками?",kz:"Сағат 15:45 көрсетеді. Тілдер арасындағы бұрыш?",opts:["90°","180°","157.5°","120°"],correct:0},
+      {ru:"В комнате 4 угла, в каждом сидит кошка. Сколько кошек?",kz:"Бөлмеде 4 бұрыш, әрқайсысында мысық. Неше мысық?",opts:["4","8","16","12"],correct:0},
+      {ru:"Найди закономерность: А1, Б2, В3, ...",kz:"Заңдылықты тап: А1, Б2, В3, ...",opts:["Г4","Д4","Г5","Д3"],correct:0},
+      {ru:"3 курицы за 3 дня несут 3 яйца. Сколько яиц от 12 куриц за 12 дней?",kz:"3 тауық 3 күнде 3 жұмыртқа береді. 12 тауық 12 күнде неше?",opts:["12","36","48","144"],correct:2},
+      {ru:"Какое число пропущено: 1, 1, 2, 3, 5, 8, ?",kz:"Жоқ санды тап: 1, 1, 2, 3, 5, 8, ?",opts:["10","11","13","12"],correct:2}
+    ]
+  }
+};
+
+// ============================================================
+// ARTICLES DATA
+// ============================================================
+const ARTICLES=[
+  {id:"spec-schools",tag:"Спецшколы",tagKz:"Арнайы мектептер",
+    ru:{title:"Как подготовить ребёнка к поступлению в спецшколу",body:"<h3>Что такое спецшколы?</h3><p>Специализированные школы (БИЛ, НИШ, РФМШ) — это школы с углубленным изучением предметов. Поступление обычно на конкурсной основе в 7 класс.</p><h3>Когда начинать готовиться?</h3><p>Оптимально — с 5 класса. За 1-2 года ребёнок может подтянуть математику, логику и языки до нужного уровня.</p><h3>Что включает подготовка?</h3><ul><li>Математика: олимпиадные задачи, логика, нестандартное мышление</li><li>Языки: казахский, русский, английский — чтение, грамматика, эссе</li><li>Логика: IQ-тесты, пространственное мышление</li><li>Общие знания: естествознание, история</li></ul><h3>Советы родителям</h3><ul><li>Не перегружайте ребёнка — 1-2 часа в день достаточно</li><li>Чередуйте занятия с отдыхом и физической активностью</li><li>Пробные тесты помогают привыкнуть к формату экзамена</li><li>Поддерживайте мотивацию, не давите</li></ul>"},
+    kz:{title:"Баланы арнайы мектепке қалай дайындау керек",body:"<h3>Арнайы мектептер дегеніміз не?</h3><p>Мамандандырылған мектептер (БИЛ, НИШ, РФМШ) — пәндерді тереңдетіп оқытатын мектептер. Түсу әдетте 7-сыныпқа конкурстық негізде жүреді.</p><h3>Қашан дайындала бастау керек?</h3><p>Ең қолайлы уақыт — 5-сыныптан бастап.</p><h3>Дайындыққа не кіреді?</h3><ul><li>Математика: олимпиадалық есептер, логика</li><li>Тілдер: қазақ, орыс, ағылшын</li><li>Логика: IQ-тесттер</li><li>Жалпы білім: жаратылыстану, тарих</li></ul>"}},
+  {id:"dev-interests",tag:"Развитие",tagKz:"Даму",
+    ru:{title:"Как развивать интересы ребёнка в 10-12 лет",body:"<h3>Почему это важно?</h3><p>В 10-12 лет ребёнок формирует свои интересы. Задача родителей — не навязывать, а помочь попробовать разное.</p><h3>5 правил</h3><ul><li><b>Пробуйте разное.</b> Запишите ребёнка на 2-3 кружка на пробный месяц</li><li><b>Наблюдайте.</b> Что ребёнок делает в свободное время? Это подсказка</li><li><b>Не давите.</b> Если ребёнку не нравится — смените кружок</li><li><b>Хвалите процесс,</b> а не только результат</li><li><b>Будьте примером.</b> Делитесь своими интересами</li></ul>"},
+    kz:{title:"10-12 жастағы баланың қызығушылығын қалай дамыту",body:"<h3>Неліктен маңызды?</h3><p>10-12 жаста бала өз қызығушылықтарын қалыптастырады. Ата-аналардың міндеті — таңуламау, түрлі нәрсені сынауға көмектесу.</p><ul><li>Түрлі нәрсені сынаңыз</li><li>Бақылаңыз — бос уақытта не істейді?</li><li>Қыспаңыз</li><li>Процесті мақтаңыз</li><li>Өзіңіз үлгі болыңыз</li></ul>"}},
+  {id:"screen-time",tag:"Здоровье",tagKz:"Денсаулық",
+    ru:{title:"Экранное время: сколько можно и как контролировать",body:"<h3>Рекомендации ВОЗ</h3><p>Для детей 10-12 лет рекомендуется не более 2 часов экранного времени в день (не считая учёбы).</p><h3>Как контролировать?</h3><ul><li>Установите чёткие правила вместе с ребёнком</li><li>Используйте родительский контроль</li><li>Предложите альтернативы: спорт, кружки, прогулки</li><li>Не используйте гаджеты как награду/наказание</li></ul><h3>Полезный экран</h3><p>Не всё экранное время одинаково вредно. Образовательные приложения, программирование, творчество на планшете — это полезно.</p>"},
+    kz:{title:"Экран уақыты: қанша болуы мүмкін",body:"<h3>ДДҰ ұсыныстары</h3><p>10-12 жас балаларға күніне 2 сағаттан аспайтын экран уақыты ұсынылады.</p><ul><li>Балаңызбен бірге нақты ережелер белгілеңіз</li><li>Ата-аналық бақылауды пайдаланыңыз</li><li>Балама ұсыныңыз: спорт, үйірмелер</li></ul>"}}
+];
+
+// ============================================================
+// COURSES DATA
+// ============================================================
+const COURSES=[
+  {icon:"📐",ru:{name:"Математика 5-6 класс",sub:"Основы алгебры, дроби, проценты",lessons:["Дроби: сложение и вычитание","Проценты в жизни","Площадь и периметр","Уравнения с одним неизвестным","Десятичные дроби"]},
+    kz:{name:"Математика 5-6 сынып",sub:"Алгебра негіздері, бөлшектер",lessons:["Бөлшектер: қосу және азайту","Пайыздар","Аудан және периметр","Бір белгісізді теңдеулер","Ондық бөлшектер"]}},
+  {icon:"🇬🇧",ru:{name:"English 5-6 grade",sub:"Grammar, vocabulary, reading",lessons:["Present Simple & Continuous","Past Simple","Countable & Uncountable nouns","Reading comprehension","My daily routine (speaking)"]},
+    kz:{name:"English 5-6 сынып",sub:"Грамматика, сөздік қор",lessons:["Present Simple & Continuous","Past Simple","Саналатын және саналмайтын","Оқу түсіну","Менің күнім (сөйлеу)"]}},
+  {icon:"🧪",ru:{name:"Естествознание",sub:"Природа, физика, химия — основы",lessons:["Вещества вокруг нас","Простые механизмы","Электричество — основы","Растения и фотосинтез","Экология и мы"]},
+    kz:{name:"Жаратылыстану",sub:"Табиғат, физика, химия негіздері",lessons:["Біздің айналамыздағы заттар","Қарапайым механизмдер","Электр — негіздері","Өсімдіктер және фотосинтез","Экология және біз"]}}
+];
+
+// ============================================================
+// AI FAQ
+// ============================================================
+const AI_FAQ=[
+  {ru:"Как подготовить ребёнка к НИШ?",kz:"Баланы НИШ-ке қалай дайындау керек?",for:"parent",
+   answer_ru:"Для поступления в НИШ (7 класс) нужно готовиться по математике, логике и языкам. Начинайте за 1-2 года. Рекомендую:\n\n1. **Математика** — олимпиадные задачи, нестандартное мышление\n2. **Языки** — грамматика, эссе, чтение\n3. **Логика** — IQ-тесты, пространственное мышление\n4. **Пробные тесты** — делайте каждый месяц\n\nНе перегружайте ребёнка! 1-2 часа занятий в день достаточно.",
+   answer_kz:"НИШ-ке (7-сынып) түсу үшін математика, логика және тілдер бойынша дайындалу керек. 1-2 жыл бұрын бастаңыз.\n\n1. **Математика** — олимпиадалық есептер\n2. **Тілдер** — грамматика, эссе, оқу\n3. **Логика** — IQ-тесттер\n4. **Сынақ тесттер** — ай сайын жасаңыз"},
+  {ru:"Сколько кружков оптимально?",kz:"Неше үйірме оңтайлы?",for:"parent",
+   answer_ru:"Для ребёнка 10-12 лет оптимально **2-3 кружка** в неделю:\n\n• 1 интеллектуальный (шахматы, программирование, наука)\n• 1 творческий (рисование, музыка, театр)\n• 1 спортивный (плавание, футбол, танцы)\n\nВажно оставить время на отдых, прогулки и свободную игру. Если ребёнок устаёт — сократите нагрузку.",
+   answer_kz:"10-12 жастағы балаға аптасына **2-3 үйірме** оңтайлы:\n\n• 1 интеллектуалды\n• 1 шығармашылық\n• 1 спорттық\n\nДемалысқа, серуенге уақыт қалдырыңыз."},
+  {ru:"Как мотивировать ребёнка учиться?",kz:"Баланы оқуға қалай ынталандыру керек?",for:"parent",
+   answer_ru:"Мотивация бывает внутренней и внешней. Для долгосрочного результата нужна **внутренняя**:\n\n1. **Связывайте учёбу с интересами** — нравится YouTube? Предложите снимать свой канал (нужен английский!)\n2. **Хвалите усилия**, а не оценки\n3. **Давайте выбор** — пусть сам выбирает, что учить первым\n4. **Показывайте пример** — читайте, учитесь сами\n5. **Не сравнивайте** с другими детьми",
+   answer_kz:"Ынталандыру ішкі және сыртқы болады. Ұзақ мерзімді нәтиже үшін **ішкі** қажет:\n\n1. Оқуды қызығушылықтармен байланыстырыңыз\n2. Бағаны емес, күш-жігерді мақтаңыз\n3. Таңдау беріңіз\n4. Өзіңіз үлгі болыңыз\n5. Басқа балалармен салыстырмаңыз"},
+  {ru:"Когда начинать учить английский?",kz:"Ағылшын тілін қашан үйрете бастау керек?",for:"parent",
+   answer_ru:"Чем раньше — тем лучше! Но если ребёнку уже 10-12 лет, это отличное время:\n\n• **Мозг ещё пластичен** — легко усваивает грамматику\n• **Мотивация выше** — понимает зачем (игры, YouTube, путешествия)\n• **Рекомендую:** 3-4 занятия в неделю по 45 минут\n• **Формат:** игровой + видео + разговорная практика\n\nНачните с Aiplus — у нас есть курсы английского для 5-6 класса!",
+   answer_kz:"Неғұрлым ерте — соғұрлым жақсы! Бірақ 10-12 жас — тамаша уақыт:\n\n• Ми әлі икемді\n• Аптасына 3-4 сабақ, 45 минуттан\n• Ойын + видео + сөйлеу практикасы"},
+  {ru:"Чем отличается НИШ от БИЛ?",kz:"НИШ пен БИЛ-дің айырмашылығы не?",for:"parent",
+   answer_ru:"**НИШ** (Назарбаев Интеллектуальные школы):\n• 20 школ по всей стране\n• Трёхъязычное образование (каз/рус/англ)\n• Бесплатное обучение и проживание\n• Сильный упор на STEM\n\n**БИЛ** (Білім-Инновация лицейлері):\n• Более 30 школ\n• Углублённая математика и естественные науки\n• Строгая дисциплина\n• Подготовка к международным олимпиадам\n\nОба варианта — отличный выбор. Главное — начать готовиться заранее!",
+   answer_kz:"**НИШ**:\n• 20 мектеп бүкіл ел бойынша\n• Үш тілді білім\n• Тегін оқу\n• STEM бағыты\n\n**БИЛ**:\n• 30+ мектеп\n• Тереңдетілген математика\n• Қатаң тәртіп\n• Халықаралық олимпиадаларға дайындық"},
+  {ru:"Какую профессию выбрать?",kz:"Қандай мамандық таңдау керек?",for:"kid",
+   answer_ru:"Привет! 😊 Чтобы найти свою будущую профессию, попробуй ответить на вопросы:\n\n🤔 **Что тебе нравится делать больше всего?**\n• Общаться с людьми → учитель, врач, журналист\n• Решать задачки → программист, инженер, учёный\n• Рисовать/придумывать → дизайнер, архитектор, режиссёр\n• Помогать природе → эколог, ветеринар, биолог\n\n💡 Пройди наш **тест на профориентацию** — он поможет определить направление!\n\nА ещё — не бойся пробовать новое. В 5-6 классе у тебя куча времени!",
+   answer_kz:"Сәлем! 😊 Болашақ мамандығыңды табу үшін мына сұрақтарға жауап бер:\n\n🤔 **Саған не істеу ұнайды?**\n• Адамдармен сөйлесу → мұғалім, дәрігер\n• Есептер шешу → бағдарламашы, инженер\n• Сурет салу → дизайнер, сәулетші\n• Табиғатқа көмектесу → эколог, ветеринар\n\n💡 Біздің **кәсіби бағдар тестін** өт!"},
+  {ru:"Как лучше учиться?",kz:"Қалай жақсырақ оқуға болады?",for:"kid",
+   answer_ru:"Вот крутые лайфхаки для учёбы! 🚀\n\n1. **Метод помидора** — учись 25 минут, отдыхай 5 минут\n2. **Объясни другу** — если можешь объяснить тему другу, значит понял\n3. **Рисуй схемы** — мозг запоминает картинки лучше текста\n4. **Учись утром** — мозг свежий и запоминает лучше\n5. **Не зубри!** — старайся понять \"почему\", а не просто запомнить\n\n📱 И да — убери телефон на время учёбы. Серьёзно, это работает!",
+   answer_kz:"Оқу лайфхактары! 🚀\n\n1. **Помидор әдісі** — 25 минут оқы, 5 минут демал\n2. **Досыңа түсіндір** — түсіндіре алсаң, білесің\n3. **Схемалар сал** — ми суреттерді жақсы есте сақтайды\n4. **Таңертең оқы** — ми таза\n5. **Жаттама!** — \"неге\" деп түсін"},
+  {ru:"Что такое олимпиада?",kz:"Олимпиада деген не?",for:"kid",
+   answer_ru:"Олимпиада — это соревнование по предметам! 🏆\n\n**Зачем участвовать:**\n• Это интересно и развивает мозг\n• Победители получают грамоты и призы\n• Помогает при поступлении в спецшколы\n• Можно поехать на республиканскую или даже международную олимпиаду!\n\n**Какие бывают:**\n• Математика, физика, информатика\n• Казахский, русский, английский языки\n• Биология, химия, история\n\n**Как готовиться:** решай задачи прошлых лет — они есть в интернете. Начни с районного уровня!",
+   answer_kz:"Олимпиада — пәндер бойынша жарыс! 🏆\n\n**Неге қатысу керек:**\n• Қызықты және миды дамытады\n• Жеңімпаздар грамота мен сыйлық алады\n• Арнайы мектепке түсуге көмектеседі\n\n**Қалай дайындалу:** өткен жылдардың есептерін шеш!"}
+];
+
+// ============================================================
+// REVIEWS DATA
+// ============================================================
+const REVIEWS=[
+  {name:"Айгүл М.",nameKz:"Айгүл М.",role_ru:"мама ученика 5 класса",role_kz:"5-сынып оқушысының анасы",
+   text_ru:"Сын прошёл тест на профориентацию — оказался «технарь». Записали на робототехнику, теперь не оторвать! Спасибо Aiplus за направление.",
+   text_kz:"Ұлым кәсіби бағдар тестін өтті — «техник» болып шықты. Робототехникаға жаздырдық, енді ажырамайды!",color:"#6366f1"},
+  {name:"Дамир К.",nameKz:"Дамир К.",role_ru:"папа ученицы 6 класса",role_kz:"6-сынып оқушысының әкесі",
+   text_ru:"Дочка готовится к НИШ. Диагностика на сайте показала пробелы в математике — теперь целенаправленно готовимся. Очень удобно!",
+   text_kz:"Қызым НИШ-ке дайындалып жатыр. Сайттағы диагностика математикадағы олқылықтарды көрсетті — енді мақсатты дайындалып жатырмыз.",color:"#10b981"},
+  {name:"Алия Т.",nameKz:"Алия Т.",role_ru:"мама двоих детей",role_kz:"екі баланың анасы",
+   text_ru:"Статьи для родителей — то, что нужно. Наконец-то понятно объяснили про экранное время и кружки. Рекомендую всем родителям!",
+   text_kz:"Ата-аналарға арналған мақалалар — керек нәрсе. Экран уақыты мен үйірмелер туралы түсінікті түсіндірілген.",color:"#f43f5e"}
+];
+
+// ============================================================
+// i18n
+// ============================================================
+const T={
+  ru:{home:"Главная",test:"Тест",diag:"Знания",courses:"Курсы",ai:"ИИ",
+    homeTitle:"Aiplus Kids",homeSub:"Образовательная платформа для 5-6 классов",
+    testCard:"Профориентация",testCardDesc:"24 вопроса → твоя будущая профессия",
+    diagCard:"Проверь знания",diagCardDesc:"Математика и английский — оценка уровня",
+    coursesCard:"Видеоуроки",coursesCardDesc:"Уроки по предметам на GetCourse",
+    aiCard:"ИИ-консультант",aiCardDesc:"Задай вопрос — получи ответ",
+    infoCard:"Полезные статьи",infoCardDesc:"Спецшколы, развитие, советы",
+    heroTag:"🎯 Профориентация для детей",
+    heroTitle:'Найди своё направление и <span class="hl">будущую профессию</span>',
+    heroSub:"24 вопроса · 6 направлений · Профессии + кружки + советы родителям",
+    s1:"24",s1l:"Вопроса",s2:"6",s2l:"Направлений",s3:"~5",s3l:"Минут",
+    startBtn:"Начать тест →",
+    langTitle:"Тілді таңдаңыз / Выберите язык",
+    regTag:"📋 Начнём",regTitle:"Как тебя зовут?",regSub:"Укажи имя — оно появится в результате",regName:"Твоё имя",regBtn:"Начать тест →",
+    analyzing:"Анализируем ответы...",analyzeS:"Подбираем направление и профессии",
+    shareLabel:'📊 <span>Результат готов</span> — покажи родителям!',
+    copyBtn:"📋 Скопировать",waBtn:"📱 WhatsApp",pdfBtn:"📄 PDF",
+    restart:"← Пройти снова",
+    disclaimer:"Тест даёт ориентир, но не заменяет живое общение с педагогом.",
+    copied:"✅ Скопировано!",
+    diagTitle:"Диагностика знаний",diagSub:"Проверь свой уровень по школьной программе",
+    diagChoose:"Выбери предмет:",diagStart:"Начать тест",diagBack:"← Назад",
+    diagQ:"Вопрос",diagOf:"из",diagResult:"Результат",diagRetry:"Пройти ещё раз",
+    diagExcellent:"Отлично! Ты хорошо знаешь материал 👏",diagGood:"Хорошо! Но есть над чем поработать",diagNeed:"Нужно подтянуть — но ты справишься! 💪",
+    coursesTitle:"Видеоуроки",coursesSub:"Учись по видео на нашей платформе GetCourse",coursesOpen:"Открыть урок →",coursesAll:"Перейти на платформу →",
+    aiTitle:"ИИ-консультант",aiSub:"Задайте вопрос о подготовке ребёнка",aiPlaceholder:"Напишите вопрос...",aiWelcome:"Здравствуйте! Я — ИИ-консультант Aiplus Kids. Задайте вопрос о развитии и подготовке вашего ребёнка, и я постараюсь помочь.",aiFaq:"Частые вопросы:",
+    infoTitle:"Полезные материалы",infoSub:"Статьи и советы для родителей",infoBack:"← К списку статей",
+    ctaTitle:"Хотите узнать больше? 🚀",ctaSub:'Запишитесь на <b>бесплатную консультацию</b>',ctaBtn:"📱 WhatsApp",
+    aboutTitle:"О нас",aboutText:"Aiplus — образовательный центр, который помогает детям 5-6 классов подготовиться к поступлению в спецшколы (НИШ, БИЛ, РФМШ) и развить свои таланты.",
+    aboutS1:"500+",aboutS1l:"Учеников",aboutS2:"4",aboutS2l:"Года опыта",aboutS3:"95%",aboutS3l:"Довольных",aboutS4:"12",aboutS4l:"Педагогов",
+    reviewsTitle:"Отзывы родителей",
+    contactsTitle:"Свяжитесь с нами",contactAddr:"📍 г. Алматы, ул. Тимирязева 42",contactPhone:"📞 +7 (747) 584-25-25",
+    formatTitle:"Как проходит обучение?",formatOnline:"Онлайн-уроки на GetCourse",formatOffline:"Оффлайн-занятия в Алматы",formatIndiv:"Индивидуальный подход",formatGroup:"Мини-группы по 6-8 человек",
+    coursesEnroll:"Записаться на курс →",
+    faqParent:"Для родителей:",faqKid:"Для учеников:",
+    diagAllTitle:"Твой прогресс"
+  },
+  kz:{home:"Басты",test:"Тест",diag:"Білім",courses:"Курстар",ai:"ЖИ",
+    homeTitle:"Aiplus Kids",homeSub:"5-6 сынып оқушыларына арналған білім платформасы",
+    testCard:"Кәсіби бағдар",testCardDesc:"24 сұрақ → болашақ мамандығың",
+    diagCard:"Білімді тексер",diagCardDesc:"Математика және ағылшын — деңгейді бағалау",
+    coursesCard:"Бейнесабақтар",coursesCardDesc:"GetCourse платформасындағы сабақтар",
+    aiCard:"ЖИ-кеңесші",aiCardDesc:"Сұрақ қой — жауап ал",
+    infoCard:"Пайдалы мақалалар",infoCardDesc:"Арнайы мектептер, даму, кеңестер",
+    heroTag:"🎯 Балаларға кәсіби бағдар",
+    heroTitle:'Өз бағытыңды тап және <span class="hl">болашақ мамандығыңды</span> біл',
+    heroSub:"24 сұрақ · 6 бағыт · Мамандықтар + үйірмелер + ата-аналарға кеңес",
+    s1:"24",s1l:"Сұрақ",s2:"6",s2l:"Бағыт",s3:"~5",s3l:"Минут",
+    startBtn:"Тесті бастау →",
+    langTitle:"Тілді таңдаңыз / Выберите язык",
+    regTag:"📋 Бастайық",regTitle:"Сенің атың кім?",regSub:"Атыңды жаз",regName:"Сенің атың",regBtn:"Тесті бастау →",
+    analyzing:"Жауаптарды талдап жатырмыз...",analyzeS:"Бағыт және мамандықтарды іріктеп жатырмыз",
+    shareLabel:'📊 <span>Нәтиже дайын</span> — ата-анаңа көрсет!',
+    copyBtn:"📋 Көшіру",waBtn:"📱 WhatsApp",pdfBtn:"📄 PDF",
+    restart:"← Қайтадан өту",
+    disclaimer:"Тест бағыт береді, педагогпен сөйлесудің орнын баспайды.",
+    copied:"✅ Көшірілді!",
+    diagTitle:"Білім диагностикасы",diagSub:"Мектеп бағдарламасы бойынша деңгейіңді тексер",
+    diagChoose:"Пәнді таңда:",diagStart:"Тесті бастау",diagBack:"← Артқа",
+    diagQ:"Сұрақ",diagOf:"/",diagResult:"Нәтиже",diagRetry:"Қайтадан өту",
+    diagExcellent:"Тамаша! Материалды жақсы білесің 👏",diagGood:"Жақсы! Бірақ жұмыс істеу керек нәрселер бар",diagNeed:"Тартып алу керек — бірақ сен жеңесің! 💪",
+    coursesTitle:"Бейнесабақтар",coursesSub:"GetCourse платформасында бейне бойынша оқы",coursesOpen:"Сабақты ашу →",coursesAll:"Платформаға өту →",
+    aiTitle:"ЖИ-кеңесші",aiSub:"Баланы дайындау туралы сұрақ қойыңыз",aiPlaceholder:"Сұрағыңызды жазыңыз...",aiWelcome:"Сәлеметсіз бе! Мен — Aiplus Kids ЖИ-кеңесшісімін. Балаңыздың дамуы мен дайындығы туралы сұрақ қойыңыз.",aiFaq:"Жиі қойылатын сұрақтар:",
+    infoTitle:"Пайдалы материалдар",infoSub:"Ата-аналарға арналған мақалалар мен кеңестер",infoBack:"← Мақалалар тізіміне",
+    ctaTitle:"Көбірек білгіңіз келе ме? 🚀",ctaSub:'<b>Тегін кеңеске</b> жазылыңыз',ctaBtn:"📱 WhatsApp",
+    aboutTitle:"Біз туралы",aboutText:"Aiplus — 5-6 сынып оқушыларына арнайы мектептерге (НИШ, БИЛ, РФМШ) дайындалуға және дарындарын дамытуға көмектесетін білім орталығы.",
+    aboutS1:"500+",aboutS1l:"Оқушы",aboutS2:"4",aboutS2l:"Жыл тәжірибе",aboutS3:"95%",aboutS3l:"Қанағаттанған",aboutS4:"12",aboutS4l:"Педагог",
+    reviewsTitle:"Ата-аналар пікірлері",
+    contactsTitle:"Бізбен байланысыңыз",contactAddr:"📍 Алматы қ., Тимирязев к. 42",contactPhone:"📞 +7 (747) 584-25-25",
+    formatTitle:"Оқу қалай жүреді?",formatOnline:"GetCourse-та онлайн-сабақтар",formatOffline:"Алматыда оффлайн-сабақтар",formatIndiv:"Жеке тәсіл",formatGroup:"6-8 адамдық шағын топтар",
+    coursesEnroll:"Курсқа жазылу →",
+    faqParent:"Ата-аналарға:",faqKid:"Оқушыларға:",
+    diagAllTitle:"Сенің прогрессің"
+  }
+};
+const t=key=>T[S.lang][key]||T.ru[key]||key;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2200)}
+
+// ============================================================
+// NAV
+// ============================================================
+function goTab(tab){
+  S.tab=tab;
+  if(tab==='test'&&!S.testDone) S.screen='welcome';
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    const tabs=['home','test','diag','courses','ai'];
+    el.classList.toggle('active',tabs[i]===tab);
+    el.lastChild.textContent=t(tabs[i]);
+  });
+  renderTab();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderTab(){
+  const a=app();
+  switch(S.tab){
+    case'home':rHome(a);break;
+    case'test':renderTest();break;
+    case'diag':rDiag(a);break;
+    case'courses':rCourses(a);break;
+    case'ai':rAI(a);break;
+  }
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function rHome(a){
+  let reviewsH='';REVIEWS.forEach(r=>{
+    const txt=S.lang==='kz'?r.text_kz:r.text_ru;
+    const role=S.lang==='kz'?r.role_kz:r.role_ru;
+    reviewsH+=`<div class="review-card"><div class="rv-top"><div class="rv-avatar" style="background:${r.color}">${r.name[0]}</div><div><div class="rv-name">${S.lang==='kz'?r.nameKz:r.name}</div><div class="rv-role">${role}</div></div></div><div class="rv-stars">★★★★★</div><div class="rv-text">"${txt}"</div></div>`;
+  });
+  a.innerHTML=`<div style="text-align:center;padding:28px 0 12px">
+    <h1 class="section-title">${t('homeTitle')}</h1>
+    <p class="section-sub">${t('homeSub')}</p>
+  </div>
+  <div class="home-grid">
+    <div class="home-card" onclick="goTab('test')"><div class="hc-ic">🎯</div><h3>${t('testCard')}</h3><p>${t('testCardDesc')}</p>
+      <div class="hc-badge" style="background:#e0eeff;color:var(--dark)">24 ${S.lang==='kz'?'сұрақ':'вопроса'}</div></div>
+    <div class="home-card" onclick="goTab('diag')"><div class="hc-ic">📝</div><h3>${t('diagCard')}</h3><p>${t('diagCardDesc')}</p>
+      <div class="hc-badge" style="background:#e6f4d7;color:var(--green)">4 ${S.lang==='kz'?'пән':'предмета'}</div></div>
+    <div class="home-card" onclick="goTab('courses')"><div class="hc-ic">🎬</div><h3>${t('coursesCard')}</h3><p>${t('coursesCardDesc')}</p>
+      <div class="hc-badge" style="background:#fff3d0;color:#7a4800">GetCourse</div></div>
+    <div class="home-card" onclick="goTab('ai')"><div class="hc-ic">🤖</div><h3>${t('aiCard')}</h3><p>${t('aiCardDesc')}</p>
+      <div class="hc-badge" style="background:#ffe8e0;color:var(--red)">AI</div></div>
+    <div class="home-card full" onclick="S.tab='info';rInfo(app())"><div class="hc-ic">📖</div><h3>${t('infoCard')}</h3><p>${t('infoCardDesc')}</p></div>
+  </div>
+
+  <div class="about-block">
+    <h3>${t('aboutTitle')}</h3>
+    <p>${t('aboutText')}</p>
+    <div class="about-stats">
+      <div class="about-stat"><b>${t('aboutS1')}</b><small>${t('aboutS1l')}</small></div>
+      <div class="about-stat"><b>${t('aboutS2')}</b><small>${t('aboutS2l')}</small></div>
+      <div class="about-stat"><b>${t('aboutS3')}</b><small>${t('aboutS3l')}</small></div>
+      <div class="about-stat"><b>${t('aboutS4')}</b><small>${t('aboutS4l')}</small></div>
     </div>
-  </header>
+  </div>
 
-  <main class="page">
-    <section class="hero" id="intro-hero">
-      <h1 id="h-title">Найди своё направление</h1>
-      <p id="h-text">24 вопроса, 6 типов, результат с профессией и кружками.</p>
-      <div class="button-group">
-        <button class="btn btn-primary" id="start-btn">Начать тест</button>
-        <button class="btn btn-secondary" id="info-btn">Подробнее</button>
+  <div class="why">
+    <h3>${t('formatTitle')}</h3>
+    <div class="why-item"><div class="why-dot"></div>${t('formatOnline')}</div>
+    <div class="why-item"><div class="why-dot"></div>${t('formatOffline')}</div>
+    <div class="why-item"><div class="why-dot"></div>${t('formatIndiv')}</div>
+    <div class="why-item"><div class="why-dot"></div>${t('formatGroup')}</div>
+  </div>
+
+  <div class="reviews">
+    <h3 class="section-title" style="margin-bottom:14px">${t('reviewsTitle')}</h3>
+    ${reviewsH}
+  </div>
+
+  <div class="cta">
+    <h2>${t('ctaTitle')}</h2>
+    <p>${t('ctaSub')}</p>
+    <a href="https://wa.me/77475842525?text=${encodeURIComponent(S.lang==='kz'?'Сәлем! Aiplus Kids туралы білгім келеді':'Здравствуйте! Хочу узнать об Aiplus Kids')}" target="_blank">${t('ctaBtn')}</a>
+  </div>
+
+  <div class="contacts">
+    <h3>${t('contactsTitle')}</h3>
+    <div class="social-links">
+      <a class="social-btn ig" href="https://instagram.com/aiplus.kz" target="_blank">📸 Instagram</a>
+      <a class="social-btn tg" href="https://t.me/aiplus_kz" target="_blank">✈️ Telegram</a>
+      <a class="social-btn wa2" href="https://wa.me/77475842525" target="_blank">💬 WhatsApp</a>
+    </div>
+    <div class="contact-info">
+      ${t('contactAddr')}<br>${t('contactPhone')}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// TEST (proforientation)
+// ============================================================
+function renderTest(){
+  const a=app();
+  switch(S.screen){
+    case'welcome':rTestWelcome(a);break;
+    case'lang':rTestLang(a);break;
+    case'register':rTestReg(a);break;
+    case'quiz':rTestQuiz(a);break;
+    case'analyzing':rTestAnalyzing(a);break;
+    case'result':rTestResult(a);break;
+  }
+}
+function rTestWelcome(a){
+  a.innerHTML=`<div class="hero">
+    <div class="hero-tag">${t('heroTag')}</div>
+    <h1 class="hero-title">${t('heroTitle')}</h1>
+    <p class="hero-sub">${t('heroSub')}</p>
+    <div class="stats">
+      <div class="stat"><b>${t('s1')}</b><small>${t('s1l')}</small></div>
+      <div class="stat"><b>${t('s2')}</b><small>${t('s2l')}</small></div>
+      <div class="stat"><b>${t('s3')}</b><small>${t('s3l')}</small></div>
+    </div>
+    <button class="btn" onclick="S.screen='lang';renderTest()">${t('startBtn')}</button>
+  </div>`;
+}
+function rTestLang(a){
+  a.innerHTML=`<div class="lang-wrap"><h2 class="lang-title">${t('langTitle')}</h2>
+    <div class="lang-btns">
+      <div class="lang-btn" onclick="S.lang='kz';S.screen='register';goTab('test')"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
+      <div class="lang-btn" onclick="S.lang='ru';S.screen='register';goTab('test')"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
+    </div></div>`;
+}
+function rTestReg(a){
+  a.innerHTML=`<div class="card" style="max-width:440px;margin:32px auto;text-align:center">
+    <div style="display:inline-block;background:#e6f4d7;color:#2d7d46;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:14px">${t('regTag')}</div>
+    <h2 style="font-size:24px;font-weight:900;margin-bottom:6px">${t('regTitle')}</h2>
+    <p style="color:var(--muted);margin-bottom:22px;font-size:13px">${t('regSub')}</p>
+    <input class="inp" id="rname" placeholder="${t('regName')}">
+    <button class="btn" style="width:100%;margin-top:6px" onclick="startQuiz()">${t('regBtn')}</button></div>`;
+}
+function startQuiz(){
+  const name=$("rname").value.trim();
+  if(!name){alert(S.lang==='kz'?'Атыңды жаз!':'Напиши имя!');return}
+  S.user={name};S.idx=0;S.scores={people:0,research:0,tech:0,creative:0,nature:0,economy:0};
+  S.screen="quiz";renderTest();
+}
+function rTestQuiz(a){
+  if(S.idx>=QUESTIONS.length){S.screen="analyzing";renderTest();setTimeout(()=>{S.screen="result";S.testDone=true;renderTest()},2000);return}
+  const q=QUESTIONS[S.idx];const pct=Math.round(S.idx/QUESTIONS.length*100);
+  const qText=S.lang==='kz'?q.kz:q.ru;
+  let optsH='';q.opts.forEach((o,i)=>{
+    const txt=S.lang==='kz'?o.kz:o.ru;
+    optsH+=`<div class="opt" onclick="testAnswer('${o.cat}')"><div class="opt-let">${String.fromCharCode(65+i)}</div>${txt}</div>`;
+  });
+  a.innerHTML=`<div class="card" style="margin-top:16px">
+    <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
+    <div class="prog-info"><span>${t('diagQ')} ${S.idx+1} ${t('diagOf')} ${QUESTIONS.length}</span><span>${pct}%</span></div>
+    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>`;
+}
+function testAnswer(cat){S.scores[cat]++;S.idx++;rTestQuiz(app())}
+function rTestAnalyzing(a){
+  a.innerHTML=`<div class="loader"><div class="spinner"></div><h2>✅ ${t('analyzing')}</h2><p>${t('analyzeS')}</p></div>`;
+}
+function rTestResult(a){
+  const maxS=Math.max(...Object.values(S.scores));
+  const best=CAT_ORDER.find(k=>S.scores[k]===maxS)||"people";
+  S.bestCat=best;const res=RESULTS[best];const d=res[S.lang];
+  const total=Object.values(S.scores).reduce((a,b)=>a+b,0)||1;
+  const name=S.user.name||"";
+  let barsH='';CAT_ORDER.forEach(cat=>{const r=RESULTS[cat][S.lang];const pct=Math.round((S.scores[cat]/total)*100);
+    barsH+=`<div class="bar-row"><div class="bar-label"><span>${ICONS[cat]} ${r.label}</span><span>${pct}%</span></div><div class="bar-track"><div class="bar-fill b-${cat}" style="width:0" data-w="${pct}"></div></div></div>`;});
+  let proH='';d.career.forEach(p=>{proH+=`<div class="pro-item">${p}</div>`});
+  a.innerHTML=`<div class="result">
+    <div class="share-bar"><div class="lbl">${t('shareLabel')}</div><div class="share-btns">
+      <button class="btn-sm btn-copy" onclick="copyResult()">${t('copyBtn')}</button>
+      <button class="btn-sm btn-wa" onclick="shareWA()">${t('waBtn')}</button>
+      <button class="btn-sm btn-pdf" onclick="downloadPDF()">${t('pdfBtn')}</button></div></div>
+    <div class="slide"><div class="slide-hdr" style="background:${res.color}"><span>AIPLUS KIDS</span><span>${name.toUpperCase()}</span></div>
+      <div class="slide-body"><div class="slide-l"><div class="type-big">${res.icon}</div><div class="type-name">${d.title}</div>
+        <div class="type-label">${d.label}</div><div class="type-desc">${d.desc}</div></div>
+        <div class="slide-r"><div class="pro-label" style="background:${res.color}">${S.lang==='kz'?'ТОП МАМАНДЫҚТАР':'ТОП ПРОФЕССИИ'}</div>
+          <div class="pro-list">${proH}</div><div class="bars"><div class="bars-title">${S.lang==='kz'?'Бағыттар бойынша профиль':'Профиль по направлениям'}</div>${barsH}</div></div></div></div>
+    <div class="sec"><div class="sec-title">📚 ${S.lang==='kz'?'Не оқу керек':'Что учить'}</div><p style="font-size:14px;font-weight:600;line-height:1.7;margin-top:8px">${d.subjects}</p></div>
+    <div class="sec"><div class="sec-title">🎨 ${S.lang==='kz'?'Үйірмелер':'Кружки'}</div><p style="font-size:14px;font-weight:600;line-height:1.7;margin-top:8px">${d.clubs}</p></div>
+    <div class="sec"><div class="sec-title">👨‍👩‍👧 ${S.lang==='kz'?'Ата-аналарға':'Родителям'}</div>
+      <p style="font-size:13px;line-height:1.7;color:#555;margin-top:8px">${d.parent}</p>
+      <p style="font-size:13px;line-height:1.7;color:#555;margin-top:10px;padding:12px;background:#f0ede5;border-radius:10px;border-left:3px solid var(--accent)">💡 ${d.parentTip}</p></div>
+    <div class="disclaimer">${t('disclaimer')}</div>
+    <div style="text-align:center;margin-top:16px"><button class="btn-outline" onclick="S.screen='welcome';S.testDone=false;renderTest()">${t('restart')}</button></div></div>`;
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{document.querySelectorAll('.bar-fill[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%'})})});
+}
+function getResultText(){const best=S.bestCat||"people";const res=RESULTS[best];const d=res[S.lang];
+  return`${res.icon} ${d.title}\n\n${d.desc}\n\n${d.career.join(', ')}\n${d.subjects}\n${d.clubs}\n\n${S.user.name||''} — Aiplus Kids\n${SITE_URL}`}
+function copyResult(){navigator.clipboard.writeText(getResultText()).then(()=>toast(t('copied')))}
+function shareWA(){window.open("https://wa.me/?text="+encodeURIComponent(getResultText()),"_blank")}
+function downloadPDF(){const best=S.bestCat||"people";const res=RESULTS[best];const d=res[S.lang];const name=S.user.name||"";const cap=$("pdf-capture");
+  cap.innerHTML=`<div style="text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:3px solid ${res.color}"><h1 style="font-size:28px;font-weight:900">Aiplus Kids</h1><p style="color:#777;font-size:13px">${name}</p></div>
+    <div style="display:inline-block;padding:6px 16px;border-radius:999px;background:${res.color};color:#fff;font-weight:700;font-size:13px;margin-bottom:12px">${d.label}</div>
+    <h2 style="font-size:24px;font-weight:900;margin-bottom:10px">${res.icon} ${d.title}</h2><p style="color:#555;font-size:14px;line-height:1.6;margin-bottom:20px">${d.desc}</p>
+    <div style="text-align:center;color:#777;font-size:11px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,.08)">${SITE_URL}</div>`;
+  html2canvas(cap,{scale:2,useCORS:true,backgroundColor:"#fff"}).then(canvas=>{
+    const{jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");const w=pdf.internal.pageSize.getWidth();
+    pdf.addImage(canvas.toDataURL("image/png"),"PNG",0,0,w,(canvas.height*w)/canvas.width);
+    pdf.save("aiplus-kids-"+name+".pdf");cap.innerHTML="";})}
+
+// ============================================================
+// DIAGNOSTIC
+// ============================================================
+function rDiag(a){
+  if(S.diagSubject&&S.diagIdx<DIAG[S.diagSubject].questions.length) return rDiagQuiz(a);
+  if(S.diagSubject&&S.diagIdx>=DIAG[S.diagSubject].questions.length) return rDiagResult(a);
+  const subjects=Object.keys(DIAG);
+  let subH='';subjects.forEach(s=>{const d=DIAG[s][S.lang];const p=S.diagProgress[s];
+    const badge=p?`<div style="color:#f59e0b;font-size:10px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:10px;color:var(--muted)">10 ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
+    subH+=`<div class="diag-subject" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
+  a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2><p class="section-sub">${t('diagSub')}</p>
+    <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
+    <div class="diag-grid">${subH}</div></div>`;
+}
+function startDiag(subj){S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;rDiag(app())}
+function rDiagQuiz(a){
+  const qs=DIAG[S.diagSubject].questions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
+  const qText=S.lang==='kz'?q.kz:q.ru;
+  let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
+  a.innerHTML=`<div class="card" style="margin-top:16px">
+    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:12px" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button>
+    <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
+    <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
+    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>`;
+}
+function diagAnswer(chosen,correct){
+  if(S.diagAnswered)return;S.diagAnswered=true;
+  if(chosen===correct)S.diagScore++;
+  document.querySelectorAll('.diag-opt').forEach((el,i)=>{
+    if(i===correct)el.classList.add('correct');
+    else if(i===chosen)el.classList.add('wrong');
+    el.style.pointerEvents='none';});
+  setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
+}
+function rDiagResult(a){
+  const qs=DIAG[S.diagSubject].questions;const pct=Math.round(S.diagScore/qs.length*100);
+  let grade,msg,achievement;
+  if(pct>=90){grade="🏆";msg=t('diagExcellent');achievement=S.lang==='kz'?'🏆 Гений!':'🏆 Гений!'}
+  else if(pct>=80){grade="🌟";msg=t('diagExcellent');achievement=S.lang==='kz'?'🌟 Білімпаз!':'🌟 Отличник!'}
+  else if(pct>=60){grade="👍";msg=t('diagGood');achievement=S.lang==='kz'?'👍 Жақсы нәтиже!':'👍 Хороший результат!'}
+  else if(pct>=40){grade="📚";msg=t('diagNeed');achievement=S.lang==='kz'?'📚 Жаттығу керек':'📚 Нужна практика'}
+  else{grade="💪";msg=t('diagNeed');achievement=S.lang==='kz'?'💪 Қайтадан байқап көр!':'💪 Попробуй ещё раз!'}
+  const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
+  let starsH='';for(let i=0;i<5;i++){starsH+=`<div class="star ${i<starCount?'active':''}" style="animation-delay:${i*0.15}s">⭐</div>`}
+  // Save progress
+  if(!S.diagProgress)S.diagProgress={};
+  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount};
+  // Show all progress
+  let progressH='';const subjects=Object.keys(DIAG);
+  subjects.forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
+    progressH+=`<div class="subj-progress"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:10px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
+  a.innerHTML=`<div class="card diag-result" style="margin-top:20px">
+    <div class="diag-score">${S.diagScore}/${qs.length}</div>
+    <div class="stars-row">${starsH}</div>
+    <div class="achievement">${achievement}</div>
+    <div class="diag-grade">${pct}% — ${msg}</div>
+    <div style="margin-top:20px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4>
+      <div class="progress-subjects">${progressH}</div></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+      <button class="btn" onclick="startDiag('${S.diagSubject}')">${t('diagRetry')}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;rDiag(app())">${t('diagBack')}</button></div></div>`;
+}
+
+// ============================================================
+// COURSES
+// ============================================================
+function rCourses(a){
+  let html=`<div style="padding-top:20px"><h2 class="section-title">${t('coursesTitle')}</h2><p class="section-sub">${t('coursesSub')}</p>`;
+  COURSES.forEach(c=>{const d=c[S.lang];
+    let lessonsH='';d.lessons.forEach((l,i)=>{
+      lessonsH+=`<div class="lesson-item"><span class="li-play">▶</span><span>${i+1}. ${l}</span></div>`;});
+    const enrollMsg=encodeURIComponent(S.lang==='kz'?`Сәлем! "${d.name}" курсына жазылғым келеді`:`Здравствуйте! Хочу записаться на курс "${d.name}"`);
+    html+=`<div class="course-card"><div class="cc-top"><div class="cc-ic">${c.icon}</div><div><h4>${d.name}</h4><div class="cc-sub">${d.sub}</div></div></div>
+      <div class="cc-lessons">${lessonsH}</div>
+      <a href="https://wa.me/77475842525?text=${enrollMsg}" target="_blank" class="btn-accent" style="display:block;text-align:center;margin-top:12px;text-decoration:none;padding:12px">${t('coursesEnroll')}</a></div>`;});
+  html+=`<div style="text-align:center;margin-top:16px"><a href="https://aiplus.getcourse.ru" target="_blank" class="btn-accent">${t('coursesAll')}</a></div></div>`;
+  a.innerHTML=html;
+}
+
+// ============================================================
+// AI CHAT
+// ============================================================
+function rAI(a){
+  if(S.chatMessages.length===0) S.chatMessages=[{role:'bot',text:t('aiWelcome')}];
+  let msgsH='';S.chatMessages.forEach(m=>{msgsH+=`<div class="chat-msg ${m.role}">${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>`});
+  const parentFAQ=AI_FAQ.filter(f=>f.for==='parent');
+  const kidFAQ=AI_FAQ.filter(f=>f.for==='kid');
+  let faqH=`<div style="padding:0 16px 4px;font-size:10px;font-weight:700;color:var(--muted)">${t('faqParent')}</div><div class="chat-faq">`;
+  parentFAQ.forEach((f,i)=>{const idx=AI_FAQ.indexOf(f);const q=S.lang==='kz'?f.kz:f.ru;faqH+=`<div class="faq-btn" onclick="askFAQ(${idx})">${q}</div>`});
+  faqH+=`</div><div style="padding:4px 16px 4px;font-size:10px;font-weight:700;color:var(--muted)">${t('faqKid')}</div><div class="chat-faq">`;
+  kidFAQ.forEach((f,i)=>{const idx=AI_FAQ.indexOf(f);const q=S.lang==='kz'?f.kz:f.ru;faqH+=`<div class="faq-btn" onclick="askFAQ(${idx})">${q}</div>`});
+  faqH+=`</div>`;
+  a.innerHTML=`<div style="padding-top:12px">
+    <div class="chat-container">
+      <div class="chat-header"><div class="ch-dot"></div><div><h3>${t('aiTitle')}</h3><p>${t('aiSub')}</p></div></div>
+      <div class="chat-messages" id="chatMsgs">${msgsH}</div>
+      ${faqH}
+      <div class="chat-input-wrap">
+        <input class="chat-input" id="chatInput" placeholder="${t('aiPlaceholder')}" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">➤</button>
       </div>
-    </section>
+    </div></div>`;
+  const msgs=$("chatMsgs");if(msgs)msgs.scrollTop=msgs.scrollHeight;
+}
+function askFAQ(idx){
+  const f=AI_FAQ[idx];const q=S.lang==='kz'?f.kz:f.ru;const ans=S.lang==='kz'?f.answer_kz:f.answer_ru;
+  S.chatMessages.push({role:'user',text:q});S.chatMessages.push({role:'bot',text:ans});
+  rAI(app());
+}
+function sendChat(){
+  const input=$("chatInput");const text=input.value.trim();if(!text)return;
+  S.chatMessages.push({role:'user',text});
+  const lower=text.toLowerCase();
+  // Keyword matching with scoring
+  const KEYWORDS={
+    0:['ниш','нис','подготов','дайындау','поступ','түсу','назарбаев'],
+    1:['кружк','үйірме','секц','занят','сколько','неше'],
+    2:['мотив','ынта','учить','оқу','не хочет','оқымайды','лень','жалқау'],
+    3:['англ','english','ағылшын','язык','тіл'],
+    4:['ниш','бил','біл','отличи','айырма','разниц','сравн'],
+    5:['профес','мамандық','кем стать','кім бол','выбрать','таңда'],
+    6:['учить','оқу','лайфхак','совет','кеңес','как лучше','қалай'],
+    7:['олимпиад','соревн','жарыс']
+  };
+  let bestIdx=-1,bestScore=0;
+  Object.entries(KEYWORDS).forEach(([idx,words])=>{
+    let score=0;words.forEach(w=>{if(lower.includes(w))score++});
+    if(score>bestScore){bestScore=score;bestIdx=parseInt(idx)}
+  });
+  let answer;
+  if(bestIdx>=0&&bestIdx<AI_FAQ.length){
+    answer=S.lang==='kz'?AI_FAQ[bestIdx].answer_kz:AI_FAQ[bestIdx].answer_ru;
+  }else{
+    answer=S.lang==='kz'
+      ?'Рахмет сұрағыңыз үшін! Мен бұл сұраққа толық жауап бере алмаймын, бірақ төмендегі батырмалардан жиі қойылатын сұрақтарды таңдауға болады.\n\nНемесе Aiplus кеңесшісіне жазыңыз — **wa.me/77475842525** 📱'
+      :'Спасибо за вопрос! Я пока не могу дать точный ответ на этот вопрос, но попробуйте выбрать один из частых вопросов ниже.\n\nИли напишите консультанту Aiplus — **wa.me/77475842525** 📱';
+  }
+  S.chatMessages.push({role:'bot',text:answer});
+  rAI(app());
+}
 
-    <section class="card hidden" id="info-section">
-      <h2 id="info-title" style="margin-bottom:16px; font-size:20px;">Как это работает</h2>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
-        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
-          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-1-t">24 вопроса</h3>
-          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-1-d">Короткие и понятные, для 10-11 лет.</p>
-        </div>
-        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
-          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-2-t">6 направлений</h3>
-          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-2-d">Люди, исследование, техника, творчество, природа, экономика.</p>
-        </div>
-        <div style="padding:14px; background:#f7fcff; border-radius:10px; border:1px solid rgba(16,42,67,.08);">
-          <h3 style="font-size:14px; font-weight:700; margin-bottom:6px;" id="info-3-t">Результат</h3>
-          <p style="font-size:12px; color:var(--muted); line-height:1.5; margin:0;" id="info-3-d">Профессия, что учить, какие кружки.</p>
-        </div>
-      </div>
-    </section>
+// ============================================================
+// INFO / ARTICLES
+// ============================================================
+function rInfo(a){
+  if(S.articleOpen!==null) return rArticle(a);
+  let html=`<div style="padding-top:20px"><h2 class="section-title">${t('infoTitle')}</h2><p class="section-sub">${t('infoSub')}</p>`;
+  ARTICLES.forEach((art,i)=>{const d=art[S.lang];
+    html+=`<div class="article-card" onclick="S.articleOpen=${i};rInfo(app())">
+      <div class="ac-tag">${S.lang==='kz'?art.tagKz:art.tag}</div><h4>${d.title}</h4>
+      <p>${d.body.replace(/<[^>]*>/g,'').substring(0,100)}...</p></div>`;});
+  html+='</div>';a.innerHTML=html;
+}
+function rArticle(a){
+  const art=ARTICLES[S.articleOpen];const d=art[S.lang];
+  a.innerHTML=`<div style="padding-top:20px">
+    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:16px" onclick="S.articleOpen=null;rInfo(app())">${t('infoBack')}</button>
+    <div class="card"><div class="ac-tag" style="margin-bottom:12px">${S.lang==='kz'?art.tagKz:art.tag}</div>
+    <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">${d.title}</h2>
+    <div class="article-body">${d.body}</div></div></div>`;
+}
 
-    <section class="card hidden" id="test-section">
-      <div class="progress-wrap">
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-      </div>
-      <div class="question-card">
-        <div class="q-counter" id="q-counter">Вопрос 1 из 24</div>
-        <div class="q-text" id="q-text">...</div>
-        <div class="answers" id="answers"></div>
-      </div>
-    </section>
-
-    <section class="card hidden" id="result-section">
-      <div class="result-badge" id="result-badge">Направление</div>
-      <h2 class="result-title" id="result-title">...</h2>
-      <p class="result-desc" id="result-desc">...</p>
-      <div class="result-grid">
-        <div class="result-box">
-          <h4 id="result-career-l">Профессия</h4>
-          <p id="result-career">...</p>
-        </div>
-        <div class="result-box">
-          <h4 id="result-subjects-l">Что учить</h4>
-          <p id="result-subjects">...</p>
-        </div>
-        <div class="result-box">
-          <h4 id="result-clubs-l">Кружки</h4>
-          <p id="result-clubs">...</p>
-        </div>
-      </div>
-      <div class="button-group" style="margin-top:20px;">
-        <button class="btn btn-primary" id="retry-btn">Пройти снова</button>
-        <button class="btn btn-secondary" id="parents-btn">Родителям</button>
-      </div>
-    </section>
-
-    <section class="card hidden" id="parents-section">
-      <h2 style="margin-bottom:14px; font-size:20px;" id="parents-title">Совет для родителей</h2>
-      <p id="parents-text" style="margin-bottom:14px; color:var(--muted); line-height:1.7; font-size:14px;">...</p>
-      <div class="result-grid">
-        <div class="result-box">
-          <h4 id="parents-h1">Как помочь</h4>
-          <p id="parents-t1">...</p>
-        </div>
-        <div class="result-box">
-          <h4 id="parents-h2">Почему важно</h4>
-          <p id="parents-t2">...</p>
-        </div>
-      </div>
-      <div class="button-group" style="margin-top:16px;">
-        <button class="btn btn-secondary" id="back-btn">← Назад</button>
-      </div>
-    </section>
-
-    <div class="footer-note hidden" id="footer" style="margin-top:24px;"></div>
-  </main>
-
-  <script>
-    const DATA = {
-      ru: {
-        heroTitle: "Найди своё направление",
-        heroText: "24 вопроса, 6 типов, результат с профессией и кружками.",
-        startBtn: "Начать тест",
-        infoBtn: "Подробнее",
-        infoTitle: "Как это работает",
-        info1t: "24 вопроса", info1d: "Короткие и понятные, для 10-11 лет.",
-        info2t: "6 направлений", info2d: "Люди, исследование, техника, творчество, природа, экономика.",
-        info3t: "Результат", info3d: "Профессия, что учить, какие кружки.",
-        qCounter: "Вопрос {n} из 24",
-        resultBadge: "Направление",
-        resultCareerL: "Профессия",
-        resultSubjectsL: "Что учить",
-        resultClubsL: "Кружки",
-        retryBtn: "Пройти снова",
-        parentsBtn: "Родителям",
-        parentsTitle: "Совет для родителей",
-        parentsText: "Поддержите ребёнка, помогите пробовать разные занятия, не торопитесь с выбором.",
-        parentsH1: "Как помочь",
-        parentsT1: "Обсудите результаты, выберите кружок, посмотрите вместе мастер-классы.",
-        parentsH2: "Почему важно",
-        parentsT2: "В 10-11 лет развивать интересы важнее, чем выбирать профессию.",
-        backBtn: "← Назад к результату",
-        footer: "Тест даёт ориентир, но не заменяет живое общение с педагогом или карьерным консультантом.",
-        questions: [
-          { text: "Тебе нравится помогать друзьям?", answers: [
-            { text: "Да, очень", cat: "people" },
-            { text: "Скорее нет", cat: "research" },
-            { text: "Мне интереснее делать проекты", cat: "tech" }
-          ]},
-          { text: "Ты любишь рисовать или делать что-то руками?", answers: [
-            { text: "Рисовать", cat: "creative" },
-            { text: "Собирать модели", cat: "tech" },
-            { text: "Наблюдать и изучать", cat: "research" }
-          ]},
-          { text: "Какой кружок тебе нравится больше?", answers: [
-            { text: "Театр или пение", cat: "people" },
-            { text: "Робототехника", cat: "tech" },
-            { text: "Эко-клуб или туризм", cat: "nature" }
-          ]},
-          { text: "Тебе интересно, как устроен мир?", answers: [
-            { text: "Да, я люблю учиться", cat: "research" },
-            { text: "Скорее хочу творить", cat: "creative" },
-            { text: "Хочу считать и планировать", cat: "economy" }
-          ]},
-          { text: "На уроке ты предпочитаешь", answers: [
-            { text: "Говорить и обсуждать", cat: "people" },
-            { text: "Слушать рассказ", cat: "research" },
-            { text: "Собирать и строить", cat: "tech" }
-          ]},
-          { text: "Ты любишь организовывать игры?", answers: [
-            { text: "Да, люблю быть организатором", cat: "economy" },
-            { text: "Скорее придумать идею", cat: "creative" },
-            { text: "Люблю играть, а не организовывать", cat: "people" }
-          ]},
-          { text: "В свободное время", answers: [
-            { text: "Играю с друзьями", cat: "people" },
-            { text: "Читаю про природу", cat: "research" },
-            { text: "Мастерю или собираю", cat: "tech" }
-          ]},
-          { text: "Ты любишь придумывать истории?", answers: [
-            { text: "Да, очень", cat: "creative" },
-            { text: "Больше люблю решать задачи", cat: "research" },
-            { text: "Люблю планировать", cat: "economy" }
-          ]},
-          { text: "Ты предпочитаешь работать", answers: [
-            { text: "В группе с друзьями", cat: "people" },
-            { text: "Одному", cat: "research" },
-            { text: "С практическими вещами", cat: "tech" }
-          ]},
-          { text: "Тебе нравится ухаживать за животными?", answers: [
-            { text: "Да, очень", cat: "nature" },
-            { text: "Больше интересны книги", cat: "research" },
-            { text: "Хочу создавать проекты", cat: "tech" }
-          ]},
-          { text: "На перемене ты", answers: [
-            { text: "Гуляешь с друзьями", cat: "people" },
-            { text: "Изучаешь что-то новое", cat: "research" },
-            { text: "Играешь в активные игры", cat: "nature" }
-          ]},
-          { text: "Тебе нравится считать деньги в игре?", answers: [
-            { text: "Да", cat: "economy" },
-            { text: "Нет", cat: "creative" },
-            { text: "Больше люблю другое", cat: "people" }
-          ]},
-          { text: "На выставке в школе ты", answers: [
-            { text: "Показываешь свои поделки", cat: "creative" },
-            { text: "Рассказываешь про проект", cat: "research" },
-            { text: "Помогаешь приводить в порядок", cat: "people" }
-          ]},
-          { text: "Если выбирать профессию", answers: [
-            { text: "Помогать людям", cat: "people" },
-            { text: "Изучать новое", cat: "research" },
-            { text: "Делать руками", cat: "tech" }
-          ]},
-          { text: "Ты любишь планировать вечеринку?", answers: [
-            { text: "Да, люблю организовывать", cat: "economy" },
-            { text: "Скорее рисовать украшения", cat: "creative" },
-            { text: "Люблю быть гостем", cat: "people" }
-          ]},
-          { text: "Тебе важно, чтобы помогать", answers: [
-            { text: "Да, людям", cat: "people" },
-            { text: "Да, природе", cat: "nature" },
-            { text: "Да, улучшать что-то", cat: "economy" }
-          ]},
-          { text: "Ты любишь рисовать комиксы?", answers: [
-            { text: "Да", cat: "creative" },
-            { text: "Больше писать текст", cat: "research" },
-            { text: "Люблю программировать", cat: "tech" }
-          ]},
-          { text: "После школы ты ходишь", answers: [
-            { text: "Гулять в парк", cat: "nature" },
-            { text: "На кружок робототехники", cat: "tech" },
-            { text: "На занятие искусством", cat: "creative" }
-          ]},
-          { text: "Тебе легко объяснять друзьям?", answers: [
-            { text: "Да, очень", cat: "people" },
-            { text: "Люблю сначала все разобрать", cat: "research" },
-            { text: "Люблю показывать", cat: "tech" }
-          ]},
-          { text: "Ты ощущаешь себя лучше", answers: [
-            { text: "С друзьями", cat: "people" },
-            { text: "Со своими увлечениями", cat: "research" },
-            { text: "На природе", cat: "nature" }
-          ]},
-          { text: "В классе ты", answers: [
-            { text: "Рассказываешь идеи", cat: "people" },
-            { text: "Слушаешь внимательно", cat: "research" },
-            { text: "Помогаешь делать", cat: "tech" }
-          ]},
-          { text: "Ты хочешь в будущем", answers: [
-            { text: "Работать с людьми", cat: "people" },
-            { text: "Открывать новое", cat: "research" },
-            { text: "Создавать полезные вещи", cat: "tech" }
-          ]},
-          { text: "На выходе ты", answers: [
-            { text: "Играешь с друзьями", cat: "people" },
-            { text: "Читаешь или учусь", cat: "research" },
-            { text: "Конструирую или рисую", cat: "creative" }
-          ]},
-          { text: "Если ты видишь проблему", answers: [
-            { text: "Помогаешь человеку", cat: "people" },
-            { text: "Анализируешь причину", cat: "research" },
-            { text: "Организуешь помощь", cat: "economy" }
-          ]}
-        ],
-        results: {
-          people: {
-            label: "Работа с людьми",
-            title: "Тебе нравится людям помогать",
-            desc: "Ты общительный, любишь выступать и помогать друзьям. Это направление для педагогов, волонтеров, артистов.",
-            career: "Учитель, аниматор, волонтёр, организатор.",
-            subjects: "Казахский/русский, литература, обществознание, английский.",
-            clubs: "Театр, дебаты, волонтёрство, пресс-центр."
-          },
-          research: {
-            label: "Исследования",
-            title: "Тебе интересно узнавать новое",
-            desc: "Ты любишь учиться, задавать вопросы и находить ответы. Это направление для ученых, журналистов, аналитиков.",
-            career: "Научный сотрудник, журналист, исследователь, эколог.",
-            subjects: "Биология, география, математика, информатика.",
-            clubs: "Научный кружок, лаборатория, шахматы, экология."
-          },
-          tech: {
-            label: "Практика и техника",
-            title: "Ты любишь делать своими руками",
-            desc: "Ты конструируешь, собираешь, мастеришь. Это направление для инженеров, программистов, техников.",
-            career: "Робототехник, инженер, программист, техник.",
-            subjects: "Информатика, математика, физика, черчение.",
-            clubs: "Робототехника, конструирование, IT-клуб, мастерская."
-          },
-          creative: {
-            label: "Творчество",
-            title: "Ты любишь придумывать и творить",
-            desc: "Ты рисуешь, сочиняешь, поешь. Это направление для художников, дизайнеров, сценаристов.",
-            career: "Художник, дизайнер, писатель, актер.",
-            subjects: "ИЗО, музыка, литература, технология.",
-            clubs: "Рисование, театр, кино, медиа-клуб."
-          },
-          nature: {
-            label: "Природа и активность",
-            title: "Тебе нравится природа и движение",
-            desc: "Ты любишь гулять, заботиться о животных, быть активным. Это направление для экологов, тренеров, путешественников.",
-            career: "Эколог, тренер, экскурсовод, агроном.",
-            subjects: "Биология, география, физкультура, природоведение.",
-            clubs: "Экология, туризм, спорт, зооклуб."
-          },
-          economy: {
-            label: "Экономика и организация",
-            title: "Ты любишь планировать и организовывать",
-            desc: "Ты считаешь, планируешь, организуешь. Это направление для менеджеров, экономистов, организаторов.",
-            career: "Менеджер, организатор, экономист, бизнесмен.",
-            subjects: "Математика, информатика, обществознание, английский.",
-            clubs: "Школьный парламент, бизнес-клуб, проектный клуб."
-          }
-        }
-      },
-      kz: {
-        heroTitle: "Өз бағытыңды тап",
-        heroText: "24 сұрақ, 6 бағыт, нәтиже мамандық және үйірмелер бойынша.",
-        startBtn: "Тесті бастау",
-        infoBtn: "Толырақ",
-        infoTitle: "Қалай жұмыс істейді",
-        info1t: "24 сұрақ", info1d: "Қысқа және түсінікті, 10-11 жасқа арналған.",
-        info2t: "6 бағыт", info2d: "Адамдар, зерттеу, техника, шығармашылық, табиғат, экономика.",
-        info3t: "Нәтиже", info3d: "Мамандық, не оқу керек, қай үйірмелер.",
-        qCounter: "Сұрақ {n} бар 24",
-        resultBadge: "Бағыт",
-        resultCareerL: "Мамандық",
-        resultSubjectsL: "Не оқу керек",
-        resultClubsL: "Үйірмелер",
-        retryBtn: "Қайтадан өту",
-        parentsBtn: "Ата-аналарға",
-        parentsTitle: "Ата-аналарға кеңес",
-        parentsText: "Балаға қолдау көрсетіңіз, түрлі занятиялар өндіктелеу, асықпаңыз.",
-        parentsH1: "Қалай көмектесу",
-        parentsT1: "Нәтижелерді талқылаңыз, үйірме таңдауға көмектесіңіз, бірге қараңыз.",
-        parentsH2: "Неліктен маңызды",
-        parentsT2: "10-11 жаста мамандық таңдаудан интересті дамыту маңыздырақ.",
-        backBtn: "← Нәтижеге қайту",
-        footer: "Тест бағыт береді, бірақ педагог немесе кеңесшімен сөйлесудің орнына келмейді.",
-        questions: [],
-        results: {}
-      }
-    };
-
-    const state = {
-      lang: "ru",
-      index: 0,
-      scores: { people: 0, research: 0, tech: 0, creative: 0, nature: 0, economy: 0 }
-    };
-
-    const els = {
-      hTitle: document.getElementById("h-title"),
-      hText: document.getElementById("h-text"),
-      startBtn: document.getElementById("start-btn"),
-      infoBtn: document.getElementById("info-btn"),
-      introHero: document.getElementById("intro-hero"),
-      infoSection: document.getElementById("info-section"),
-      testSection: document.getElementById("test-section"),
-      resultSection: document.getElementById("result-section"),
-      parentsSection: document.getElementById("parents-section"),
-      qCounter: document.getElementById("q-counter"),
-      qText: document.getElementById("q-text"),
-      answers: document.getElementById("answers"),
-      progressFill: document.querySelector(".progress-fill"),
-      resultBadge: document.getElementById("result-badge"),
-      resultTitle: document.getElementById("result-title"),
-      resultDesc: document.getElementById("result-desc"),
-      resultCareer: document.getElementById("result-career"),
-      resultSubjects: document.getElementById("result-subjects"),
-      resultClubs: document.getElementById("result-clubs"),
-      retryBtn: document.getElementById("retry-btn"),
-      parentsBtn: document.getElementById("parents-btn"),
-      backBtn: document.getElementById("back-btn"),
-      footer: document.getElementById("footer"),
-      langBtns: document.querySelectorAll("[data-lang]")
-    };
-
-    function setLang(lang) {
-      state.lang = lang;
-      els.langBtns.forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
-      const txt = DATA[lang];
-      document.getElementById("h-title").textContent = txt.heroTitle;
-      document.getElementById("h-text").textContent = txt.heroText;
-      document.getElementById("start-btn").textContent = txt.startBtn;
-      document.getElementById("info-btn").textContent = txt.infoBtn;
-      document.getElementById("info-title").textContent = txt.infoTitle;
-      document.getElementById("info-1-t").textContent = txt.info1t;
-      document.getElementById("info-1-d").textContent = txt.info1d;
-      document.getElementById("info-2-t").textContent = txt.info2t;
-      document.getElementById("info-2-d").textContent = txt.info2d;
-      document.getElementById("info-3-t").textContent = txt.info3t;
-      document.getElementById("info-3-d").textContent = txt.info3d;
-      document.getElementById("result-badge").textContent = txt.resultBadge;
-      document.getElementById("result-career-l").textContent = txt.resultCareerL;
-      document.getElementById("result-subjects-l").textContent = txt.resultSubjectsL;
-      document.getElementById("result-clubs-l").textContent = txt.resultClubsL;
-      document.getElementById("retry-btn").textContent = txt.retryBtn;
-      document.getElementById("parents-btn").textContent = txt.parentsBtn;
-      document.getElementById("parents-title").textContent = txt.parentsTitle;
-      document.getElementById("parents-text").textContent = txt.parentsText;
-      document.getElementById("parents-h1").textContent = txt.parentsH1;
-      document.getElementById("parents-t1").textContent = txt.parentsT1;
-      document.getElementById("parents-h2").textContent = txt.parentsH2;
-      document.getElementById("parents-t2").textContent = txt.parentsT2;
-      document.getElementById("back-btn").textContent = txt.backBtn;
-      els.footer.textContent = txt.footer;
-      if (!els.testSection.classList.contains("hidden")) renderQ();
-    }
-
-    function hide(el) { el.classList.add("hidden"); }
-    function show(el) { el.classList.remove("hidden"); }
-
-    function startTest() {
-      state.index = 0;
-      state.scores = { people: 0, research: 0, tech: 0, creative: 0, nature: 0, economy: 0 };
-      hide(els.introHero);
-      hide(els.infoSection);
-      hide(els.resultSection);
-      hide(els.parentsSection);
-      show(els.testSection);
-      renderQ();
-    }
-
-    function renderQ() {
-      const qs = DATA[state.lang].questions || DATA.ru.questions;
-      if (state.index >= qs.length) return showResult();
-      const q = qs[state.index];
-      const txt = DATA[state.lang];
-      els.qCounter.textContent = txt.qCounter.replace("{n}", state.index + 1);
-      els.qText.textContent = q.text;
-      els.answers.innerHTML = "";
-      q.answers.forEach((a, i) => {
-        const btn = document.createElement("button");
-        btn.className = "answer-btn";
-        btn.textContent = (String.fromCharCode(65 + i) + ". " + a.text);
-        btn.onclick = () => { state.scores[a.cat]++; state.index++; renderQ(); };
-        els.answers.appendChild(btn);
-      });
-      const pct = Math.round((state.index / qs.length) * 100);
-      els.progressFill.style.width = pct + "%";
-    }
-
-    function showResult() {
-      const txt = DATA[state.lang];
-      const cats = Object.keys(state.scores);
-      const best = cats.reduce((top, k) => state.scores[k] > state.scores[top] ? k : top);
-      const res = txt.results[best];
-      els.resultBadge.textContent = res.label;
-      els.resultTitle.textContent = res.title;
-      els.resultDesc.textContent = res.desc;
-      els.resultCareer.textContent = res.career;
-      els.resultSubjects.textContent = res.subjects;
-      els.resultClubs.textContent = res.clubs;
-      hide(els.testSection);
-      show(els.resultSection);
-      show(els.footer);
-    }
-
-    els.langBtns.forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
-    els.startBtn.addEventListener("click", startTest);
-    els.infoBtn.addEventListener("click", () => { hide(els.introHero); show(els.infoSection); });
-    els.retryBtn.addEventListener("click", startTest);
-    els.parentsBtn.addEventListener("click", () => { hide(els.resultSection); show(els.parentsSection); });
-    els.backBtn.addEventListener("click", () => { hide(els.parentsSection); show(els.resultSection); });
-
-    setLang("ru");
-  </script>
+// ============================================================
+// INIT
+// ============================================================
+goTab('home');
+</script>
 </body>
 </html>
-```
