@@ -1040,12 +1040,23 @@ function testAnswer(cat){S.scores[cat]++;S.idx++;rTestQuiz(app())}
 function rTestAnalyzing(a){
   a.innerHTML=`<div class="loader"><div class="spinner"></div><h2>✅ ${t('analyzing')}</h2><p>${t('analyzeS')}</p></div>`;
 }
+function sendTestToSheets(){
+  if(!SHEETS_URL)return;
+  const best=S.bestCat||'people';const res=RESULTS[best];const d=res[S.lang];
+  const params=new URLSearchParams();
+  params.append('name',S.user.name||'');params.append('phone','');
+  params.append('grade','');params.append('subject','Профориентация');
+  params.append('score',S.scores[best]||0);params.append('total',24);
+  params.append('percent',Math.round((S.scores[best]/(Object.values(S.scores).reduce((a,b)=>a+b,0)||1))*100));
+  params.append('rank',d.label);params.append('maxStreak',0);params.append('completed','true');
+  const img=new Image();img.src=SHEETS_URL+'?'+params.toString();}
 function rTestResult(a){
   const maxS=Math.max(...Object.values(S.scores));
   const best=CAT_ORDER.find(k=>S.scores[k]===maxS)||"people";
   S.bestCat=best;const res=RESULTS[best];const d=res[S.lang];
   const total=Object.values(S.scores).reduce((a,b)=>a+b,0)||1;
   const name=S.user.name||"";
+  sendTestToSheets();
   let barsH='';CAT_ORDER.forEach(cat=>{const r=RESULTS[cat][S.lang];const pct=Math.round((S.scores[cat]/total)*100);
     barsH+=`<div class="bar-row"><div class="bar-label"><span>${ICONS[cat]} ${r.label}</span><span>${pct}%</span></div><div class="bar-track"><div class="bar-fill b-${cat}" style="width:0" data-w="${pct}"></div></div></div>`;});
   let proH='';d.career.forEach(p=>{proH+=`<div class="pro-item">${p}</div>`});
