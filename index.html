@@ -467,7 +467,7 @@ const S={
   tab:"home",screen:"welcome",lang:"ru",idx:0,
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
-  diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},diagLives:3,diagGameOver:false,diagName:null,diagPhone:null,diagQuestions:null,
+  diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},diagLives:3,diagGameOver:false,diagAnswers:[],diagName:null,diagPhone:null,diagQuestions:null,
   chatMessages:[],articleOpen:null,olympStudent:null
 };
 const $=id=>document.getElementById(id);
@@ -538,6 +538,30 @@ const RESULTS={
 // ============================================================
 // DIAGNOSTIC QUESTIONS
 // ============================================================
+
+const TOPIC_LABELS={
+  // Math topics
+  order_ops:{ru:"Порядок действий",kz:"Амалдардың реті",icon:"🔢",tip:{ru:"Повторите правила: скобки → умножение/деление → сложение/вычитание",kz:"Ережелерді қайталаңыз: жақшалар → көбейту/бөлу → қосу/азайту"}},
+  multiply:{ru:"Умножение",kz:"Көбейту",icon:"✖️",tip:{ru:"Тренируйте таблицу умножения и умножение столбиком",kz:"Көбейту кестесін және бағанмен көбейтуді жаттығыңыз"}},
+  fractions:{ru:"Дроби",kz:"Бөлшектер",icon:"½",tip:{ru:"Начните с простых дробей, затем переходите к сложению и вычитанию",kz:"Қарапайым бөлшектерден бастаңыз, содан кейін қосу мен азайтуға көшіңіз"}},
+  percent:{ru:"Проценты",kz:"Пайыздар",icon:"%",tip:{ru:"Запомните: 1% = 1/100. Найти X% от числа = число × X ÷ 100",kz:"Есте сақтаңыз: 1% = 1/100. Санның X%-ін табу = сан × X ÷ 100"}},
+  geometry:{ru:"Геометрия",kz:"Геометрия",icon:"📐",tip:{ru:"Формулы: площадь = a×b, периметр = 2(a+b), периметр квадрата = 4a",kz:"Формулалар: аудан = a×b, периметр = 2(a+b), шаршы периметрі = 4a"}},
+  algebra:{ru:"Алгебра",kz:"Алгебра",icon:"🔤",tip:{ru:"Приведение подобных: коэффициенты складываются, буква остаётся",kz:"Ұқсас мүшелерді біріктіру: коэффициенттер қосылады, әріп қалады"}},
+  decimals:{ru:"Десятичные дроби",kz:"Ондық бөлшектер",icon:"0️⃣",tip:{ru:"При умножении десятичных: перемножьте как целые, потом поставьте запятую",kz:"Ондық бөлшектерді көбейтуде: бүтін сандар сияқты көбейтіп, үтірді қойыңыз"}},
+  // English topics
+  basic_grammar:{ru:"Базовая грамматика",kz:"Негізгі грамматика",icon:"📝",tip:{ru:"Повторите личные местоимения и базовые конструкции",kz:"Жіктеу есімдіктерін және негізгі құрылымдарды қайталаңыз"}},
+  basic_vocab:{ru:"Базовая лексика",kz:"Негізгі лексика",icon:"📖",tip:{ru:"Учите слова по темам: цвета, числа, месяцы, животные",kz:"Сөздерді тақырып бойынша үйреніңіз: түстер, сандар, айлар"}},
+  questions:{ru:"Вопросительные предложения",kz:"Сұраулы сөйлемдер",icon:"❓",tip:{ru:"Who/What/Where/When/How — запомните порядок слов в вопросах",kz:"Who/What/Where/When/How — сұрақтардағы сөз ретін есте сақтаңыз"}},
+  pronouns:{ru:"Местоимения",kz:"Есімдіктер",icon:"👤",tip:{ru:"my/your/his/her/its/our/their — притяжательные местоимения",kz:"my/your/his/her/its/our/their — тәуелдік есімдіктер"}},
+  to_be:{ru:"Глагол to be",kz:"To be етістігі",icon:"🔵",tip:{ru:"I am, you/we/they are, he/she/it is",kz:"I am, you/we/they are, he/she/it is"}},
+  there_is:{ru:"There is/are",kz:"There is/are",icon:"📍",tip:{ru:"There is + единственное число, There are + множественное",kz:"There is + жекеше, There are + көпше"}},
+  present_simple:{ru:"Present Simple",kz:"Present Simple",icon:"🔄",tip:{ru:"Do/Does для вопросов. He/She + глагол с -s/-es",kz:"Сұрақтар үшін Do/Does. He/She + етістік -s/-es"}},
+  present_cont:{ru:"Present Continuous",kz:"Present Continuous",icon:"⏳",tip:{ru:"am/is/are + глагол-ing. Действие происходит сейчас",kz:"am/is/are + етістік-ing. Қазір болып жатқан әрекет"}},
+  modals:{ru:"Модальные глаголы",kz:"Модальды етістіктер",icon:"🔑",tip:{ru:"must/have to/should/can/could — запомните разницу",kz:"must/have to/should/can/could — айырмашылықты есте сақтаңыз"}},
+  vocabulary:{ru:"Продвинутая лексика",kz:"Кеңейтілген лексика",icon:"📚",tip:{ru:"Читайте тексты на английском, выписывайте новые слова",kz:"Ағылшынша мәтіндер оқыңыз, жаңа сөздерді жазып алыңыз"}},
+  past_tenses:{ru:"Прошедшее время",kz:"Өткен шақ",icon:"⏪",tip:{ru:"Past Simple vs Past Continuous: was/were + -ing для длительного действия",kz:"Past Simple vs Past Continuous: was/were + -ing ұзақ әрекет үшін"}},
+  perfect_tenses:{ru:"Perfect времена",kz:"Perfect шақтар",icon:"✅",tip:{ru:"Have/has + V3. Present Perfect — связь прошлого с настоящим",kz:"Have/has + V3. Present Perfect — өткен мен қазіргінің байланысы"}}
+};
 const GRADE_LABELS={'3-4':{ru:'3 → 4 класс',kz:'3 → 4 сынып'},'4':{ru:'4 класс',kz:'4 сынып'},'5':{ru:'5 класс',kz:'5 сынып'},'6':{ru:'6 класс',kz:'6 сынып'}};
 const DIAG={
 // ===== 3-4 КЛАСС: МАТЕМАТИКА =====
@@ -645,39 +669,39 @@ g4_eng:{grade:'4',ru:{name:"English",icon:"🇬🇧"},kz:{name:"English",icon:"�
 ]},
 // ===== 5 КЛАСС: МАТЕМАТИКА =====
 g5_math:{grade:'5',ru:{name:"Математика",icon:"📐"},kz:{name:"Математика",icon:"📐"},questions:[
-{ru:"Вычислите: (48 − 12) : 6",kz:"Есептеңіз: (48 − 12) : 6",opts:["4","6","8","5"],correct:1},
-{ru:"Вычислите: 9 × 8 + 63 : 7",kz:"Есептеңіз: 9 × 8 + 63 : 7",opts:["72","81","75","79"],correct:1},
-{ru:"Вычислите: 12 × 11 − 32",kz:"Есептеңіз: 12 × 11 − 32",opts:["100","110","88","132"],correct:0},
-{ru:"Вычислите: 576 × 916",kz:"Есептеңіз: 576 × 916",opts:["527 616","527 716","528 616","529 616"],correct:0},
-{ru:"Чему равно 3/5 + 1/5?",kz:"3/5 + 1/5 нешеге тең?",opts:["2/5","4/5","4/10","1"],correct:1},
-{ru:"Найдите 25% от 80",kz:"80-нің 25%-ін табыңыз",opts:["15","20","25","40"],correct:1},
-{ru:"Площадь прямоугольника 6×8 см:",kz:"6×8 см тіктөртбұрыш ауданы:",opts:["42 см²","48 см²","56 см²","36 см²"],correct:1},
-{ru:"Упростите: 2а + 3а",kz:"Жеңілдетіңіз: 2а + 3а",opts:["5а","6а","5а²","23а"],correct:0},
-{ru:"Периметр квадрата со стороной 9 см:",kz:"Қабырғасы 9 см шаршы периметрі:",opts:["27 см","36 см","81 см","18 см"],correct:1},
-{ru:"Чему равно 0,5 × 0,4?",kz:"0,5 × 0,4 нешеге тең?",opts:["0,2","0,9","2,0","0,02"],correct:0}
+{ru:"Вычислите: (48 − 12) : 6",kz:"Есептеңіз: (48 − 12) : 6",opts:["4","6","8","5"],correct:1,topic:"order_ops"},
+{ru:"Вычислите: 9 × 8 + 63 : 7",kz:"Есептеңіз: 9 × 8 + 63 : 7",opts:["72","81","75","79"],correct:1,topic:"order_ops"},
+{ru:"Вычислите: 12 × 11 − 32",kz:"Есептеңіз: 12 × 11 − 32",opts:["100","110","88","132"],correct:0,topic:"multiply"},
+{ru:"Вычислите: 576 × 916",kz:"Есептеңіз: 576 × 916",opts:["527 616","527 716","528 616","529 616"],correct:0,topic:"multiply"},
+{ru:"Чему равно 3/5 + 1/5?",kz:"3/5 + 1/5 нешеге тең?",opts:["2/5","4/5","4/10","1"],correct:1,topic:"fractions"},
+{ru:"Найдите 25% от 80",kz:"80-нің 25%-ін табыңыз",opts:["15","20","25","40"],correct:1,topic:"percent"},
+{ru:"Площадь прямоугольника 6×8 см:",kz:"6×8 см тіктөртбұрыш ауданы:",opts:["42 см²","48 см²","56 см²","36 см²"],correct:1,topic:"geometry"},
+{ru:"Упростите: 2а + 3а",kz:"Жеңілдетіңіз: 2а + 3а",opts:["5а","6а","5а²","23а"],correct:0,topic:"algebra"},
+{ru:"Периметр квадрата со стороной 9 см:",kz:"Қабырғасы 9 см шаршы периметрі:",opts:["27 см","36 см","81 см","18 см"],correct:1,topic:"geometry"},
+{ru:"Чему равно 0,5 × 0,4?",kz:"0,5 × 0,4 нешеге тең?",opts:["0,2","0,9","2,0","0,02"],correct:0,topic:"decimals"}
 ]},
 // ===== 5 КЛАСС: ENGLISH =====
 g5_eng:{grade:'5',ru:{name:"English",icon:"🇬🇧"},kz:{name:"English",icon:"🇬🇧"},questions:[
-{ru:"What is your name? — ___ is Ann.",kz:"What is your name? — ___ is Ann.",opts:["My name","I name","She name","Me name"],correct:0},
-{ru:"Continue: three, four, five, ___",kz:"Continue: three, four, five, ___",opts:["seven","six","eight","nine"],correct:1},
-{ru:"What color is a tiger?",kz:"What color is a tiger?",opts:["Black and white","Orange and black","Brown and white","Yellow and red"],correct:1},
-{ru:"Months of spring:",kz:"Months of spring:",opts:["March, April, May","June, July, August","Sep, Oct, Nov","Dec, Jan, Feb"],correct:0},
-{ru:"___? — I'm a pilot.",kz:"___? — I'm a pilot.",opts:["How are you","Who are you","Where are you","What are you doing"],correct:1},
-{ru:"This is Anna. This is ___ favorite book.",kz:"This is Anna. This is ___ favorite book.",opts:["she","hers","her","its"],correct:2},
-{ru:"I ___ a student. Mom and dad ___ at work.",kz:"I ___ a student. Mom and dad ___ at work.",opts:["am, are","is, are","am, is","are, am"],correct:0},
-{ru:"You use it when it is raining:",kz:"You use it when it is raining:",opts:["umbrella","watch","laptop","wallet"],correct:0},
-{ru:"big — small, black — white, expensive — ___",kz:"big — small, black — white, expensive — ___",opts:["rich","cheap","poor","free"],correct:1},
-{ru:"___ any games on your phone?",kz:"___ any games on your phone?",opts:["Are there","Is there","Do there","Have there"],correct:0},
-{ru:"What ___ you ___ in your free time? I ___ games.",kz:"What ___ you ___ in free time?",opts:["do, do, play","are, do, play","do, doing, playing","does, do, plays"],correct:0},
-{ru:"Where ___ she study?",kz:"Where ___ she study?",opts:["does","do","is","are"],correct:0},
-{ru:"___ you like ___ biscuit? — Yes, please.",kz:"___ you like ___ biscuit?",opts:["Would, a","Do, a","Would, the","Do, the"],correct:0},
-{ru:"Peter ___ his hair now. He ___ it every day.",kz:"Peter ___ his hair now. He ___ it every day.",opts:["is washing, washes","washes, is washing","washing, wash","wash, washing"],correct:0},
-{ru:"You ___ pay, it's free. But you ___ wear a mask.",kz:"You ___ pay, it's free. But you ___ wear a mask.",opts:["don't have to, must","mustn't, can","can't, should","don't need, might"],correct:0},
-{ru:"Synonym of 'awful':",kz:"Synonym of 'awful':",opts:["Terrible","Pretty","Wonderful","Amazing"],correct:0},
-{ru:"She ___ letters yesterday at 5 p.m.",kz:"She ___ letters yesterday at 5 p.m.",opts:["was writing","wrote","has written","is writing"],correct:0},
-{ru:"Choose a dairy product:",kz:"Choose a dairy product:",opts:["cheese","chicken","cabbage","flour"],correct:0},
-{ru:"Sorry I'm late. ___ for a long time?",kz:"Sorry I'm late. ___ for a long time?",opts:["Have you been waiting","Did you wait","Are you waiting","Do you wait"],correct:0},
-{ru:"The act of leaving or going away:",kz:"The act of leaving or going away:",opts:["departure","arrival","check in","customs"],correct:0}
+{ru:"What is your name? — ___ is Ann.",kz:"What is your name? — ___ is Ann.",opts:["My name","I name","She name","Me name"],correct:0,topic:"basic_grammar"},
+{ru:"Continue: three, four, five, ___",kz:"Continue: three, four, five, ___",opts:["seven","six","eight","nine"],correct:1,topic:"basic_vocab"},
+{ru:"What color is a tiger?",kz:"What color is a tiger?",opts:["Black and white","Orange and black","Brown and white","Yellow and red"],correct:1,topic:"basic_vocab"},
+{ru:"Months of spring:",kz:"Months of spring:",opts:["March, April, May","June, July, August","Sep, Oct, Nov","Dec, Jan, Feb"],correct:0,topic:"basic_vocab"},
+{ru:"___? — I'm a pilot.",kz:"___? — I'm a pilot.",opts:["How are you","Who are you","Where are you","What are you doing"],correct:1,topic:"questions"},
+{ru:"This is Anna. This is ___ favorite book.",kz:"This is Anna. This is ___ favorite book.",opts:["she","hers","her","its"],correct:2,topic:"pronouns"},
+{ru:"I ___ a student. Mom and dad ___ at work.",kz:"I ___ a student. Mom and dad ___ at work.",opts:["am, are","is, are","am, is","are, am"],correct:0,topic:"to_be"},
+{ru:"You use it when it is raining:",kz:"You use it when it is raining:",opts:["umbrella","watch","laptop","wallet"],correct:0,topic:"basic_vocab"},
+{ru:"big — small, black — white, expensive — ___",kz:"big — small, black — white, expensive — ___",opts:["rich","cheap","poor","free"],correct:1,topic:"vocabulary"},
+{ru:"___ any games on your phone?",kz:"___ any games on your phone?",opts:["Are there","Is there","Do there","Have there"],correct:0,topic:"there_is"},
+{ru:"What ___ you ___ in your free time? I ___ games.",kz:"What ___ you ___ in free time?",opts:["do, do, play","are, do, play","do, doing, playing","does, do, plays"],correct:0,topic:"present_simple"},
+{ru:"Where ___ she study?",kz:"Where ___ she study?",opts:["does","do","is","are"],correct:0,topic:"present_simple"},
+{ru:"___ you like ___ biscuit? — Yes, please.",kz:"___ you like ___ biscuit?",opts:["Would, a","Do, a","Would, the","Do, the"],correct:0,topic:"modals"},
+{ru:"Peter ___ his hair now. He ___ it every day.",kz:"Peter ___ his hair now. He ___ it every day.",opts:["is washing, washes","washes, is washing","washing, wash","wash, washing"],correct:0,topic:"present_cont"},
+{ru:"You ___ pay, it's free. But you ___ wear a mask.",kz:"You ___ pay, it's free. But you ___ wear a mask.",opts:["don't have to, must","mustn't, can","can't, should","don't need, might"],correct:0,topic:"modals"},
+{ru:"Synonym of 'awful':",kz:"Synonym of 'awful':",opts:["Terrible","Pretty","Wonderful","Amazing"],correct:0,topic:"vocabulary"},
+{ru:"She ___ letters yesterday at 5 p.m.",kz:"She ___ letters yesterday at 5 p.m.",opts:["was writing","wrote","has written","is writing"],correct:0,topic:"past_tenses"},
+{ru:"Choose a dairy product:",kz:"Choose a dairy product:",opts:["cheese","chicken","cabbage","flour"],correct:0,topic:"vocabulary"},
+{ru:"Sorry I'm late. ___ for a long time?",kz:"Sorry I'm late. ___ for a long time?",opts:["Have you been waiting","Did you wait","Are you waiting","Do you wait"],correct:0,topic:"perfect_tenses"},
+{ru:"The act of leaving or going away:",kz:"The act of leaving or going away:",opts:["departure","arrival","check in","customs"],correct:0,topic:"vocabulary"}
 ]},
 // ===== 6 КЛАСС: МАТЕМАТИКА =====
 g6_math:{grade:'6',ru:{name:"Математика",icon:"📐"},kz:{name:"Математика",icon:"📐"},questions:[
@@ -1330,7 +1354,7 @@ function setDiagName(){
   rDiag(app())}
 function startDiag(subj){
   S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;
-  S.diagStreak=0;S.diagMaxStreak=0;S.diagLives=3;S.diagGameOver=false;
+  S.diagStreak=0;S.diagMaxStreak=0;S.diagLives=3;S.diagGameOver=false;S.diagAnswers=[];
   S.diagQuestions=shuffle(DIAG[subj].questions);
   rDiag(app())}
 function rDiagQuiz(a){
@@ -1353,6 +1377,7 @@ function rDiagQuiz(a){
 function diagAnswer(chosen,correct){
   if(S.diagAnswered)return;S.diagAnswered=true;
   const isCorrect=chosen===correct;
+  S.diagAnswers.push({idx:S.diagIdx,correct:isCorrect,topic:S.diagQuestions[S.diagIdx].topic||null});
   if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;
     playSound(S.diagStreak>=3?'streak':'correct')}
   else{S.diagStreak=0;S.diagLives--;playSound(S.diagLives<=0?'gameover':'wrong');
@@ -1391,8 +1416,87 @@ function rDiagGameOver(a){
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
       <button class="btn-sm" style="background:var(--dark);color:#fff" onclick="generateDiagPDF()">📄 ${S.lang==='kz'?'PDF жүктеу':'Скачать PDF'}</button>
       <button class="btn-sm" style="background:#25d366;color:#fff" onclick="shareDiagPDF()">💬 WhatsApp</button>
-    </div></div>`;
+    </div>${renderGapAnalysis()}</div>`;
 }
+
+function getGapAnalysis(){
+  if(!S.diagAnswers||S.diagAnswers.length===0) return [];
+  const topics={};
+  S.diagAnswers.forEach(a=>{
+    const t=a.topic||'other';
+    if(!topics[t])topics[t]={total:0,correct:0,topic:t};
+    topics[t].total++;
+    if(a.correct)topics[t].correct++;
+  });
+  return Object.values(topics).map(t=>{
+    t.pct=Math.round(t.correct/t.total*100);
+    t.label=TOPIC_LABELS[t.topic]||{ru:t.topic,kz:t.topic,icon:'📌',tip:{ru:'',kz:''}};
+    return t;
+  }).sort((a,b)=>a.pct-b.pct);
+}
+
+function renderGapAnalysis(){
+  const gaps=getGapAnalysis();
+  if(gaps.length===0) return '';
+  const isKz=S.lang==='kz';
+  const weak=gaps.filter(g=>g.pct<100);
+  const strong=gaps.filter(g=>g.pct===100);
+  
+  let h=`<div class="card" style="margin-top:14px">
+    <h3 style="font-size:16px;font-weight:900;margin-bottom:14px">${isKz?'📊 Тақырып бойынша талдау':'📊 Анализ по темам'}</h3>`;
+  
+  if(weak.length>0){
+    h+=`<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">${isKz?'⚠️ Пробелдер:':'⚠️ Пробелы:'}</div>`;
+    weak.forEach(g=>{
+      const barColor=g.pct>=50?'#d97706':'#dc2626';
+      const tip=isKz?g.label.tip.kz:g.label.tip.ru;
+      h+=`<div style="margin-bottom:12px;padding:12px;background:#fef2f2;border-radius:10px;border-left:4px solid ${barColor}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-weight:700;font-size:13px">${g.label.icon} ${isKz?g.label.kz:g.label.ru}</span>
+          <span style="font-weight:800;font-size:13px;color:${barColor}">${g.correct}/${g.total}</span>
+        </div>
+        <div style="height:6px;background:#fecaca;border-radius:6px;overflow:hidden;margin-bottom:6px">
+          <div style="height:100%;width:${g.pct}%;background:${barColor};border-radius:6px"></div>
+        </div>
+        <div style="font-size:11px;color:#666;line-height:1.5">💡 ${tip}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  
+  if(strong.length>0){
+    h+=`<div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">${isKz?'✅ Жақсы меңгерілген:':'✅ Хорошо усвоены:'}</div>`;
+    strong.forEach(g=>{
+      h+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f0fdf4;border-radius:8px;margin-bottom:4px">
+        <span>${g.label.icon}</span>
+        <span style="font-weight:600;font-size:12px;color:var(--green)">${isKz?g.label.kz:g.label.ru}</span>
+        <span style="margin-left:auto;font-size:11px;font-weight:700;color:var(--green)">✓ ${g.correct}/${g.total}</span>
+      </div>`;
+    });
+  }
+  
+  // CTA for weak topics
+  if(weak.length>0){
+    const weakNames=weak.map(g=>isKz?g.label.kz:g.label.ru).join(', ');
+    const waMsg=encodeURIComponent(isKz
+      ?`Сәлеметсіз бе! Баламның диагностика нәтижесі бойынша мына тақырыптарда пробелдер бар: ${weakNames}. Сынақ сабағына жазылғым келеді.`
+      :`Здравствуйте! По результатам диагностики у ребёнка пробелы в темах: ${weakNames}. Хочу записаться на пробный урок.`);
+    h+=`<div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,#f0f8ff,#fff8f0);border-radius:12px;border:2px solid var(--accent)">
+      <h4 style="font-size:14px;font-weight:900;margin-bottom:6px">${isKz?'🎯 Пробелдерді жабу керек!':'🎯 Нужно закрыть пробелы!'}</h4>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">${isKz
+        ?'Жеке бағдарлама бойынша тегін сынақ сабақ — нақты осы тақырыптарды жабу үшін'
+        :'Бесплатный пробный урок по индивидуальной программе — закроем именно эти темы'}</p>
+      <a href="https://wa.me/77002936964?text=${waMsg}" target="_blank"
+        style="display:block;text-align:center;background:#25D366;color:#fff;padding:12px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
+        💬 ${isKz?'Тегін сынақ сабаққа жазылу':'Записаться на бесплатный пробный урок'}
+      </a>
+    </div>`;
+  }
+  
+  h+=`</div>`;
+  return h;
+}
+
 function rDiagResult(a){
   const qs=S.diagQuestions;const pct=Math.round(S.diagScore/qs.length*100);
   const rank=getRank(pct);const subName=DIAG[S.diagSubject][S.lang].name;
@@ -1433,6 +1537,7 @@ function rDiagResult(a){
       ${streakH}${recordH}
       <div class="src-brand">AIPLUS KIDS · aiplus.kz</div>
     </div>
+    ${renderGapAnalysis()}
     <div class="leaderboard"><h4>🏆 ${S.lang==='kz'?'Рейтинг':'Рейтинг'}</h4>${lbH}</div>
     <div style="text-align:center"><div class="rank-badge ${rank.cls}">${rank.icon} ${rankName}</div>
       <div style="font-size:13px;color:var(--muted);margin:6px 0">${msg}</div></div>
