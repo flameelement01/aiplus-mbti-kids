@@ -919,7 +919,7 @@ function rHome(a){
     <div class="home-card" onclick="goTab('test')"><div class="hc-ic">🎯</div><h3>${t('testCard')}</h3><p>${t('testCardDesc')}</p>
       <div class="hc-badge" style="background:#e0eeff;color:var(--dark)">24 ${S.lang==='kz'?'сұрақ':'вопроса'}</div></div>
     <div class="home-card" onclick="goTab('diag')"><div class="hc-ic">📝</div><h3>${t('diagCard')}</h3><p>${t('diagCardDesc')}</p>
-      <div class="hc-badge" style="background:#e6f4d7;color:var(--green)">4 ${S.lang==='kz'?'пән':'предмета'}</div></div>
+      <div class="hc-badge" style="background:#e6f4d7;color:var(--green)">4 ${S.lang==='kz'?'сынып':'класса'}</div></div>
     <div class="home-card" onclick="goTab('courses')"><div class="hc-ic">🎬</div><h3>${t('coursesCard')}</h3><p>${t('coursesCardDesc')}</p>
       <div class="hc-badge" style="background:#fff3d0;color:#7a4800">GetCourse</div></div>
     <div class="home-card" onclick="goTab('ai')"><div class="hc-ic">🤖</div><h3>${t('aiCard')}</h3><p>${t('aiCardDesc')}</p>
@@ -1005,8 +1005,8 @@ function rTestWelcome(a){
 function rTestLang(a){
   a.innerHTML=`<div class="lang-wrap"><h2 class="lang-title">${t('langTitle')}</h2>
     <div class="lang-btns">
-      <div class="lang-btn" onclick="S.lang='kz';S.screen='register';goTab('test')"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
-      <div class="lang-btn" onclick="S.lang='ru';S.screen='register';goTab('test')"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
+      <div class="lang-btn" onclick="S.lang='kz';S.screen='register';renderTest()"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
+      <div class="lang-btn" onclick="S.lang='ru';S.screen='register';renderTest()"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
     </div></div>`;
 }
 function rTestReg(a){
