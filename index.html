@@ -1140,7 +1140,7 @@ function genLeaderboard(myScore,total){
   return board.slice(0,8)}
 
 // Google Sheets integration
-const SHEETS_URL=''; // ВСТАВЬ URL Google Apps Script сюда
+const SHEETS_URL='https://script.google.com/macros/s/AKfycbxa8T4scpSa53zSjEtAg_YgPkWUHGJGCaE9yuLKXTpjGjwL1Nm8Muj8GO5RP7KBfimVqQ/exec';
 function sendToSheets(completed){
   if(!SHEETS_URL)return;
   const qs=S.diagQuestions||[];const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
