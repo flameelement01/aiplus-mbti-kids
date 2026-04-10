@@ -1072,15 +1072,75 @@ function getResultText(){const best=S.bestCat||"people";const res=RESULTS[best];
   return`${res.icon} ${d.title}\n\n${d.desc}\n\n${d.career.join(', ')}\n${d.subjects}\n${d.clubs}\n\n${S.user.name||''} — Aiplus Kids\n${SITE_URL}`}
 function copyResult(){navigator.clipboard.writeText(getResultText()).then(()=>toast(t('copied')))}
 function shareWA(){window.open("https://wa.me/?text="+encodeURIComponent(getResultText()),"_blank")}
-function downloadPDF(){const best=S.bestCat||"people";const res=RESULTS[best];const d=res[S.lang];const name=S.user.name||"";const cap=$("pdf-capture");
-  cap.innerHTML=`<div style="text-align:center;margin-bottom:24px;padding-bottom:20px;border-bottom:3px solid ${res.color}"><h1 style="font-size:28px;font-weight:900">Aiplus Kids</h1><p style="color:#777;font-size:13px">${name}</p></div>
-    <div style="display:inline-block;padding:6px 16px;border-radius:999px;background:${res.color};color:#fff;font-weight:700;font-size:13px;margin-bottom:12px">${d.label}</div>
-    <h2 style="font-size:24px;font-weight:900;margin-bottom:10px">${res.icon} ${d.title}</h2><p style="color:#555;font-size:14px;line-height:1.6;margin-bottom:20px">${d.desc}</p>
-    <div style="text-align:center;color:#777;font-size:11px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,.08)">${SITE_URL}</div>`;
-  html2canvas(cap,{scale:2,useCORS:true,backgroundColor:"#fff"}).then(canvas=>{
-    const{jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");const w=pdf.internal.pageSize.getWidth();
-    pdf.addImage(canvas.toDataURL("image/png"),"PNG",0,0,w,(canvas.height*w)/canvas.width);
-    pdf.save("aiplus-kids-"+name+".pdf");cap.innerHTML="";})}
+function downloadPDF(){
+  const best=S.bestCat||"people";const res=RESULTS[best];const d=res[S.lang];const name=S.user.name||"";
+  const total=Object.values(S.scores).reduce((a,b)=>a+b,0)||1;
+  const{jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");const w=pdf.internal.pageSize.getWidth();
+  const hexToRgb=h=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return[r,g,b]};
+  const rc=hexToRgb(res.color);
+  // Header
+  pdf.setFillColor(25,59,83);pdf.rect(0,0,w,40,'F');
+  pdf.setTextColor(255,255,255);pdf.setFontSize(24);pdf.setFont('helvetica','bold');
+  pdf.text('AIPLUS KIDS',w/2,18,{align:'center'});
+  pdf.setFontSize(11);pdf.setFont('helvetica','normal');
+  pdf.text(S.lang==='kz'?'Кәсіби бағдар нәтижесі':'Результат профориентации',w/2,28,{align:'center'});
+  pdf.setFontSize(9);pdf.text(name,w/2,35,{align:'center'});
+  // Type badge
+  let y=52;
+  pdf.setFillColor(rc[0],rc[1],rc[2]);pdf.roundedRect(20,y-5,w-40,14,3,3,'F');
+  pdf.setTextColor(255,255,255);pdf.setFontSize(14);pdf.setFont('helvetica','bold');
+  pdf.text(d.label,w/2,y+4,{align:'center'});
+  // Title and description
+  y+=22;pdf.setTextColor(30,30,30);pdf.setFontSize(18);pdf.setFont('helvetica','bold');
+  pdf.text(d.title,w/2,y,{align:'center'});
+  y+=10;pdf.setFontSize(11);pdf.setFont('helvetica','normal');pdf.setTextColor(80,80,80);
+  const descLines=pdf.splitTextToSize(d.desc,w-40);pdf.text(descLines,20,y);y+=descLines.length*5+8;
+  // Profile bars
+  pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(30,30,30);
+  pdf.text(S.lang==='kz'?'Бағыттар бойынша профиль:':'Профиль по направлениям:',20,y);y+=8;
+  CAT_ORDER.forEach(cat=>{
+    const r2=RESULTS[cat][S.lang];const pct=Math.round((S.scores[cat]/total)*100);
+    const c2=hexToRgb(RESULTS[cat].color);
+    pdf.setFontSize(9);pdf.setFont('helvetica','normal');pdf.setTextColor(80,80,80);
+    pdf.text(r2.label+' — '+pct+'%',22,y);
+    pdf.setFillColor(230,230,230);pdf.roundedRect(22,y+1,w-50,4,2,2,'F');
+    pdf.setFillColor(c2[0],c2[1],c2[2]);pdf.roundedRect(22,y+1,Math.max(2,(w-50)*pct/100),4,2,2,'F');
+    y+=10;
+  });
+  // Career
+  y+=4;pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(30,30,30);
+  pdf.text(S.lang==='kz'?'ТОП мамандықтар:':'ТОП профессии:',20,y);y+=7;
+  pdf.setFontSize(10);pdf.setFont('helvetica','normal');pdf.setTextColor(80,80,80);
+  d.career.forEach((c,i)=>{pdf.text((i+1)+'. '+c,24,y);y+=5.5;});
+  // Subjects
+  y+=6;pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(30,30,30);
+  pdf.text(S.lang==='kz'?'Не оқу керек:':'Что учить:',20,y);y+=7;
+  pdf.setFontSize(10);pdf.setFont('helvetica','normal');pdf.setTextColor(80,80,80);
+  const subjLines=pdf.splitTextToSize(d.subjects,w-40);pdf.text(subjLines,24,y);y+=subjLines.length*5+4;
+  // Clubs
+  pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(30,30,30);
+  pdf.text(S.lang==='kz'?'Үйірмелер:':'Кружки:',20,y);y+=7;
+  pdf.setFontSize(10);pdf.setFont('helvetica','normal');pdf.setTextColor(80,80,80);
+  const clubLines=pdf.splitTextToSize(d.clubs,w-40);pdf.text(clubLines,24,y);y+=clubLines.length*5+6;
+  // Parent advice
+  pdf.setFillColor(240,244,248);pdf.roundedRect(15,y-3,w-30,28,4,4,'F');
+  pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(20,114,194);
+  pdf.text(S.lang==='kz'?'Ата-аналарға:':'Родителям:',20,y+4);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(80,80,80);
+  const parentLines=pdf.splitTextToSize(d.parent,w-44);pdf.text(parentLines,20,y+11);y+=32;
+  // Tip
+  pdf.setFillColor(255,243,208);pdf.roundedRect(15,y-3,w-30,16,4,4,'F');
+  pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.setTextColor(122,72,0);
+  const tipLines=pdf.splitTextToSize('💡 '+d.parentTip,w-44);pdf.text(tipLines,20,y+4);y+=20;
+  // Contact
+  pdf.setFontSize(9);pdf.setFont('helvetica','normal');pdf.setTextColor(100,100,100);
+  pdf.text('WhatsApp: +7 700 293 69 64  |  mektep.aiplus.kz',w/2,y+4,{align:'center'});
+  // Footer
+  pdf.setFillColor(25,59,83);pdf.rect(0,282,w,15,'F');
+  pdf.setTextColor(255,255,255);pdf.setFontSize(8);
+  pdf.text('AIPLUS — '+(S.lang==='kz'?'Ақылсыз балалар жоқ, олар жай ғана ең жақсылардан оқымаған':'Не бывает глупых детей, просто они не обучались у лучших'),w/2,289,{align:'center'});
+  pdf.save('Aiplus_Kids_'+name+'.pdf');
+}
 
 // ============================================================
 // DIAGNOSTIC
