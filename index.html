@@ -1268,8 +1268,7 @@ function sendToSheets(completed){
 // PDF report generation
 function generateDiagPDF(){
   const qs=S.diagQuestions||[];const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
-  const rank=getRank(pct);const subj=S.diagSubject;
-  const subName=subj?DIAG[subj][S.lang].name:'';
+  const subj=S.diagSubject;const subName=subj?DIAG[subj][S.lang].name:'';
   const nm=S.diagName||'Ученик';const isKz=S.lang==='kz';
   const grade=S.diagGrade||'5';
   const dateStr=new Date().toLocaleDateString('ru-RU');
@@ -1277,121 +1276,150 @@ function generateDiagPDF(){
   const weak=gaps.filter(g=>g.pct<80);
   const strong=gaps.filter(g=>g.pct>=80);
 
-  // Also get all completed subjects for this grade
+  // Collect all completed subjects
   const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===grade);
-  let allSubjResults=[];
+  let allSubj=[];
   gradeSubjects.forEach(sk=>{
     const p=S.diagProgress[sk];
     const sn=DIAG[sk][S.lang].name;
-    if(p) allSubjResults.push({name:sn,key:sk,score:p.score,total:p.total,pct:p.pct});
+    if(p) allSubj.push({name:sn,key:sk,score:p.score,total:p.total,pct:p.pct});
   });
+  // If only current subject done
+  if(allSubj.length===0) allSubj=[{name:subName,key:subj,score:S.diagScore,total:qs.length,pct}];
 
-  // Build summary bars HTML
-  let summaryBarsH='';
-  if(allSubjResults.length>0){
-    allSubjResults.forEach(sr=>{
-      const col=sr.pct>=70?'#2d7d46':sr.pct>=50?'#d97706':'#dc2626';
-      summaryBarsH+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-        <div style="flex:1;font-size:14px;font-weight:700">${sr.name} <span style="color:${col};font-weight:800">${sr.pct}%</span> <span style="font-size:11px;color:#888">${sr.score}/${sr.total}</span></div>
-        <div style="width:45%;height:8px;background:#e5e7eb;border-radius:8px;overflow:hidden">
-          <div style="height:100%;width:${sr.pct}%;background:${col};border-radius:8px"></div>
-        </div>
-      </div>`;
-    });
-  } else {
-    const col=pct>=70?'#2d7d46':pct>=50?'#d97706':'#dc2626';
-    summaryBarsH=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-      <div style="flex:1;font-size:14px;font-weight:700">${subName} <span style="color:${col};font-weight:800">${pct}%</span> <span style="font-size:11px;color:#888">${S.diagScore}/${qs.length}</span></div>
-      <div style="width:45%;height:8px;background:#e5e7eb;border-radius:8px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:${col};border-radius:8px"></div>
+  // Summary bars
+  let sumBars='';
+  allSubj.forEach(s=>{
+    const col=s.pct>=70?'#4CAF50':s.pct>=50?'#F5A623':'#E74C3C';
+    sumBars+=`<div style="display:flex;align-items:center;margin-bottom:10px">
+      <div style="flex:1;display:flex;align-items:baseline;gap:6px">
+        <span style="font-size:15px;font-weight:700;color:#333">${s.name}</span>
+        <span style="font-size:20px;font-weight:900;color:${col}">${s.pct}%</span>
+        <span style="font-size:12px;color:#999">${s.score} / ${s.total}</span>
+      </div>
+      <div style="width:40%;height:8px;background:#E8E8E8;border-radius:8px;overflow:hidden">
+        <div style="height:100%;width:${s.pct}%;background:${col};border-radius:8px"></div>
       </div>
     </div>`;
-  }
+  });
 
-  // Build block details for current subject
-  let blocksH='';
-  if(gaps.length>0){
-    blocksH+=`<div style="margin-top:20px;border-top:2px solid #1B3A5C;padding-top:4px">
-      <div style="background:#1B3A5C;color:#fff;padding:10px 16px;font-size:14px;font-weight:800;border-radius:0 0 8px 8px;display:flex;justify-content:space-between">
-        <span>${subName.toUpperCase()}</span>
-        <span>${S.diagScore}/${qs.length} (${pct}%)</span>
+  // Subject block details
+  let subjSections='';
+  allSubj.forEach(s=>{
+    const blocks=DIAG_BLOCKS[s.key];
+    if(!blocks) return;
+    // Get block answers for this subject
+    let blockAnswers={};
+    if(s.key===subj && S.diagAnswers){
+      S.diagAnswers.forEach(a=>{
+        const b=a.block!=null?a.block:0;
+        if(!blockAnswers[b])blockAnswers[b]={total:0,correct:0};
+        blockAnswers[b].total++;
+        if(a.correct)blockAnswers[b].correct++;
+      });
+    }
+
+    subjSections+=`<div style="margin-top:20px">
+      <div style="background:#3D5A80;color:#fff;padding:10px 18px;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;font-weight:800;letter-spacing:0.5px">${s.name.toUpperCase()}</span>
+        <span style="font-size:14px;font-weight:700">${s.score}/${s.total} (${s.pct}%)</span>
       </div>`;
-    gaps.forEach(g=>{
-      const bl=g.block;const loc=isKz?bl.kz:bl.ru;
-      const barColor=g.pct>=80?'#2d7d46':g.pct>=50?'#d97706':'#dc2626';
-      const badgeBg=g.pct>=80?'#e6f4d7':'#fff3cd';
-      const badgeColor=g.pct>=80?'#2d7d46':'#92400e';
-      const badgeText=g.pct>=80?(isKz?'Жақсы білу':'Хорошо'):(isKz?'Қажет білу':'Нужна работа');
-      blocksH+=`<div style="padding:14px 16px;border-bottom:1px solid #eee">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:13px;font-weight:700;color:#1B3A5C">${isKz?'Блок':'Блок'} ${bl.range} — ${loc.name}</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:12px;font-weight:700">${g.correct}/${g.total}</span>
-            <span style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px">${badgeText}</span>
+
+    blocks.forEach((bl,i)=>{
+      const loc=isKz?bl.kz:bl.ru;
+      const stats=blockAnswers[i]||{total:0,correct:0};
+      const bPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+      const barCol=bPct>=80?'#4CAF50':bPct>=50?'#F5A623':'#E74C3C';
+      const badgeBg=bPct>=80?'#E8F5E9':'#FFF3E0';
+      const badgeCol=bPct>=80?'#2E7D32':'#E65100';
+      const badgeText=bPct>=80?(isKz?'Жақсы білу':'Хорошо'):(isKz?'Қажет білу':'Нужна работа');
+
+      subjSections+=`<div style="padding:14px 18px;border-bottom:1px solid #EEEEEE">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:#333;margin-bottom:2px">${isKz?'Блок':'Блок'} ${bl.range} — ${loc.name}</div>
+            <div style="font-size:11px;color:#999;margin-bottom:6px">${stats.correct}/${stats.total}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:800;color:#333;margin-bottom:4px">${stats.correct}/${stats.total}</div>
+            <div style="background:${badgeBg};color:${badgeCol};font-size:11px;font-weight:700;padding:3px 12px;border-radius:12px;display:inline-block">${badgeText}</div>
           </div>
         </div>
-        <div style="height:5px;background:#e5e7eb;border-radius:5px;overflow:hidden;margin-bottom:6px">
-          <div style="height:100%;width:${g.pct}%;background:${barColor};border-radius:5px"></div>
+        <div style="height:6px;background:#E8E8E8;border-radius:6px;overflow:hidden;margin:6px 0">
+          <div style="height:100%;width:${bPct}%;background:${barCol};border-radius:6px"></div>
         </div>
-        <div style="font-size:11px;color:#555">${loc.topics}</div>
-        ${g.pct<80?`<div style="font-size:11px;color:#92400e;margin-top:4px;line-height:1.4">${loc.tip}</div>`:''}
+        <div style="font-size:11px;color:#666;line-height:1.5">${loc.topics}</div>
+        ${bPct<80?`<div style="font-size:11px;color:#888;margin-top:4px;line-height:1.4">${loc.tip}</div>`:''}
       </div>`;
     });
-    blocksH+=`</div>`;
-  }
+    subjSections+=`</div>`;
+  });
 
-  // Recommendations page
-  let recsH=`<div style="margin-top:24px;border-top:2px solid #1B3A5C;padding-top:4px">
-    <div style="background:#1B3A5C;color:#fff;padding:10px 16px;font-size:14px;font-weight:800;border-radius:0 0 8px 8px">${isKz?'ҰСЫНЫСТАР':'РЕКОМЕНДАЦИИ'}</div>
-    <div style="padding:16px">`;
-  
-  if(weak.length>0){
-    recsH+=`<div style="font-size:14px;font-weight:800;margin-bottom:12px">${isKz?'Фокус тақырыптар:':'Фокус темы:'}</div>`;
-    weak.forEach(g=>{
-      const bl=g.block;const loc=isKz?bl.kz:bl.ru;
-      recsH+=`<div style="margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:#d97706">— ${isKz?'Блок':'Блок'} ${bl.range} — ${loc.name} — ${g.pct}%</div>
-        <div style="font-size:11px;color:#555;margin-top:2px;line-height:1.5">${loc.tip}</div>
+  // Page 2: Recommendations
+  let recsH=`<div style="margin-top:28px">
+    <div style="background:#3D5A80;color:#fff;padding:10px 18px;border-radius:6px;font-size:14px;font-weight:800;letter-spacing:0.5px">${isKz?'ҰСЫНЫСТАР':'РЕКОМЕНДАЦИИ'}</div>
+    <div style="padding:18px 0">`;
+
+  // Collect all weak blocks across subjects
+  let allWeak=[];let allStrong=[];
+  allSubj.forEach(s=>{
+    const blocks=DIAG_BLOCKS[s.key];
+    if(!blocks) return;
+    let blockAnswers={};
+    if(s.key===subj && S.diagAnswers){
+      S.diagAnswers.forEach(a=>{
+        const b=a.block!=null?a.block:0;
+        if(!blockAnswers[b])blockAnswers[b]={total:0,correct:0};
+        blockAnswers[b].total++;
+        if(a.correct)blockAnswers[b].correct++;
+      });
+    }
+    blocks.forEach((bl,i)=>{
+      const stats=blockAnswers[i]||{total:0,correct:0};
+      const bPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+      const loc=isKz?bl.kz:bl.ru;
+      const entry={subName:s.name,block:bl,loc,pct:bPct,range:bl.range};
+      if(bPct<80) allWeak.push(entry); else allStrong.push(entry);
+    });
+  });
+
+  if(allWeak.length>0){
+    recsH+=`<div style="font-size:15px;font-weight:800;color:#333;margin-bottom:12px">${isKz?'Фокус тақырыптар:':'Фокус темы:'}</div>`;
+    allWeak.forEach(w=>{
+      recsH+=`<div style="margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;color:#E65100">— ${isKz?'Блок':'Блок'} ${w.range} — ${w.loc.name} — ${w.pct}%</div>
+        <div style="font-size:12px;color:#666;margin-top:3px;line-height:1.5">${w.loc.tip}</div>
       </div>`;
     });
   }
-  if(strong.length>0){
-    recsH+=`<div style="font-size:14px;font-weight:800;margin-top:16px;margin-bottom:8px">${isKz?'Жақсы тақырыптар:':'Хорошие темы:'}</div>`;
-    strong.forEach(g=>{
-      const bl=g.block;const loc=isKz?bl.kz:bl.ru;
-      recsH+=`<div style="font-size:12px;color:#2d7d46;margin-bottom:4px">— ${loc.name} — ${g.pct}%</div>`;
+  if(allStrong.length>0){
+    recsH+=`<div style="font-size:15px;font-weight:800;color:#333;margin-top:20px;margin-bottom:10px">${isKz?'Жақсы тақырыптар:':'Хорошие темы:'}</div>`;
+    allStrong.forEach(s=>{
+      recsH+=`<div style="font-size:13px;color:#2E7D32;margin-bottom:5px;line-height:1.5">— ${s.subName} ${isKz?'Блок':'Блок'} ${s.range} ${s.loc.name} — ${s.pct}%</div>`;
     });
   }
   recsH+=`</div></div>`;
 
   const cap=document.getElementById('pdf-capture');
-  cap.style.cssText='position:absolute;left:-9999px;top:0;width:600px;background:#fff;padding:0;font-family:Inter,sans-serif';
+  cap.style.cssText='position:absolute;left:-9999px;top:0;width:620px;background:#fff;padding:0;font-family:Source Sans 3,Nunito,sans-serif';
   cap.innerHTML=`
-    <div style="background:linear-gradient(135deg,#1B3A5C,#1472c2);padding:24px 28px;color:#fff">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="font-size:24px;font-weight:900;letter-spacing:1px">
-            <span style="color:#faa318">ai</span><span style="color:#fff">plus</span>
-          </div>
-        </div>
+    <div style="background:linear-gradient(135deg,#2C3E6B,#3D6098);padding:22px 28px;color:#fff">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="font-size:22px;font-weight:900;letter-spacing:0.5px"><span style="color:#F5A623">ai</span><span style="color:#fff">plus</span></div>
       </div>
-      <div style="margin-top:14px;font-size:18px;font-weight:800">${isKz?'Білім диагностикасы':'Диагностика знаний'} — ${grade} ${isKz?'сынып':'класс'}</div>
-      <div style="margin-top:6px;font-size:12px;opacity:.8;display:flex;gap:20px">
-        <span>${isKz?'Оқушы':'Ученик'}: ${nm}</span>
-        <span>${isKz?'Күні':'Дата'}: ${dateStr}</span>
-        ${S.diagPhone?`<span>${isKz?'Тел':'Тел'}: ${S.diagPhone}</span>`:''}
+      <div style="font-size:18px;font-weight:800">${isKz?'Білім диагностикасы':'Диагностика знаний'} — ${grade} ${isKz?'Сынып':'Класс'}</div>
+      <div style="margin-top:6px;font-size:13px;opacity:.85">
+        ${isKz?'Оқушы':'Ученик'}: ${nm} &nbsp;&nbsp; ${isKz?'Күні':'Дата'}: ${dateStr}${S.diagPhone?' &nbsp;&nbsp; '+(isKz?'Тел':'Тел')+': '+S.diagPhone:''}
       </div>
     </div>
+
     <div style="padding:20px 28px">
-      ${summaryBarsH}
-      ${blocksH}
+      ${sumBars}
+      ${subjSections}
       ${recsH}
-      <div style="margin-top:24px;padding:16px;background:#1B3A5C;border-radius:10px;color:#fff;text-align:center">
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px">${isKz?'Тегін сынақ сабаққа жазылыңыз!':'Запишитесь на бесплатный пробный урок!'}</div>
-        <div style="font-size:16px;font-weight:900;color:#faa318">WhatsApp: +7 700 293 69 64</div>
-        <div style="font-size:11px;opacity:.6;margin-top:4px">mektep.aiplus.kz · ${isKz?'Астана, Алматы, Шымкент':'Астана, Алматы, Шымкент, Атырау, Актобе'}</div>
+      <div style="margin-top:24px;padding-top:12px;border-top:1px solid #ddd;font-size:11px;color:#999">
+        Aiplus ${isKz?'Білім орталығы':'Образовательный центр'} • ${grade} ${isKz?'сынып диагностикасы':'класс диагностика'} • ${dateStr}
       </div>
-      <div style="text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid #eee;font-size:11px;color:#bbb">Aiplus ${isKz?'Білім орталығы':'Образовательный центр'} · ${grade} ${isKz?'сынып диагностикасы':'класс диагностика'} · ${dateStr}</div>
     </div>`;
 
   html2canvas(cap,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
@@ -1418,7 +1446,7 @@ function generateDiagPDF(){
         srcY+=ch;remainH-=ch;page++;
       }
     }
-    pdf.save('Aiplus_'+subName.replace(/\s/g,'_')+'_'+nm+'_'+dateStr+'.pdf');
+    pdf.save('Aiplus_'+grade+(isKz?'сынып':'класс')+'_'+nm+'_'+dateStr.replace(/\./g,'-')+'.pdf');
     cap.innerHTML='';cap.style.cssText='';
   });
   return 'generating';
