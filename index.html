@@ -2,22 +2,32 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aiplus Kids — образовательная платформа для 5-6 классов</title>
 <meta name="description" content="Профориентация, диагностика знаний, видеоуроки и ИИ-консультант для детей 10-12 лет.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<meta property="og:title" content="Aiplus Kids — образовательная платформа">
+<meta property="og:description" content="Профориентация, диагностика знаний, видеоуроки для 5-6 классов">
+<meta property="og:url" content="https://flameelement01.github.io/aiplus-mbti-kids/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta name="theme-color" content="#193b53">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 :root{
-  --bg:#f0f4f8;--dark:#1472c2;--card:#ffffff;--accent:#faa318;--accent2:#f1ac3f;
-  --muted:#777;--border:rgba(0,0,0,.08);--radius:18px;
-  --shadow:0 2px 20px rgba(0,0,0,.06);--dark-bg:#193b53;
+  --bg:linear-gradient(135deg,#e8f0fe 0%,#f5f0e8 100%);--bg-flat:#f0f4f8;--dark:#1472c2;--card:#ffffff;--accent:#faa318;--accent2:#f1ac3f;
+  --muted:#666;--border:rgba(0,0,0,.08);--radius:18px;
+  --shadow:0 4px 24px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.04);--dark-bg:#193b53;
   --green:#2d7d46;--red:#c03000;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+}
+
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
+body{background:var(--bg-flat);background:var(--bg);color:var(--dark);font-family:'Source Sans 3','Nunito',sans-serif;font-size:15px;
   min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
   padding-bottom:70px}
 
@@ -28,16 +38,16 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .logo img{height:36px;transform:rotate(270deg)}
 .logo-text{font-size:17px;font-weight:900;color:#fff}
 .logo-text span{color:var(--accent)}
-.badge{background:var(--accent);color:#000;font-size:10px;font-weight:700;
+.badge{background:var(--accent);color:#000;font-size:11px;font-weight:700;
   padding:4px 11px;border-radius:20px;letter-spacing:.4px}
 
 /* BOTTOM NAV */
 .bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:200;
   background:var(--dark-bg);display:flex;justify-content:space-around;
   padding:6px 0 env(safe-area-inset-bottom,6px);border-top:1px solid rgba(255,255,255,.08)}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:6px 4px;cursor:pointer;color:rgba(255,255,255,.45);
-  font-size:9px;font-weight:700;transition:.2s;min-width:56px;text-decoration:none;
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 8px;cursor:pointer;color:rgba(255,255,255,.45);
+  font-size:11px;font-weight:700;transition:.2s;min-width:64px;min-height:44px;text-decoration:none;
   -webkit-tap-highlight-color:transparent}
 .nav-item.active{color:var(--accent)}
 .nav-item .nav-ic{font-size:20px;line-height:1}
@@ -49,21 +59,24 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .card{background:var(--card);border-radius:var(--radius);padding:28px 22px;
   border:1px solid var(--border);box-shadow:var(--shadow)}
 .btn{background:var(--dark);color:#fff;border:none;padding:16px 36px;
-  border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;
+  border-radius:50px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:800;
   cursor:pointer;transition:transform .2s,box-shadow .2s;display:inline-block;text-align:center}
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,114,194,.3)}
 .btn-outline{background:transparent;border:2px solid var(--dark);color:var(--dark);
-  padding:13px 28px;border-radius:50px;font-family:'Inter',sans-serif;font-size:13px;
+  padding:13px 28px;border-radius:50px;font-family:'Source Sans 3',sans-serif;font-size:13px;
   font-weight:700;cursor:pointer;transition:all .2s}
 .btn-outline:hover{background:var(--dark);color:#fff}
 .btn-accent{background:var(--accent);color:#000;border:none;padding:15px 32px;
-  border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;
+  border-radius:50px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:800;
   cursor:pointer;transition:transform .2s}
 .btn-accent:hover{transform:translateY(-2px)}
 .btn-sm{border:none;padding:8px 14px;border-radius:20px;font-size:11px;
-  font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+  font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;white-space:nowrap}
 .hidden{display:none!important}
-.section-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:900;
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible,.nav-item:focus-visible,.home-card:focus-visible{
+  outline:2px solid var(--dark);outline-offset:2px;border-radius:4px}
+
+.section-title{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;
   letter-spacing:-.5px;margin-bottom:6px}
 .section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
 
@@ -75,7 +88,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 
 /* OPTIONS */
 .opt{background:#f0ede5;border:2px solid transparent;border-radius:13px;
-  padding:16px 20px;text-align:left;cursor:pointer;font-family:'Inter',sans-serif;
+  padding:16px 20px;text-align:left;cursor:pointer;font-family:'Source Sans 3',sans-serif;
   font-size:14px;font-weight:600;color:var(--dark);transition:all .18s;
   display:flex;align-items:center;gap:11px}
 .opt:hover{border-color:var(--dark);background:#fff;transform:translateX(4px)}
@@ -85,7 +98,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
   color:#fff;border-radius:8px;width:28px;height:28px;font-size:11px;
   font-weight:900;flex-shrink:0}
 .opts{display:flex;flex-direction:column;gap:9px}
-.q-text{font-family:'Inter',sans-serif;font-size:clamp(17px,3vw,22px);font-weight:800;
+.q-text{font-family:'Nunito',sans-serif;font-size:clamp(17px,3vw,22px);font-weight:800;
   line-height:1.35;margin-bottom:26px;letter-spacing:-.3px}
 
 /* HOME GRID */
@@ -97,15 +110,15 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .home-card .hc-ic{font-size:28px;margin-bottom:10px}
 .home-card h3{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
 .home-card p{font-size:11px;color:var(--muted);line-height:1.5}
-.home-card .hc-badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 8px;
+.home-card .hc-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;
   border-radius:20px;margin-top:8px}
 
 /* HERO (welcome) */
 .hero{padding:36px 0 24px;text-align:center}
 .hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--dark-bg);
-  color:#fff;font-size:10px;font-weight:700;padding:6px 14px;
+  color:#fff;font-size:11px;font-weight:700;padding:6px 14px;
   border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
-.hero-title{font-family:'Inter',sans-serif;font-size:clamp(22px,4.5vw,36px);
+.hero-title{font-family:'Source Sans 3',sans-serif;font-size:clamp(22px,4.5vw,36px);
   font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:16px}
 .hero-title .hl{color:#fff;background:var(--dark);padding:2px 14px;
   border-radius:10px;display:inline-block}
@@ -114,7 +127,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;
   padding:10px 16px;text-align:center;min-width:72px}
 .stat b{font-size:20px;font-weight:900;display:block}
-.stat small{font-size:10px;color:var(--muted);font-weight:600}
+.stat small{font-size:11px;color:var(--muted);font-weight:600}
 
 /* TRUST */
 .trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:28px}
@@ -141,7 +154,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 
 /* REGISTER */
 .inp{width:100%;padding:15px 18px;background:#f0ede5;border:2px solid transparent;
-  border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--dark);
+  border-radius:12px;font-family:'Source Sans 3',sans-serif;font-size:15px;color:var(--dark);
   margin-bottom:10px;transition:border .2s}
 .inp:focus{outline:none;border-color:var(--dark);background:#fff}
 
@@ -166,7 +179,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .slide{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
   box-shadow:0 6px 32px rgba(0,0,0,.08);margin-bottom:16px}
 .slide-hdr{padding:12px 22px;display:flex;justify-content:space-between;
-  align-items:center;font-size:10px;font-weight:700;letter-spacing:1px;color:#fff}
+  align-items:center;font-size:11px;font-weight:700;letter-spacing:1px;color:#fff}
 .slide-body{display:flex;background:#fff;flex-wrap:wrap}
 .slide-l{flex:0 0 240px;padding:24px 20px;background:#fafafa;border-right:1px solid var(--border)}
 .slide-r{flex:1;min-width:240px;padding:24px 20px}
@@ -175,12 +188,12 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .type-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;
   letter-spacing:1px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:12px}
 .type-desc{font-size:12px;line-height:1.7;color:#555}
-.pro-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+.pro-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
   color:#fff;padding:6px 12px;border-radius:7px;display:inline-block;margin-bottom:8px}
 .pro-list{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .pro-item{font-size:11px;color:#555;font-weight:600;padding:5px 8px;background:#f5f2eb;border-radius:5px}
 .bars{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
-.bars-title{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.bars-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .bar-row{margin-bottom:6px}
 .bar-label{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:3px}
 .bar-track{height:6px;background:rgba(0,0,0,.06);border-radius:999px;overflow:hidden}
@@ -246,28 +259,28 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .chat-header .ch-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .chat-header h3{font-size:14px;font-weight:800}
-.chat-header p{font-size:10px;color:rgba(255,255,255,.6)}
+.chat-header p{font-size:11px;color:rgba(255,255,255,.6)}
 .chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
 .chat-msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6}
 .chat-msg.bot{background:#f0f4f8;color:var(--dark);align-self:flex-start;border-bottom-left-radius:4px}
 .chat-msg.user{background:var(--dark);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .chat-input-wrap{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
 .chat-input{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:50px;
-  font-family:'Inter',sans-serif;font-size:13px;color:var(--dark)}
+  font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--dark)}
 .chat-input:focus{outline:none;border-color:var(--dark)}
 .chat-send{background:var(--dark);color:#fff;border:none;border-radius:50%;
   width:42px;height:42px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .chat-faq{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
 .faq-btn{background:#f0ede5;border:1px solid var(--border);border-radius:20px;
   padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:.2s;
-  font-family:'Inter',sans-serif;color:var(--dark)}
+  font-family:'Source Sans 3',sans-serif;color:var(--dark)}
 .faq-btn:hover{background:#fff;border-color:var(--dark)}
 
 /* INFO ARTICLES */
 .article-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
   padding:18px;margin-bottom:12px;cursor:pointer;transition:.2s}
 .article-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.article-card .ac-tag{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;
+.article-card .ac-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;
   background:#e6f4d7;color:var(--green);margin-bottom:8px;display:inline-block}
 .article-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
 .article-card p{font-size:12px;color:var(--muted);line-height:1.6}
@@ -285,7 +298,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .review-card .rv-avatar{width:36px;height:36px;border-radius:50%;display:flex;
   align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
 .review-card .rv-name{font-size:13px;font-weight:700}
-.review-card .rv-role{font-size:10px;color:var(--muted)}
+.review-card .rv-role{font-size:11px;color:var(--muted)}
 .review-card .rv-stars{color:#f59e0b;font-size:12px;letter-spacing:1px}
 .review-card .rv-text{font-size:12px;color:#555;line-height:1.6;font-style:italic}
 
@@ -296,7 +309,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .about-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
 .about-stat{background:rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;text-align:center;flex:1;min-width:70px}
 .about-stat b{font-size:20px;font-weight:900;display:block;color:var(--accent)}
-.about-stat small{font-size:9px;color:#aaa;font-weight:600}
+.about-stat small{font-size:11px;color:#aaa;font-weight:600}
 
 /* CONTACTS */
 .contacts{background:var(--card);border:1px solid var(--border);border-radius:16px;
@@ -304,7 +317,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .contacts h3{font-size:15px;font-weight:800;margin-bottom:14px}
 .social-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
 .social-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;
-  border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+  border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;border:none;cursor:pointer;font-family:'Source Sans 3',sans-serif}
 .social-btn:hover{transform:translateY(-2px)}
 .social-btn.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
 .social-btn.tg{background:#2AABEE;color:#fff}
@@ -321,7 +334,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .subj-progress{background:#f8f9fb;border-radius:10px;padding:12px;text-align:center;transition:.2s;cursor:pointer}
 .subj-progress:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .subj-progress .sp-ic{font-size:20px}
-.subj-progress .sp-name{font-size:10px;font-weight:700;color:var(--muted);margin:4px 0}
+.subj-progress .sp-name{font-size:11px;font-weight:700;color:var(--muted);margin:4px 0}
 .subj-progress .sp-score{font-size:16px;font-weight:900}
 
 /* RANK BADGE */
@@ -354,9 +367,9 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
 .share-result-card .src-title{font-size:18px;font-weight:900;margin-bottom:2px}
 .share-result-card .src-score{font-size:32px;font-weight:900;color:var(--accent);margin:8px 0}
 .share-result-card .src-subj{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px}
-.share-result-card .src-brand{font-size:10px;color:rgba(255,255,255,.3);margin-top:12px}
+.share-result-card .src-brand{font-size:11px;color:rgba(255,255,255,.3);margin-top:12px}
 .challenge-btn{background:linear-gradient(90deg,#25D366,#128C7E);color:#fff;border:none;
-  padding:14px 28px;border-radius:50px;font-family:'Inter',sans-serif;font-size:14px;
+  padding:14px 28px;border-radius:50px;font-family:'Source Sans 3',sans-serif;font-size:14px;
   font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
   transition:transform .2s;margin:6px}
 .challenge-btn:hover{transform:translateY(-2px) scale(1.02)}
@@ -423,7 +436,7 @@ body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;
   z-index:999;opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-#pdf-capture{position:absolute;left:-9999px;top:0;width:600px;padding:40px;background:#fff;font-family:'Inter',sans-serif}
+#pdf-capture{position:absolute;left:-9999px;top:0;width:600px;padding:40px;background:#fff;font-family:'Source Sans 3',sans-serif}
 
 @media(max-width:580px){
   .slide-l{flex:0 0 100%;border-right:none;border-bottom:1px solid var(--border)}
@@ -1051,7 +1064,7 @@ function rTestLang(a){
 }
 function rTestReg(a){
   a.innerHTML=`<div class="card" style="max-width:440px;margin:32px auto;text-align:center">
-    <div style="display:inline-block;background:#e6f4d7;color:#2d7d46;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:14px">${t('regTag')}</div>
+    <div style="display:inline-block;background:#e6f4d7;color:#2d7d46;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:14px">${t('regTag')}</div>
     <h2 style="font-size:24px;font-weight:900;margin-bottom:6px">${t('regTitle')}</h2>
     <p style="color:var(--muted);margin-bottom:22px;font-size:13px">${t('regSub')}</p>
     <input class="inp" id="rname" placeholder="${t('regName')}">
@@ -1059,7 +1072,7 @@ function rTestReg(a){
 }
 function startQuiz(){
   const name=$("rname").value.trim();
-  if(!name){alert(S.lang==='kz'?'Атыңды жаз!':'Напиши имя!');return}
+  if(!name){const inp=document.getElementById('diagNameInp');if(inp){inp.style.borderColor='#dc2626';inp.style.animation='goShake .4s';setTimeout(()=>{inp.style.animation='';},400)}return}
   S.user={name};S.idx=0;S.scores={people:0,research:0,tech:0,creative:0,nature:0,economy:0};
   S.screen="quiz";renderTest();
 }
@@ -1172,7 +1185,7 @@ function downloadPDF(){
         <span style="font-size:11px">${S.lang==='kz'?'Астана, Алматы, Шымкент, Атырау, Ақтөбе':'Астана, Алматы, Шымкент, Атырау, Актобе'}</span>
       </div>
     </div>
-    <div style="background:#193b53;color:#fff;padding:12px;text-align:center;font-size:10px">
+    <div style="background:#193b53;color:#fff;padding:12px;text-align:center;font-size:11px">
       AIPLUS — ${S.lang==='kz'?'Ақылсыз балалар жоқ, олар жай ғана ең жақсылардан оқымаған':'Не бывает глупых детей, просто они не обучались у лучших'}
     </div>
   </div>`;
@@ -1314,14 +1327,14 @@ function generateDiagPDF(){
           <div style="font-size:13px;font-weight:700;color:#1B3A5C">${isKz?'Блок':'Блок'} ${bl.range} — ${loc.name}</div>
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:12px;font-weight:700">${g.correct}/${g.total}</span>
-            <span style="background:${badgeBg};color:${badgeColor};font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px">${badgeText}</span>
+            <span style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px">${badgeText}</span>
           </div>
         </div>
         <div style="height:5px;background:#e5e7eb;border-radius:5px;overflow:hidden;margin-bottom:6px">
           <div style="height:100%;width:${g.pct}%;background:${barColor};border-radius:5px"></div>
         </div>
-        <div style="font-size:10px;color:#555">${loc.topics}</div>
-        ${g.pct<80?`<div style="font-size:10px;color:#92400e;margin-top:4px;line-height:1.4">${loc.tip}</div>`:''}
+        <div style="font-size:11px;color:#555">${loc.topics}</div>
+        ${g.pct<80?`<div style="font-size:11px;color:#92400e;margin-top:4px;line-height:1.4">${loc.tip}</div>`:''}
       </div>`;
     });
     blocksH+=`</div>`;
@@ -1376,9 +1389,9 @@ function generateDiagPDF(){
       <div style="margin-top:24px;padding:16px;background:#1B3A5C;border-radius:10px;color:#fff;text-align:center">
         <div style="font-size:13px;font-weight:700;margin-bottom:4px">${isKz?'Тегін сынақ сабаққа жазылыңыз!':'Запишитесь на бесплатный пробный урок!'}</div>
         <div style="font-size:16px;font-weight:900;color:#faa318">WhatsApp: +7 700 293 69 64</div>
-        <div style="font-size:10px;opacity:.6;margin-top:4px">mektep.aiplus.kz · ${isKz?'Астана, Алматы, Шымкент':'Астана, Алматы, Шымкент, Атырау, Актобе'}</div>
+        <div style="font-size:11px;opacity:.6;margin-top:4px">mektep.aiplus.kz · ${isKz?'Астана, Алматы, Шымкент':'Астана, Алматы, Шымкент, Атырау, Актобе'}</div>
       </div>
-      <div style="text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid #eee;font-size:9px;color:#bbb">Aiplus ${isKz?'Білім орталығы':'Образовательный центр'} · ${grade} ${isKz?'сынып диагностикасы':'класс диагностика'} · ${dateStr}</div>
+      <div style="text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid #eee;font-size:11px;color:#bbb">Aiplus ${isKz?'Білім орталығы':'Образовательный центр'} · ${grade} ${isKz?'сынып диагностикасы':'класс диагностика'} · ${dateStr}</div>
     </div>`;
 
   html2canvas(cap,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
@@ -1441,7 +1454,7 @@ function rDiag(a){
   const gl=GRADE_LABELS[S.diagGrade][S.lang];
   let subH='';subjects.forEach(s=>{const d=DIAG[s][S.lang];const p=S.diagProgress[s];
     const qLen=DIAG[s].questions.length;
-    const badge=p?`<div style="color:#f59e0b;font-size:10px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:10px;color:var(--muted)">${qLen} ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
+    const badge=p?`<div style="color:#f59e0b;font-size:11px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:11px;color:var(--muted)">${qLen} ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
     subH+=`<div class="diag-subject${p?' active':''}" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
   a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
     <p class="section-sub">${gl}</p>
@@ -1457,7 +1470,7 @@ function rDiagGrade(a){
     const cnt=Object.keys(DIAG).filter(k=>DIAG[k].grade===g).length;
     gH+=`<div class="diag-subject" onclick="S.diagGrade='${g}';rDiag(app())" style="text-align:center;padding:20px">
       <div style="font-size:32px;margin-bottom:6px">🎓</div><h4>${gl}</h4>
-      <p style="font-size:10px;color:var(--muted)">${cnt} ${S.lang==='kz'?'пән':'предметов'}</p></div>`;});
+      <p style="font-size:11px;color:var(--muted)">${cnt} ${S.lang==='kz'?'пән':'предметов'}</p></div>`;});
   a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
     <p class="section-sub">${S.lang==='kz'?'Сыныбыңды таңда':'Выбери свой класс'}</p>
     <div style="font-size:13px;margin-bottom:12px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>!</div>
@@ -1492,7 +1505,7 @@ function rDiagQuiz(a){
   let livesH='<div class="lives-bar">';for(let i=0;i<3;i++){livesH+=`<div class="life${i>=S.diagLives?' lost':''}">❤️</div>`}livesH+='</div>';
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <button class="btn-outline" style="padding:6px 12px;font-size:10px" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
+      <button class="btn-outline" style="padding:6px 12px;font-size:11px" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
       ${livesH}
     </div>
     <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
@@ -1596,7 +1609,7 @@ function renderGapAnalysis(){
           <div style="font-size:13px;font-weight:800;color:#1B3A5C">${isKz?'Блок':'Блок'} ${bl.range} — ${loc.name}</div>
           <div style="font-size:11px;color:#888;margin-top:2px">${g.correct}/${g.total}</div>
         </div>
-        <div style="background:${badgeBg};color:${badgeColor};font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;white-space:nowrap">${badgeText}</div>
+        <div style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;white-space:nowrap">${badgeText}</div>
       </div>
       <div style="height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-bottom:6px">
         <div style="height:100%;width:${g.pct}%;background:${barColor};border-radius:6px;transition:width .5s"></div>
@@ -1648,7 +1661,7 @@ function rDiagResult(a){
     const eRank=getRank(Math.round(entry.score/qs.length*100));
     lbH+=`<div class="lb-row ${entry.isMe?'me':''}"><div class="lb-pos">${posIcon}</div><div class="lb-name">${entry.isMe?'👉 ':''}<b>${entry.name}</b></div><div class="lb-score">${entry.score}/${qs.length}</div><div class="lb-rank">${eRank.icon}</div></div>`;});
   let progressH='';Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade).forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
-    progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:10px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
+    progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:11px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
   const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;const totalSubj=gradeSubjects.length;
   const collectPct=Math.round(completed/totalSubj*100);
   const nm=S.diagName||'';
@@ -1712,9 +1725,9 @@ function rAI(a){
   let msgsH='';S.chatMessages.forEach(m=>{msgsH+=`<div class="chat-msg ${m.role}">${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>`});
   const parentFAQ=AI_FAQ.filter(f=>f.for==='parent');
   const kidFAQ=AI_FAQ.filter(f=>f.for==='kid');
-  let faqH=`<div style="padding:0 16px 4px;font-size:10px;font-weight:700;color:var(--muted)">${t('faqParent')}</div><div class="chat-faq">`;
+  let faqH=`<div style="padding:0 16px 4px;font-size:11px;font-weight:700;color:var(--muted)">${t('faqParent')}</div><div class="chat-faq">`;
   parentFAQ.forEach((f,i)=>{const idx=AI_FAQ.indexOf(f);const q=S.lang==='kz'?f.kz:f.ru;faqH+=`<div class="faq-btn" onclick="askFAQ(${idx})">${q}</div>`});
-  faqH+=`</div><div style="padding:4px 16px 4px;font-size:10px;font-weight:700;color:var(--muted)">${t('faqKid')}</div><div class="chat-faq">`;
+  faqH+=`</div><div style="padding:4px 16px 4px;font-size:11px;font-weight:700;color:var(--muted)">${t('faqKid')}</div><div class="chat-faq">`;
   kidFAQ.forEach((f,i)=>{const idx=AI_FAQ.indexOf(f);const q=S.lang==='kz'?f.kz:f.ru;faqH+=`<div class="faq-btn" onclick="askFAQ(${idx})">${q}</div>`});
   faqH+=`</div>`;
   a.innerHTML=`<div style="padding-top:12px">
@@ -1914,16 +1927,16 @@ function rOlympResult(a){
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
       <div class="card" style="text-align:center;padding:18px 10px">
         <div style="font-size:28px;font-weight:900;color:var(--dark)">${rank}</div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'ОРЫН':'МЕСТО'}</div>
-        <div style="font-size:10px;color:var(--muted)">${isKz?'ішінен':'из'} ${total}</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'ОРЫН':'МЕСТО'}</div>
+        <div style="font-size:11px;color:var(--muted)">${isKz?'ішінен':'из'} ${total}</div>
       </div>
       <div class="card" style="text-align:center;padding:18px 10px">
         <div style="font-size:28px;font-weight:900;color:var(--accent)">${score}<span style="font-size:14px;color:var(--muted)">/45</span></div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'БАЛЛ':'БАЛЛОВ'}</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'БАЛЛ':'БАЛЛОВ'}</div>
       </div>
       <div class="card" style="text-align:center;padding:18px 10px">
         <div style="font-size:28px;font-weight:900;color:${gapColor}">${pct}%</div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'ПАЙЫЗ':'ПРОЦЕНТ'}</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'ПАЙЫЗ':'ПРОЦЕНТ'}</div>
       </div>
     </div>
 
@@ -1940,7 +1953,7 @@ function rOlympResult(a){
         <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden">
           <div style="height:100%;width:${percentile}%;background:linear-gradient(90deg,${gapColor},var(--accent));border-radius:8px;transition:width 1s"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">
           <span>${isKz?'Ең төмен':'Минимум'}</span>
           <span>${isKz?'Ең жоғары':'Максимум'}</span>
         </div>
