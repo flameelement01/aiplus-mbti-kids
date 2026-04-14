@@ -1901,8 +1901,13 @@ const OLYMP_DATA={"s":["1. \"А.С.Пушкин ат. №1 мектеп-гимн
 // ============================================================
 function searchOlymp(query){
   if(!query||query.length<2) return [];
-  const q=query.toLowerCase().trim();
-  return OLYMP_DATA.d.filter(s=>s[0].toLowerCase().includes(q)).slice(0,20);
+  const normalize=str=>str.toLowerCase().trim().replace(/ё/g,'е').replace(/\s+/g,' ');
+  const q=normalize(query);
+  const parts=q.split(' ').filter(p=>p.length>0);
+  return OLYMP_DATA.d.filter(s=>{
+    const name=normalize(s[0]);
+    return parts.every(p=>name.includes(p));
+  }).slice(0,20);
 }
 
 function getOlympRank(student){
@@ -1977,108 +1982,202 @@ function rOlympResult(a){
   const score=s[3];
   const rd=s[5];
   const topPct=Math.round(rank/total*100);
+  const WA='77002936964';
 
-  // Gap analysis
-  let gapLevel,gapColor,gapIcon,gapText,gapAdvice;
+  // Level
+  let gapLevel,gapColor,gapIcon,gapText;
   if(pct>=75){
     gapLevel=isKz?'Жоғары деңгей':'Высокий уровень';gapColor='#2d7d46';gapIcon='🌟';
-    gapText=isKz?'Тамаша нәтиже! Олимпиадалық деңгейдегі дайындық бар.':'Отличный результат! Есть олимпиадная подготовка.';
-    gapAdvice=isKz?'Жеке бағдарлама бойынша тереңдетуге болады.':'Можно углубить подготовку по индивидуальной программе.';
+    gapText=isKz?'Тамаша нәтиже! Бірақ тереңдетуге әлі орын бар — НІШ/БИЛ-ге дайынды арттыр.':'Отличный результат! Но есть куда расти — углубляй подготовку к НИШ/БИЛ.';
   } else if(pct>=55){
     gapLevel=isKz?'Орта деңгей':'Средний уровень';gapColor='#d97706';gapIcon='📊';
-    gapText=isKz?'Жақсы негіз бар, бірақ пробелдер кездеседі.':'Хорошая база, но есть пробелы в знаниях.';
-    gapAdvice=isKz?'Математика мен ағылшын тілі бойынша 2-3 ай жүйелі жұмыс қажет.':'Нужна системная работа 2-3 месяца по математике и английскому.';
+    gapText=isKz?'Жақсы негіз бар. 2-3 айда нәтижені айтарлықтай жақсартуға болады.':'Хорошая база. За 2-3 месяца результат можно значительно улучшить.';
   } else if(pct>=35){
     gapLevel=isKz?'Базалық деңгей':'Базовый уровень';gapColor='#ea580c';gapIcon='⚠️';
-    gapText=isKz?'Елеулі пробелдер бар — негізгі тақырыптарда қиындықтар.':'Значительные пробелы — трудности в ключевых темах.';
-    gapAdvice=isKz?'Диагностиканы өтіп, нақты қай тақырыптарда пробелдер бар екенін анықтаңыз.':'Пройдите диагностику, чтобы точно определить слабые темы.';
+    gapText=isKz?'Пробелдер бар — дер кезінде жұмыс жасаса, 1 жылда деңгейді арттыруға болады.':'Есть пробелы — при системной работе за год уровень можно поднять.';
   } else {
     gapLevel=isKz?'Критикалық деңгей':'Критический уровень';gapColor='#dc2626';gapIcon='🚨';
-    gapText=isKz?'Негізгі білім бойынша маңызды кемшіліктер бар.':'Серьёзные пробелы в базовых знаниях.';
-    gapAdvice=isKz?'Тезірек диагностика жасап, жеке жоспар құру қажет.':'Необходима срочная диагностика и индивидуальный план.';
+    gapText=isKz?'Негізгі тақырыптарда маңызды кемшіліктер бар. Дереу жеке жоспар керек.':'Серьёзные пробелы в базовых темах. Нужен срочный индивидуальный план.';
   }
 
-  // Percentile bar
   const percentile=100-topPct;
 
-  const whatsappText=encodeURIComponent(isKz
-    ?`Сәлеметсіз бе! Мен Aicup олимпиадасында ${rank}-орын алдым (${total} оқушының ішінде). Нәтижем: ${score}/45 (${pct}%). Сынақ сабағына жазылғым келеді.`
-    :`Здравствуйте! Я занял(а) ${rank}-е место на олимпиаде Aicup (из ${total} учеников). Мой результат: ${score}/45 (${pct}%). Хочу записаться на пробный урок.`);
+  // WhatsApp messages per offer
+  const nameStr=s[0];
+  const baseInfo=isKz?`Aicup олимпиадасы: ${rank}-орын, ${score}/45 балл (${pct}%)`:`Aicup олимпиада: ${rank} место, ${score}/45 баллов (${pct}%)`;
+  const waOffline=encodeURIComponent(isKz
+    ?`Сәлем! ${nameStr}. ${baseInfo}. Офлайн диагностикаға жазылғым келеді.`
+    :`Здравствуйте! ${nameStr}. ${baseInfo}. Хочу записаться на оффлайн диагностику.`);
+  const waTrial=encodeURIComponent(isKz
+    ?`Сәлем! ${nameStr}. ${baseInfo}. Тегін сынақ сабаққа жазылғым келеді.`
+    :`Здравствуйте! ${nameStr}. ${baseInfo}. Хочу записаться на бесплатный пробный урок.`);
+  const waDiscount=encodeURIComponent(isKz
+    ?`Сәлем! ${nameStr}. ${baseInfo}. Жеңілдік туралы білгім келеді.`
+    :`Здравствуйте! ${nameStr}. ${baseInfo}. Хочу узнать про скидку на обучение.`);
+
+  // Deadline timer
+  const deadline=new Date('2026-04-20T23:59:59');
+  const now=new Date();
+  const diff=deadline-now;
+  let timerHTML='';
+  if(diff>0){
+    const days=Math.floor(diff/86400000);
+    const hrs=Math.floor((diff%86400000)/3600000);
+    timerHTML=`<div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:22px">⏰</span>
+      <div>
+        <div style="font-size:12px;font-weight:800;color:#92400e">${isKz?'ЕРЕКШЕ ҰСЫНЫС — тек':'СПЕЦПРЕДЛОЖЕНИЕ — только'} ${days} ${isKz?'күн':'дн'} ${hrs} ${isKz?'сағ':'ч'}!</div>
+        <div style="font-size:11px;color:#92400e">${isKz?'20 сәуірге дейін жарамды':'Действует до 20 апреля'}</div>
+      </div>
+    </div>`;
+  }
 
   a.innerHTML=`<div style="padding-top:16px">
-    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:16px" onclick="S.olympStudent=null;rOlymp(app())">← ${isKz?'Іздеуге оралу':'Назад к поиску'}</button>
+    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:14px" onclick="S.olympStudent=null;rOlymp(app())">← ${isKz?'Іздеуге оралу':'Назад к поиску'}</button>
 
-    <div class="card" style="text-align:center;margin-bottom:14px">
-      <div style="font-size:48px;margin-bottom:8px">🏆</div>
-      <h2 style="font-size:22px;font-weight:900;margin-bottom:4px">${s[0]}</h2>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:4px">${school}</p>
-      <p style="font-size:12px;color:var(--muted)">${dept}${rd===2?' · 2 '+( isKz?'тур':'тур'):''}</p>
+    <!-- Result card -->
+    <div class="card" style="text-align:center;margin-bottom:12px;padding:20px">
+      <div style="font-size:44px;margin-bottom:6px">🏆</div>
+      <h2 style="font-size:20px;font-weight:900;margin-bottom:4px">${s[0]}</h2>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:2px">${school}</p>
+      <p style="font-size:11px;color:var(--muted)">${dept}${rd===2?' · 2 тур':''}</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
-      <div class="card" style="text-align:center;padding:18px 10px">
-        <div style="font-size:28px;font-weight:900;color:var(--dark)">${rank}</div>
-        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'ОРЫН':'МЕСТО'}</div>
-        <div style="font-size:11px;color:var(--muted)">${isKz?'ішінен':'из'} ${total}</div>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="card" style="text-align:center;padding:14px 8px">
+        <div style="font-size:26px;font-weight:900;color:var(--dark)">${rank}</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'ОРЫН':'МЕСТО'}</div>
+        <div style="font-size:10px;color:var(--muted)">${isKz?'ішінен':'из'} ${total}</div>
       </div>
-      <div class="card" style="text-align:center;padding:18px 10px">
-        <div style="font-size:28px;font-weight:900;color:var(--accent)">${score}<span style="font-size:14px;color:var(--muted)">/45</span></div>
-        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'БАЛЛ':'БАЛЛОВ'}</div>
+      <div class="card" style="text-align:center;padding:14px 8px">
+        <div style="font-size:26px;font-weight:900;color:var(--accent)">${score}<span style="font-size:12px;color:var(--muted)">/45</span></div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'БАЛЛ':'БАЛЛОВ'}</div>
       </div>
-      <div class="card" style="text-align:center;padding:18px 10px">
-        <div style="font-size:28px;font-weight:900;color:${gapColor}">${pct}%</div>
-        <div style="font-size:11px;color:var(--muted);font-weight:700">${isKz?'ПАЙЫЗ':'ПРОЦЕНТ'}</div>
+      <div class="card" style="text-align:center;padding:14px 8px">
+        <div style="font-size:26px;font-weight:900;color:${gapColor}">${pct}%</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700">${isKz?'НӘТИЖЕ':'РЕЗУЛЬТАТ'}</div>
       </div>
     </div>
 
+    <!-- Level & bar -->
     <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span style="font-size:28px">${gapIcon}</span>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:26px">${gapIcon}</span>
         <div>
-          <div style="font-weight:800;font-size:15px;color:${gapColor}">${gapLevel}</div>
-          <div style="font-size:12px;color:var(--muted)">${gapText}</div>
+          <div style="font-weight:900;font-size:15px;color:${gapColor}">${gapLevel}</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5">${gapText}</div>
         </div>
       </div>
-      <div style="background:#f0f4f8;border-radius:10px;padding:14px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:var(--dark);margin-bottom:8px">${isKz?'Рейтинг':'Рейтинг'}: TOP ${topPct}%</div>
-        <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden">
-          <div style="height:100%;width:${percentile}%;background:linear-gradient(90deg,${gapColor},var(--accent));border-radius:8px;transition:width 1s"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">
-          <span>${isKz?'Ең төмен':'Минимум'}</span>
-          <span>${isKz?'Ең жоғары':'Максимум'}</span>
+      <div style="height:7px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+        <div style="height:100%;width:${percentile}%;background:linear-gradient(90deg,${gapColor},var(--accent));border-radius:8px"></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);text-align:right">TOP ${topPct}%</div>
+    </div>
+
+    ${timerHTML}
+
+    <!-- Offers header -->
+    <div style="font-size:16px;font-weight:900;color:var(--dark);margin-bottom:12px;text-align:center">
+      ${isKz?'🎯 Келесі қадам — таңдаңыз:':'🎯 Выберите следующий шаг:'}
+    </div>
+
+    <!-- Offer 1: Offline diagnostic -->
+    <div class="card" style="margin-bottom:10px;border:2px solid #1B3A5C">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">🏫</div>
+        <div style="flex:1">
+          <div style="font-weight:900;font-size:14px;color:#1B3A5C;margin-bottom:2px">${isKz?'Офлайн диагностика':'Оффлайн диагностика'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Оқытушы баламен жеке жұмыс жасайды. Нақты пробелдер анықталады + жеке оқу жоспары.':'Преподаватель работает лично с ребёнком. Точные пробелы + индивидуальный план обучения.'}</div>
+          <a href="https://wa.me/${WA}?text=${waOffline}" target="_blank"
+            style="display:block;text-align:center;background:#1B3A5C;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
+            💬 ${isKz?'Жазылу':'Записаться'}
+          </a>
         </div>
       </div>
-      <p style="font-size:13px;line-height:1.6;color:var(--dark)">${gapAdvice}</p>
     </div>
 
-    <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,#f0f8ff,#fff8f0);border:2px solid var(--accent)">
-      <h3 style="font-size:16px;font-weight:900;margin-bottom:8px">${isKz?'📋 Нақты пробелдерді анықта!':'📋 Узнай свои точные пробелы!'}</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">${isKz
-        ?'Олимпиада жалпы деңгейді көрсетеді. Диагностика — нақты қай тақырыпта қиындық бар екенін анықтайды. Математика мен ағылшын тілі бойынша тегін тексер!'
-        :'Олимпиада показывает общий уровень. Диагностика покажет точно, в каких темах пробелы. Бесплатная проверка по математике и английскому!'}</p>
-      <button class="btn" style="width:100%;margin-bottom:8px" onclick="S.diagGrade='5';goTab('diag')">
-        ${isKz?'🎯 Тегін диагностиканы бастау':'🎯 Пройти бесплатную диагностику'}
-      </button>
+    <!-- Offer 2: Online diagnostic -->
+    <div class="card" style="margin-bottom:10px;border:2px solid var(--accent)">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">🎯</div>
+        <div style="flex:1">
+          <div style="font-weight:900;font-size:14px;color:var(--dark);margin-bottom:2px">${isKz?'Онлайн диагностика':'Онлайн диагностика'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Тест тапсырып, нақты қай тақырыпта пробел бар екенін бірден білесіз. Тегін!':'Пройди тест и сразу узнай, в каких темах пробелы. Бесплатно!'}</div>
+          <button class="btn" style="width:100%;padding:11px;font-size:13px" onclick="S.diagGrade='${s[2]?'5':'5'}';goTab('diag')">
+            ${isKz?'🎯 Тегін тест бастау':'🎯 Начать бесплатный тест'}
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="card" style="margin-bottom:14px">
-      <h3 style="font-size:16px;font-weight:900;margin-bottom:12px">${isKz?'📞 Тегін сынақ сабақ':'📞 Бесплатный пробный урок'}</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">${isKz
-        ?'Aiplus Kids-те жеке бағдарламамен оқу — пробелдерді жабу үшін ең тиімді жол.'
-        :'Индивидуальная программа в Aiplus Kids — самый эффективный путь закрыть пробелы.'}</p>
-      <a href="https://wa.me/77001234567?text=${whatsappText}" target="_blank"
-        style="display:block;text-align:center;background:#25D366;color:#fff;padding:14px;border-radius:50px;font-weight:800;font-size:14px;text-decoration:none">
-        💬 ${isKz?'WhatsApp-қа жазылу':'Записаться через WhatsApp'}
-      </a>
+    <!-- Offer 3: Trial lesson -->
+    <div class="card" style="margin-bottom:10px;border:2px solid #25D366">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">📚</div>
+        <div style="flex:1">
+          <div style="font-weight:900;font-size:14px;color:var(--dark);margin-bottom:2px">${isKz?'Тегін сынақ сабақ':'Бесплатный пробный урок'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'45 минут жеке сабақ. Оқытушы баланың деңгейін анықтап, не қажет екенін айтады.':'45 минут индивидуального урока. Преподаватель оценит уровень и скажет, что нужно.'}</div>
+          <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank"
+            style="display:block;text-align:center;background:#25D366;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
+            💬 ${isKz?'WhatsApp арқылы жазылу':'Записаться через WhatsApp'}
+          </a>
+        </div>
+      </div>
     </div>
 
-    <div style="text-align:center;margin-top:12px">
+    <!-- Offer 4: Discount -->
+    <div class="card" style="margin-bottom:14px;border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff)">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:28px;flex-shrink:0">🎁</div>
+        <div style="flex:1">
+          <div style="font-weight:900;font-size:14px;color:#92400e;margin-bottom:2px">${isKz?'Олимпиада қатысушыларына жеңілдік':'Скидка для участников олимпиады'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Aicup қатысушыларына арнайы жеңілдік. 20 сәуірге дейін.':'Специальная скидка для участников Aicup. До 20 апреля.'}</div>
+          <a href="https://wa.me/${WA}?text=${waDiscount}" target="_blank"
+            style="display:block;text-align:center;background:#f59e0b;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
+            🎁 ${isKz?'Жеңілдік алу':'Получить скидку'}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact capture form -->
+    <div class="card" style="margin-bottom:14px;background:#f8f7f4">
+      <div style="font-size:14px;font-weight:800;margin-bottom:6px">📞 ${isKz?'Біз өзіміз хабарласамыз':'Мы сами позвоним'}</div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:12px">${isKz?'Нөміріңізді қалдырыңыз — менеджер 1 сағат ішінде хабарласады.':'Оставьте номер — менеджер свяжется в течение 1 часа.'}</p>
+      <div style="display:flex;gap:8px">
+        <input id="olympPhone" type="tel" placeholder="+7 ___  ___  __ __" inputmode="tel"
+          style="flex:1;padding:11px 14px;border:2px solid #e2e8f0;border-radius:50px;font-size:13px;outline:none;font-family:inherit"
+          onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='#e2e8f0'">
+        <button onclick="submitOlympContact('${s[0].replace(/'/g,'')}')"
+          style="background:var(--dark);color:#fff;border:none;padding:11px 18px;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap">
+          ${isKz?'Жіберу':'Отправить'}
+        </button>
+      </div>
+      <div id="olympContactDone" style="display:none;color:#2d7d46;font-size:12px;margin-top:8px;font-weight:700">
+        ✅ ${isKz?'Сәтті! Жақын арада хабарласамыз.':'Отлично! Свяжемся в ближайшее время.'}
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div style="text-align:center;margin-bottom:20px">
       <button class="btn-outline" style="font-size:11px" onclick="shareOlympResult()">
         📤 ${isKz?'Нәтижені бөлісу':'Поделиться результатом'}
       </button>
     </div>
   </div>`;
+}
+
+function submitOlympContact(name){
+  const phone=document.getElementById('olympPhone');
+  if(!phone||!phone.value.trim()||phone.value.trim().length<7){
+    phone.style.borderColor='#dc2626';setTimeout(()=>{phone.style.borderColor='#e2e8f0';},1500);return;
+  }
+  const WA='77002936964';
+  const msg=encodeURIComponent(`Жаңа контакт (Aicup): ${name} — ${phone.value.trim()}`);
+  window.open(`https://wa.me/${WA}?text=${msg}`,'_blank');
+  document.getElementById('olympContactDone').style.display='block';
+  phone.disabled=true;
 }
 
 function shareOlympResult(){
