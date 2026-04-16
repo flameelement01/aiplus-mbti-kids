@@ -464,6 +464,9 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
   </div>
   <button onclick="goTab('home')" style="background:#f0f4f8;border:none;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:800;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:5px">🏠 Главная</button>
 </div>
+<div style="background:#f0f4f8;border-bottom:1px solid #e2e8f0;padding:6px 16px;text-align:center;font-size:11px;color:#555;font-weight:600">
+  🏫 Официальная страница учебного центра <b>Aiplus</b> · <a href="https://aiplus.kz" target="_blank" style="color:var(--dark)">aiplus.kz</a> · +7 707 237 43 05
+</div>
 
 <div class="wrap" id="app"></div>
 
@@ -2117,7 +2120,7 @@ function rOlympResult(a){
   const now=new Date();
   const diff=deadline-now;
   let timerHTML='';
-  if(diff>0){
+  if(false&&diff>0){
     const days=Math.floor(diff/86400000);
     const hrs=Math.floor((diff%86400000)/3600000);
     timerHTML=`<div style="background:#fff3cd;border:2px solid #f59e0b;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
@@ -2138,6 +2141,7 @@ function rOlympResult(a){
       <h2 style="font-size:20px;font-weight:900;margin-bottom:4px">${s[0]}</h2>
       <p style="font-size:11px;color:var(--muted);margin-bottom:2px">${school}</p>
       <p style="font-size:11px;color:var(--muted)">${dept}${rd===2?' · 2 тур':''}</p>
+      <p style="font-size:10px;color:#94a3b8;margin-top:8px">🔒 ${isKz?'Нәтижелер тек қатысушының аты-жөні бойынша қолжетімді':'Результаты доступны только по имени участника'}</p>
     </div>
 
     <!-- Stats -->
@@ -2196,17 +2200,11 @@ function rOlympResult(a){
         </a>
       </div>`}
 
-      <!-- Secondary CTAs -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button onclick="S.diagGrade='5';goTab('diag')"
-          style="background:#f0f4f8;border:2px solid #e2e8f0;border-radius:14px;padding:12px 8px;font-weight:800;font-size:12px;color:var(--dark);cursor:pointer">
-          🎯 ${isKz?'Тегін онлайн тест':'Онлайн тест бесплатно'}
-        </button>
-        <a href="https://wa.me/${WA}?text=${waDiscount}" target="_blank" onclick="trackOffer('discount','${nameStr}')"
-          style="display:block;text-align:center;background:#fff8e1;border:2px solid #f59e0b;border-radius:14px;padding:12px 8px;font-weight:800;font-size:12px;color:#92400e;text-decoration:none">
-          🎁 ${isKz?'Жеңілдік алу':'Получить скидку'}
-        </a>
-      </div>
+      <!-- Secondary CTA -->
+      <button onclick="S.diagGrade='5';goTab('diag')"
+        style="width:100%;background:#f0f4f8;border:2px solid #e2e8f0;border-radius:14px;padding:12px 8px;font-weight:800;font-size:12px;color:var(--dark);cursor:pointer">
+        🎯 ${isKz?'Тегін онлайн диагностика':'Бесплатная онлайн диагностика'}
+      </button>
     </div>
 
     <!-- PDF samples -->
