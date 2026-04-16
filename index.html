@@ -1799,6 +1799,8 @@ function rDiagResult(a){
   let progressH='';Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade).forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
     progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:11px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
   const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;const totalSubj=gradeSubjects.length;
+  const currentSubjIdx=gradeSubjects.indexOf(S.diagSubject);const nextSubject=currentSubjIdx<gradeSubjects.length-1?gradeSubjects[currentSubjIdx+1]:null;
+  const nextSubjectHTML=nextSubject?`<button onclick="startDiag('${nextSubject}')" style="width:100%;background:linear-gradient(135deg,var(--dark),#2563eb);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">→ ${S.lang==='kz'?'Келесі пән:':'Следующий предмет:'} ${DIAG[nextSubject][S.lang].name}</button>`:'';
   const collectPct=Math.round(completed/totalSubj*100);
   const nm=S.diagName||'';
   const chTxt=S.lang==='kz'
@@ -1824,6 +1826,7 @@ function rDiagResult(a){
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0">
       <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent('${chSafe}'),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
       <button class="challenge-btn copy" onclick="navigator.clipboard.writeText('${chSafe}');toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button></div>
+    ${nextSubjectHTML}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">
       <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Рекорд жаңарт!':'Побей рекорд!'}</button>
       <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button></div>
