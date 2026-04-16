@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-22M2J25JYZ"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-22M2J25JYZ');
+  function gaEvent(name,params){if(typeof gtag!=='undefined')gtag('event',name,params||{});}
+</script>
 <title>Aiplus Kids — образовательная платформа для 5-6 классов</title>
 <meta name="description" content="Профориентация, диагностика знаний, видеоуроки и ИИ-консультант для детей 10-12 лет.">
 <meta property="og:title" content="Aiplus Kids — образовательная платформа">
@@ -1369,6 +1378,7 @@ function sendToSheets(completed){
 
 // Offer click analytics
 function trackOffer(offerType,studentName){
+  gaEvent('whatsapp_click',{offer_type:offerType,student:studentName||''});
   if(!SHEETS_URL) return;
   const params=new URLSearchParams();
   params.append('name',studentName||'');
@@ -1827,6 +1837,7 @@ function rDiagResult(a){
     <div style="font-size:17px;font-weight:900;margin-bottom:6px">${trialTitle}</div>
     <div style="font-size:12px;opacity:.85;margin-bottom:16px">${trialSub}</div>
     <a href="https://wa.me/${WA}?text=${trialMsg}" target="_blank"
+      onclick="gaEvent('whatsapp_click',{offer_type:'trial_diag',subject:'${S.diagSubject||''}',pct:${pct}})"
       style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
       💬 ${S.lang==='kz'?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
     </a>
@@ -2089,7 +2100,7 @@ function renderOlympResults(){
     const school=OLYMP_DATA.s[s[1]];
     const dept=s[2]?'🇰🇿':'🇷🇺';
     const rank=OLYMP_DATA.d.indexOf(s)+1;
-    h+=`<div onclick="S.olympStudent=OLYMP_DATA.d[${OLYMP_DATA.d.indexOf(s)}];rOlymp(app())"
+    h+=`<div onclick="S.olympStudent=OLYMP_DATA.d[${OLYMP_DATA.d.indexOf(s)}];gaEvent('olymp_result_open',{student:'${s[0].replace(/'/g,'')}'});rOlymp(app())"
       style="padding:14px 16px;border-radius:12px;background:#f8f7f4;margin-bottom:8px;cursor:pointer;transition:all .15s;border:2px solid transparent"
       onmouseover="this.style.borderColor='var(--dark)';this.style.transform='translateX(4px)'"
       onmouseout="this.style.borderColor='transparent';this.style.transform='none'">
