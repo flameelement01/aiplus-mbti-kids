@@ -2002,7 +2002,7 @@ function rOlymp(a){
       <div style="font-size:48px;margin-bottom:12px">🏆</div>
       <h2 class="section-title">${isKz?'Aicup Олимпиада нәтижелері':'Результаты олимпиады Aicup'}</h2>
       <p class="section-sub" style="margin-bottom:20px">${isKz?'2500+ оқушы қатысты. Өз нәтижеңді біл!':'2500+ учеников участвовало. Узнай свой результат!'}</p>
-      <input type="text" id="olympSearch" placeholder="${isKz?'Фамилияңды жаз...':'Введи фамилию...'}"
+      <input type="text" id="olympSearch" autocomplete="off" placeholder="${isKz?'Фамилияңды жаз...':'Введи фамилию...'}"
         style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border);font-size:15px;font-family:Inter,sans-serif;font-weight:600;outline:none;transition:border .2s"
         onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='var(--border)'"
         oninput="renderOlympResults()">
