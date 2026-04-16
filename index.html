@@ -1847,7 +1847,7 @@ function rDiagResult(a){
       </div>
       <div style="background:linear-gradient(135deg,#25D366,#128C7E);border-radius:18px;padding:20px;color:#fff;margin-bottom:10px">
         <div style="font-size:13px;opacity:.8;margin-bottom:4px">${isKz?'Нәтижені мұғаліммен талқылайық:':'Разберём результаты с преподавателем:'}</div>
-        <div style="font-size:17px;font-weight:900;margin-bottom:4px">${isKz?'Тегін сынақ сабақ — 45 мин':'Бесплатный пробный урок — 45 мин'}</div>
+        <div style="font-size:17px;font-weight:900;margin-bottom:4px">${isKz?'Тегін сынақ сабақ — 60 мин':'Бесплатный пробный урок — 60 мин'}</div>
         <div style="font-size:12px;opacity:.85;margin-bottom:14px">${isKz?'Оқытушы пробелдерді түсіндіріп, жеке жоспар ұсынады.':'Преподаватель разберёт пробелы и предложит индивидуальный план.'}</div>
         <a href="https://wa.me/${WA_NUM}?text=${waTrial2}" target="_blank"
           style="display:block;text-align:center;background:#fff;color:#128C7E;padding:13px;border-radius:50px;font-weight:900;font-size:14px;text-decoration:none"
@@ -2198,7 +2198,7 @@ function rOlympResult(a){
       <div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff;margin-bottom:10px">
         <div style="font-size:13px;opacity:.8;margin-bottom:4px">${isKz?'Жоғары нәтиже — сіз үшін ұсыныс:':'Высокий результат — наше предложение:'}</div>
         <div style="font-size:18px;font-weight:900;margin-bottom:4px">${isKz?'НИШ/БИЛ-ге дайындық':'Подготовка к НИШ/БИЛ'}</div>
-        <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?'Жеке ментор, тереңдетілген бағдарлама. 45 мин тегін сабақ бастайық.':'Личный ментор, углублённая программа. Начнём с 45 мин бесплатного урока.'}</div>
+        <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?'Жеке ментор, тереңдетілген бағдарлама. 60 мин тегін сабақ бастайық.':'Личный ментор, углублённая программа. Начнём с 60 мин бесплатного урока.'}</div>
         <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank" onclick="trackOffer('trial_nish','${nameStr}')"
           style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
           💬 ${isKz?'Тегін сабаққа жазылу':'Записаться на бесплатный урок'}
@@ -2206,7 +2206,7 @@ function rOlympResult(a){
       </div>`:`
       <div style="background:linear-gradient(135deg,#25D366,#128C7E);border-radius:18px;padding:20px;color:#fff;margin-bottom:10px">
         <div style="font-size:13px;opacity:.8;margin-bottom:4px">${isKz?'Пробелдерді жабайық:':'Закроем пробелы:'}</div>
-        <div style="font-size:18px;font-weight:900;margin-bottom:4px">${pct>=35?(isKz?'Тегін сынақ сабақ — 45 мин':'Бесплатный пробный урок — 45 мин'):(isKz?'Жеке оқу жоспары':'Индивидуальный план обучения')}</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:4px">${pct>=35?(isKz?'Тегін сынақ сабақ — 60 мин':'Бесплатный пробный урок — 60 мин'):(isKz?'Жеке оқу жоспары':'Индивидуальный план обучения')}</div>
         <div style="font-size:12px;opacity:.85;margin-bottom:16px">${pct>=35?(isKz?'Оқытушы баланың деңгейін анықтап, не қажет екенін айтады.':'Преподаватель оценит уровень и скажет, что нужно.'):(isKz?'Диагностика + жеке жоспар. Бастапқыдан НИШ-ке дейін.':'Диагностика + план. От нуля до НИШ.')}</div>
         <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank" onclick="trackOffer('trial_main','${nameStr}')"
           style="display:block;text-align:center;background:#fff;color:#128C7E;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
