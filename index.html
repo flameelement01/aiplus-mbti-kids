@@ -2033,7 +2033,7 @@ function rOlymp(a){
       <div style="font-size:48px;margin-bottom:12px">🏆</div>
       <h2 class="section-title">${isKz?'Aicup Олимпиада нәтижелері':'Результаты олимпиады Aicup'}</h2>
       <p class="section-sub" style="margin-bottom:20px">${isKz?'2500+ оқушы қатысты. Өз нәтижеңді біл!':'2500+ учеников участвовало. Узнай свой результат!'}</p>
-      <input type="text" id="olympSearch" autocomplete="off" placeholder="${isKz?'Тегі және аты (мысалы: Иванов Арман)':'Фамилия и имя (например: Иванов Арман)'}"
+      <input type="text" id="olympSearch" autocomplete="off" placeholder="${isKz?'Тегі және аты':'Фамилия и имя'}"
         style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border);font-size:15px;font-family:Inter,sans-serif;font-weight:600;outline:none;transition:border .2s"
         onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='var(--border)'"
         oninput="renderOlympResults()">
@@ -2061,7 +2061,7 @@ function renderOlympResults(){
   const isKz=S.lang==='kz';
   if(results===null){
     box.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:8px 4px;text-align:center">
-      ${isKz?'Тегі мен атын толық жазыңыз (мысалы: Иванов Арман)':'Введите фамилию и имя полностью (например: Иванов Арман)'}
+      ${isKz?'Тегі мен атын толық жазыңыз':'Введите фамилию и имя полностью'}
     </div>`;
     return;
   }
