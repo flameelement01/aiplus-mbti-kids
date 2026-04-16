@@ -465,7 +465,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
   <button onclick="goTab('home')" style="background:#f0f4f8;border:none;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:800;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:5px">🏠 Главная</button>
 </div>
 <div style="background:#f0f4f8;border-bottom:1px solid #e2e8f0;padding:6px 16px;text-align:center;font-size:11px;color:#555;font-weight:600">
-  🏫 Официальная страница учебного центра <b>Aiplus</b> · <a href="https://aiplus.kz" target="_blank" style="color:var(--dark)">aiplus.kz</a> · +7 707 237 43 05
+  🏫 Официальная страница учебного центра <b>Aiplus</b> · <a href="https://mektep.aiplus.kz" target="_blank" style="color:var(--dark)">mektep.aiplus.kz</a> · +7 707 237 43 05
 </div>
 
 <div class="wrap" id="app"></div>
@@ -2002,14 +2002,20 @@ const OLYMP_DATA={"s":["1. \"А.С.Пушкин ат. №1 мектеп-гимн
 // OLYMPIAD RESULTS
 // ============================================================
 function searchOlymp(query){
-  if(!query||query.length<2) return [];
-  const normalize=str=>str.toLowerCase().trim().replace(/ё/g,'е').replace(/\s+/g,' ');
+  if(!query||query.trim().length<2) return [];
+  const normalize=str=>str.toLowerCase().trim()
+    .replace(/ё/g,'е').replace(/і/g,'и').replace(/ң/g,'н')
+    .replace(/ғ/g,'г').replace(/қ/g,'к').replace(/ү/g,'у')
+    .replace(/ұ/g,'у').replace(/ө/g,'о').replace(/ә/g,'а')
+    .replace(/һ/g,'х').replace(/\s+/g,' ');
   const q=normalize(query);
   const parts=q.split(' ').filter(p=>p.length>0);
+  // Require at least 2 words (surname + name)
+  if(parts.length<2) return null;
   return OLYMP_DATA.d.filter(s=>{
     const name=normalize(s[0]);
     return parts.every(p=>name.includes(p));
-  }).slice(0,20);
+  }).slice(0,10);
 }
 
 function getOlympRank(student){
@@ -2027,7 +2033,7 @@ function rOlymp(a){
       <div style="font-size:48px;margin-bottom:12px">🏆</div>
       <h2 class="section-title">${isKz?'Aicup Олимпиада нәтижелері':'Результаты олимпиады Aicup'}</h2>
       <p class="section-sub" style="margin-bottom:20px">${isKz?'2500+ оқушы қатысты. Өз нәтижеңді біл!':'2500+ учеников участвовало. Узнай свой результат!'}</p>
-      <input type="text" id="olympSearch" autocomplete="off" placeholder="${isKz?'Фамилияңды жаз...':'Введи фамилию...'}"
+      <input type="text" id="olympSearch" autocomplete="off" placeholder="${isKz?'Тегі және аты (мысалы: Иванов Арман)':'Фамилия и имя (например: Иванов Арман)'}"
         style="width:100%;padding:14px 18px;border-radius:12px;border:2px solid var(--border);font-size:15px;font-family:Inter,sans-serif;font-weight:600;outline:none;transition:border .2s"
         onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='var(--border)'"
         oninput="renderOlympResults()">
@@ -2050,9 +2056,15 @@ function renderOlympResults(){
   const box=document.getElementById('olympResults');
   if(!inp||!box) return;
   const q=inp.value;
-  if(q.length<2){box.innerHTML='';return;}
+  if(q.trim().length<2){box.innerHTML='';return;}
   const results=searchOlymp(q);
   const isKz=S.lang==='kz';
+  if(results===null){
+    box.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:8px 4px;text-align:center">
+      ${isKz?'Тегі мен атын толық жазыңыз (мысалы: Иванов Арман)':'Введите фамилию и имя полностью (например: Иванов Арман)'}
+    </div>`;
+    return;
+  }
   if(results.length===0){
     const nm=inp.value.trim();
     box.innerHTML=`<div style="background:#fff8e1;border:2px solid #f59e0b;border-radius:14px;padding:16px;margin-top:4px">
