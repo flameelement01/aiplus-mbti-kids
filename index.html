@@ -1810,6 +1810,27 @@ function rDiagResult(a){
     ?`${rank.icon} ${nm} "${subName}" бойынша ${S.diagScore}/${qs.length} жинады — ${rankName}! Сен жеңе аласың ба? 👉 ${SITE_URL}`
     :`${rank.icon} ${nm} набрал ${S.diagScore}/${qs.length} по "${subName}" — ранг ${rankName}! Сможешь лучше? 👉 ${SITE_URL}`;
   const chSafe=chTxt.replace(/'/g,"\\'");
+  const WA='77072374305';
+  const trialMsg=encodeURIComponent(S.lang==='kz'
+    ?`Сәлем! ${nm}. "${subName}" бойынша тест тапсырдым — ${S.diagScore}/${qs.length} (${pct}%). Тегін сынақ сабаққа жазылғым келеді.`
+    :`Здравствуйте! ${nm}. Прошёл(а) тест по "${subName}" — ${S.diagScore}/${qs.length} (${pct}%). Хочу записаться на бесплатный пробный урок.`);
+  const trialTitle=pct>=75
+    ?(S.lang==='kz'?'Жоғары нәтиже — НИШ/БИЛ-ге дайындықты тереңдет':'Отличный результат — углубим подготовку к НИШ/БИЛ')
+    :pct>=50
+    ?(S.lang==='kz'?'Жақсы база — пробелдерді жабайық':'Хорошая база — закроем пробелы')
+    :(S.lang==='kz'?'Тест негізгі тақырыптардан олқылықтар анықтады':'Тест выявил пробелы в базовых темах');
+  const trialSub=pct>=75
+    ?(S.lang==='kz'?'Ментор ${nm}-ға жеке дайындық жоспарын жасайды':'Ментор составит индивидуальный план подготовки для ${nm}')
+    :(S.lang==='kz'?'60 мин сабақта ментор дәл сол тақырыптарды талдайды':'За 60 мин урока ментор разберёт именно эти темы с ${nm}');
+  const trialHTML=`<div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff;margin:16px 0">
+    <div style="font-size:12px;opacity:.7;margin-bottom:4px">${S.lang==='kz'?'Нәтижеңіз бойынша ұсыныс':'Предложение по вашему результату'}</div>
+    <div style="font-size:17px;font-weight:900;margin-bottom:6px">${trialTitle}</div>
+    <div style="font-size:12px;opacity:.85;margin-bottom:16px">${trialSub}</div>
+    <a href="https://wa.me/${WA}?text=${trialMsg}" target="_blank"
+      style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
+      💬 ${S.lang==='kz'?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
+    </a>
+  </div>`;
 
   a.innerHTML=`<div style="margin-top:16px">
     <div class="share-result-card">
@@ -1830,6 +1851,7 @@ function rDiagResult(a){
       <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent('${chSafe}'),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
       <button class="challenge-btn copy" onclick="navigator.clipboard.writeText('${chSafe}');toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button></div>
     ${nextSubjectHTML}
+    ${trialHTML}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">
       <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Рекорд жаңарт!':'Побей рекорд!'}</button>
       <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button></div>
