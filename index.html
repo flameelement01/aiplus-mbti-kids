@@ -1076,7 +1076,7 @@ function rHome(a){
   <div class="cta">
     <h2>${t('ctaTitle')}</h2>
     <p>${t('ctaSub')}</p>
-    <a href="https://wa.me/77002936964?text=${encodeURIComponent(S.lang==='kz'?'Сәлем! Aiplus Kids туралы білгім келеді':'Здравствуйте! Хочу узнать об Aiplus Kids')}" target="_blank">${t('ctaBtn')}</a>
+    <a href="https://wa.me/77072374305?text=${encodeURIComponent(S.lang==='kz'?'Сәлем! Aiplus Kids туралы білгім келеді':'Здравствуйте! Хочу узнать об Aiplus Kids')}" target="_blank">${t('ctaBtn')}</a>
   </div>
 
   <div class="contacts">
@@ -1084,7 +1084,7 @@ function rHome(a){
     <div class="social-links">
       <a class="social-btn ig" href="https://instagram.com/aiplus.kz" target="_blank">📸 Instagram</a>
       <a class="social-btn tg" href="https://t.me/aiplus_kz" target="_blank">✈️ Telegram</a>
-      <a class="social-btn wa2" href="https://wa.me/77002936964" target="_blank">💬 WhatsApp</a>
+      <a class="social-btn wa2" href="https://wa.me/77072374305" target="_blank">💬 WhatsApp</a>
     </div>
     <div class="contact-info" style="text-align:left;max-width:480px;margin:14px auto 0">
       <p style="font-weight:800;margin-bottom:6px">${t('contactPhone')}</p>
@@ -1727,7 +1727,7 @@ function renderGapAnalysis(){
       <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz
         ?'Жеке бағдарлама бойынша тегін сынақ сабақ — нақты осы тақырыптарды жабу үшін'
         :'Бесплатный пробный урок по индивидуальной программе — закроем именно эти темы'}</p>
-      <a href="https://wa.me/77002936964?text=${waMsg}" target="_blank"
+      <a href="https://wa.me/77072374305?text=${waMsg}" target="_blank"
         style="display:block;text-align:center;background:#25D366;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:12px;text-decoration:none">
         💬 ${isKz?'Тегін сынақ сабаққа жазылу':'Записаться на бесплатный пробный урок'}
       </a>
@@ -1809,7 +1809,7 @@ function rCourses(a){
     const enrollMsg=encodeURIComponent(S.lang==='kz'?`Сәлем! "${d.name}" курсына жазылғым келеді`:`Здравствуйте! Хочу записаться на курс "${d.name}"`);
     html+=`<div class="course-card"><div class="cc-top"><div class="cc-ic">${c.icon}</div><div><h4>${d.name}</h4><div class="cc-sub">${d.sub}</div></div></div>
       <div class="cc-lessons">${lessonsH}</div>
-      <a href="https://wa.me/77002936964?text=${enrollMsg}" target="_blank" class="btn-accent" style="display:block;text-align:center;margin-top:12px;text-decoration:none;padding:12px">${t('coursesEnroll')}</a></div>`;});
+      <a href="https://wa.me/77072374305?text=${enrollMsg}" target="_blank" class="btn-accent" style="display:block;text-align:center;margin-top:12px;text-decoration:none;padding:12px">${t('coursesEnroll')}</a></div>`;});
   html+=`<div style="text-align:center;margin-top:16px"><a href="https://aiplus.getcourse.ru" target="_blank" class="btn-accent">${t('coursesAll')}</a></div></div>`;
   a.innerHTML=html;
 }
@@ -1869,8 +1869,8 @@ function sendChat(){
     answer=S.lang==='kz'?AI_FAQ[bestIdx].answer_kz:AI_FAQ[bestIdx].answer_ru;
   }else{
     answer=S.lang==='kz'
-      ?'Рахмет сұрағыңыз үшін! Мен бұл сұраққа толық жауап бере алмаймын, бірақ төмендегі батырмалардан жиі қойылатын сұрақтарды таңдауға болады.\n\nНемесе Aiplus кеңесшісіне жазыңыз — **wa.me/77002936964** 📱'
-      :'Спасибо за вопрос! Я пока не могу дать точный ответ на этот вопрос, но попробуйте выбрать один из частых вопросов ниже.\n\nИли напишите консультанту Aiplus — **wa.me/77002936964** 📱';
+      ?'Рахмет сұрағыңыз үшін! Мен бұл сұраққа толық жауап бере алмаймын, бірақ төмендегі батырмалардан жиі қойылатын сұрақтарды таңдауға болады.\n\nНемесе Aiplus кеңесшісіне жазыңыз — **wa.me/77072374305** 📱'
+      :'Спасибо за вопрос! Я пока не могу дать точный ответ на этот вопрос, но попробуйте выбрать один из частых вопросов ниже.\n\nИли напишите консультанту Aiplus — **wa.me/77072374305** 📱';
   }
   S.chatMessages.push({role:'bot',text:answer});
   rAI(app());
@@ -1988,7 +1988,7 @@ function rOlympResult(a){
   const score=s[3];
   const rd=s[5];
   const topPct=Math.round(rank/total*100);
-  const WA='77002936964';
+  const WA='77072374305';
 
   // Level
   let gapLevel,gapColor,gapIcon,gapText;
@@ -2168,7 +2168,7 @@ function submitOlympContact(name){
   if(!phone||!phone.value.trim()||phone.value.trim().length<7){
     phone.style.borderColor='#dc2626';setTimeout(()=>{phone.style.borderColor='#e2e8f0';},1500);return;
   }
-  const WA='77002936964';
+  const WA='77072374305';
   const msg=encodeURIComponent(`Жаңа контакт (Aicup): ${name} — ${phone.value.trim()}`);
   window.open(`https://wa.me/${WA}?text=${msg}`,'_blank');
   document.getElementById('olympContactDone').style.display='block';
