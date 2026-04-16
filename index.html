@@ -1049,6 +1049,30 @@ function rHome(a){
     <div class="home-card full" onclick="S.tab='info';rInfo(app())"><div class="hc-ic">📖</div><h3>${t('infoCard')}</h3><p>${t('infoCardDesc')}</p></div>
   </div>
 
+  <!-- About PDF card -->
+  <div class="card" style="margin:0 0 16px;display:flex;gap:14px;align-items:center;padding:16px">
+    <img src="${SITE_URL}/about-preview.png" alt="Aiplus презентация"
+      style="width:72px;min-width:72px;border-radius:10px;border:2px solid #e2e8f0;object-fit:cover;height:96px">
+    <div style="flex:1">
+      <div style="font-weight:900;font-size:14px;color:var(--dark);margin-bottom:4px">
+        ${S.lang==='kz'?'Aiplus туралы презентация 📄':'Презентация об Aiplus 📄'}
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+        ${S.lang==='kz'?'Орталық туралы негізгі ақпарат — ата-аналарға':'Всё о центре для родителей — коротко и понятно'}
+      </div>
+      <div style="display:flex;gap:8px">
+        <a href="${SITE_URL}/about.pdf" target="_blank"
+          style="background:var(--dark);color:#fff;padding:8px 14px;border-radius:50px;font-size:12px;font-weight:800;text-decoration:none">
+          ${S.lang==='kz'?'Ашу':'Открыть'}
+        </a>
+        <a href="${SITE_URL}/about.pdf" download
+          style="background:#f0f4f8;color:var(--dark);padding:8px 14px;border-radius:50px;font-size:12px;font-weight:800;text-decoration:none;border:2px solid #e2e8f0">
+          ${S.lang==='kz'?'Жүктеу':'Скачать'}
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="about-block">
     <h3>${t('aboutTitle')}</h3>
     <p>${t('aboutText')}</p>
@@ -1978,6 +2002,30 @@ function rOlymp(a){
         onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='var(--border)'"
         oninput="renderOlympResults()">
       <div id="olympResults" style="margin-top:16px;text-align:left"></div>
+    </div>
+
+    <!-- About PDF card -->
+    <div class="card" style="margin-top:12px;display:flex;gap:14px;align-items:center;padding:16px">
+      <img src="${SITE_URL}/about-preview.png" alt="Aiplus"
+        style="width:64px;min-width:64px;border-radius:10px;border:2px solid #e2e8f0;object-fit:cover;height:86px">
+      <div style="flex:1">
+        <div style="font-weight:900;font-size:13px;color:var(--dark);margin-bottom:4px">
+          ${isKz?'Aiplus туралы презентация 📄':'Презентация об Aiplus 📄'}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4">
+          ${isKz?'Орталық туралы ата-аналарға':'Всё о центре для родителей'}
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="${SITE_URL}/about.pdf" target="_blank"
+            style="background:var(--dark);color:#fff;padding:7px 13px;border-radius:50px;font-size:11px;font-weight:800;text-decoration:none">
+            ${isKz?'Ашу':'Открыть'}
+          </a>
+          <a href="${SITE_URL}/about.pdf" download
+            style="background:#f0f4f8;color:var(--dark);padding:7px 13px;border-radius:50px;font-size:11px;font-weight:800;text-decoration:none;border:2px solid #e2e8f0">
+            ${isKz?'Жүктеу':'Скачать'}
+          </a>
+        </div>
+      </div>
     </div>
   </div>`;
   // Check URL param
