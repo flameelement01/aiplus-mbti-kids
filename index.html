@@ -1792,87 +1792,66 @@ function renderGapAnalysis(){
 
 function rDiagResult(a){
   const qs=S.diagQuestions;const pct=Math.round(S.diagScore/qs.length*100);
-  const rank=getRank(pct);const subName=DIAG[S.diagSubject][S.lang].name;
-  const rankName=S.lang==='kz'?rank.kz:rank.ru;
-  let msg;if(pct>=80)msg=t('diagExcellent');else if(pct>=50)msg=t('diagGood');else msg=t('diagNeed');
-  const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
-  let starsH='';for(let i=0;i<5;i++){starsH+=`<div class="star ${i<starCount?'active':''}" style="animation-delay:${i*0.15}s">⭐</div>`}
-  const streakH=S.diagMaxStreak>=3?`<div style="margin:8px 0;font-size:13px;font-weight:700;color:#fff">🔥 ${S.lang==='kz'?'Серия:':'Серия:'} ${S.diagMaxStreak} ${S.lang==='kz'?'қатарынан':'подряд'}</div>`:'';
-  const prevBest=S.diagBest[S.diagSubject]||0;const isNewRecord=pct>prevBest;
-  if(isNewRecord)S.diagBest[S.diagSubject]=pct;
-  const recordH=isNewRecord&&prevBest>0?`<div style="color:var(--accent);font-size:13px;font-weight:800;margin:6px 0">🎉 ${S.lang==='kz'?'ЖАҢА РЕКОРД!':'НОВЫЙ РЕКОРД!'} (${S.lang==='kz'?'бұрынғы':'было'}: ${prevBest}%)</div>`:'';
+  const isKz=S.lang==='kz';
+  const subName=DIAG[S.diagSubject][S.lang].name;
   if(!S.diagProgress)S.diagProgress={};
-  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount,rank:rankName};
+  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct};
   sendToSheets(true);
-  const board=genLeaderboard(S.diagScore,qs.length);
-  let lbH='';board.forEach((entry,i)=>{
-    const pos=i+1;const posIcon=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':pos;
-    const eRank=getRank(Math.round(entry.score/qs.length*100));
-    lbH+=`<div class="lb-row ${entry.isMe?'me':''}"><div class="lb-pos">${posIcon}</div><div class="lb-name">${entry.isMe?'👉 ':''}<b>${entry.name}</b></div><div class="lb-score">${entry.score}/${qs.length}</div><div class="lb-rank">${eRank.icon}</div></div>`;});
-  let progressH='';Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade).forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
-    progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?'<div style="color:#f59e0b;font-size:11px">'+'⭐'.repeat(p.stars)+'</div>':''}</div>`;});
-  const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;const totalSubj=gradeSubjects.length;
-  const currentSubjIdx=gradeSubjects.indexOf(S.diagSubject);const nextSubject=currentSubjIdx<gradeSubjects.length-1?gradeSubjects[currentSubjIdx+1]:null;
-  const nextSubjectHTML=nextSubject?`<button onclick="startDiag('${nextSubject}')" style="width:100%;background:linear-gradient(135deg,var(--dark),#2563eb);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">→ ${S.lang==='kz'?'Келесі пән:':'Следующий предмет:'} ${DIAG[nextSubject][S.lang].name}</button>`:'';
-  const collectPct=Math.round(completed/totalSubj*100);
+  const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
+  const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;
+  const totalSubj=gradeSubjects.length;
+  const currentSubjIdx=gradeSubjects.indexOf(S.diagSubject);
+  const nextSubject=currentSubjIdx<gradeSubjects.length-1?gradeSubjects[currentSubjIdx+1]:null;
+  const nextSubjectHTML=nextSubject?`<button onclick="startDiag('${nextSubject}')" style="width:100%;background:linear-gradient(135deg,var(--dark),#2563eb);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">→ ${isKz?'Келесі пән:':'Следующий предмет:'} ${DIAG[nextSubject][S.lang].name}</button>`:'';
   const nm=S.diagName||'';
-  const chTxt=S.lang==='kz'
-    ?`${rank.icon} ${nm} "${subName}" бойынша ${S.diagScore}/${qs.length} жинады — ${rankName}! Сен жеңе аласың ба? 👉 ${SITE_URL}`
-    :`${rank.icon} ${nm} набрал ${S.diagScore}/${qs.length} по "${subName}" — ранг ${rankName}! Сможешь лучше? 👉 ${SITE_URL}`;
-  const chSafe=chTxt.replace(/'/g,"\\'");
   const WA='77072374305';
-  const trialMsg=encodeURIComponent(S.lang==='kz'
+  const trialMsg=encodeURIComponent(isKz
     ?`Сәлем! Aiplus диагностикасынан өттік 📊\n\n👤 Оқушы: ${nm}\n📚 Пән: ${subName}\n🏆 Нәтиже: ${S.diagScore}/${qs.length} (${pct}%)\n\n✅ Тегін сынақ сабаққа (60 мин) жазылғымыз келеді`
     :`Здравствуйте! Прошли диагностику Aiplus 📊\n\n👤 Ученик: ${nm}\n📚 Предмет: ${subName}\n🏆 Результат: ${S.diagScore}/${qs.length} (${pct}%)\n\n✅ Хотим записаться на бесплатный пробный урок (60 мин)`);
-  const trialTitle=pct>=75
-    ?(S.lang==='kz'?'Жоғары нәтиже — НИШ/БИЛ-ге дайындықты тереңдет':'Отличный результат — углубим подготовку к НИШ/БИЛ')
-    :pct>=50
-    ?(S.lang==='kz'?'Жақсы база — пробелдерді жабайық':'Хорошая база — закроем пробелы')
-    :(S.lang==='kz'?'Тест негізгі тақырыптардан олқылықтар анықтады':'Тест выявил пробелы в базовых темах');
-  const trialSub=pct>=75
-    ?(S.lang==='kz'?'Ментор ${nm}-ға жеке дайындық жоспарын жасайды':'Ментор составит индивидуальный план подготовки для ${nm}')
-    :(S.lang==='kz'?'60 мин сабақта ментор дәл сол тақырыптарды талдайды':'За 60 мин урока ментор разберёт именно эти темы с ${nm}');
-  const trialHTML=`<div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff;margin:16px 0">
-    <div style="font-size:12px;opacity:.7;margin-bottom:4px">${S.lang==='kz'?'Нәтижеңіз бойынша ұсыныс':'Предложение по вашему результату'}</div>
-    <div style="font-size:17px;font-weight:900;margin-bottom:6px">${trialTitle}</div>
-    <div style="font-size:12px;opacity:.85;margin-bottom:16px">${trialSub}</div>
-    <a href="https://wa.me/${WA}?text=${trialMsg}" target="_blank"
-      onclick="gaEvent('whatsapp_click',{offer_type:'trial_diag',subject:'${S.diagSubject||''}',pct:${pct}})"
-      style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
-      💬 ${S.lang==='kz'?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
-    </a>
-  </div>`;
+  const levelColor=pct>=75?'#2d7d46':pct>=50?'#d97706':pct>=35?'#ea580c':'#dc2626';
+  const levelBg=pct>=75?'#e6f4d7':pct>=50?'#fef3c7':pct>=35?'#fff0e6':'#fee2e2';
+  const levelLabel=pct>=75?(isKz?'Жоғары деңгей':'Высокий уровень'):pct>=50?(isKz?'Орта деңгей':'Средний уровень'):pct>=35?(isKz?'Базалық деңгей':'Базовый уровень'):(isKz?'Критикалық деңгей':'Критический уровень');
+  const levelDesc=pct>=75?(isKz?'Өте жақсы нәтиже. НИШ/БИЛ-ге дайындықты тереңдетуге болады.':'Отличный результат. Можно углублять подготовку к НИШ/БИЛ.'):pct>=50?(isKz?'Жақсы база бар, бірақ пробелдер бар. 2-3 айда нәтижені жақсартуға болады.':'Хорошая база, но есть пробелы. За 2-3 месяца результат можно улучшить.'):pct>=35?(isKz?'Негізгі тақырыптарда кемшіліктер бар. Жүйелі жұмыс қажет.':'Есть пробелы в базовых темах. Нужна системная работа.'):(isKz?'Маңызды тақырыптарда үлкен кемшіліктер. Жеке жоспар керек.':'Серьёзные пробелы. Нужен индивидуальный план.');
+  const trialTitle=pct>=75?(isKz?'НИШ/БИЛ-ге дайындықты тереңдетейік':'Углубим подготовку к НИШ/БИЛ'):pct>=50?(isKz?'Пробелдерді бірге жабайық':'Закроем пробелы вместе'):(isKz?'Жеке оқу жоспары жасайық':'Составим индивидуальный план');
+  const trialSub=pct>=75?(isKz?`Ментор ${nm}-ға жеке дайындық жоспарын жасайды`:`Ментор составит индивидуальный план для ${nm}`):(isKz?`60 мин сабақта ментор ${nm}-мен дәл осы тақырыптарды талдайды`:`За 60 мин ментор разберёт с ${nm} именно эти темы`);
+  let progressH='';gradeSubjects.forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
+    progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?`<div style="font-size:11px;color:${p.pct>=75?'#2d7d46':p.pct>=50?'#d97706':'#ea580c'};font-weight:700">${p.pct}%</div>`:''}</div>`;});
 
   a.innerHTML=`<div style="margin-top:16px">
-    <div class="share-result-card">
-      <div class="src-rank" style="font-size:50px">${rank.icon}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:2px">${nm}</div>
-      <div class="src-title">${rankName}</div>
-      <div class="src-score">${S.diagScore}/${qs.length}</div>
-      <div class="src-subj">${subName} · ${pct}%</div>
-      <div class="stars-row">${starsH}</div>
-      ${streakH}${recordH}
-      <div class="src-brand">AIPLUS KIDS · aiplus.kz</div>
+    <!-- Result card -->
+    <div class="card" style="text-align:center;padding:24px;margin-bottom:14px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${nm} · ${subName}</div>
+      <div style="font-size:60px;font-weight:900;color:${levelColor};line-height:1.1;margin-bottom:4px">${pct}%</div>
+      <div style="font-size:15px;color:var(--muted);margin-bottom:14px">${S.diagScore} ${isKz?'дұрыс':'правильных'} ${isKz?'ішінен':'из'} ${qs.length}</div>
+      <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:14px">
+        <div style="height:100%;width:${pct}%;background:${levelColor};border-radius:8px"></div>
+      </div>
+      <div style="display:inline-block;background:${levelBg};color:${levelColor};padding:6px 18px;border-radius:50px;font-size:13px;font-weight:800;margin-bottom:8px">${levelLabel}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">${levelDesc}</div>
     </div>
+
     ${renderGapAnalysis()}
-    <div class="leaderboard"><h4>🏆 ${S.lang==='kz'?'Рейтинг':'Рейтинг'}</h4>${lbH}</div>
-    <div style="text-align:center"><div class="rank-badge ${rank.cls}">${rank.icon} ${rankName}</div>
-      <div style="font-size:13px;color:var(--muted);margin:6px 0">${msg}</div></div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0">
-      <button class="challenge-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent('${chSafe}'),'_blank')">💬 ${S.lang==='kz'?'Досыңа жібер':'Вызвать друга'}</button>
-      <button class="challenge-btn copy" onclick="navigator.clipboard.writeText('${chSafe}');toast(t('copied'))">📋 ${S.lang==='kz'?'Көшіру':'Скопировать'}</button></div>
     ${nextSubjectHTML}
-    ${trialHTML}
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0">
-      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Рекорд жаңарт!':'Побей рекорд!'}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button></div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0">
-      <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${S.lang==='kz'?'PDF жүктеу':'Скачать PDF отчёт'}</button>
-      <button class="btn-sm" style="background:#25d366;color:#fff;padding:10px 20px" onclick="shareDiagPDF()">💬 ${S.lang==='kz'?'WhatsApp-қа жіберу':'Отправить в WhatsApp'}</button></div>
-    <div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed===totalSubj?'🏆':completed+'/'+totalSubj}</div></div>
-    <div style="margin-top:12px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4>
-      <div class="progress-subjects">${progressH}</div></div></div>`;
-  if(pct>=70){setTimeout(confetti,300);playSound('win')}else if(pct>=50)playSound('correct');
+
+    <!-- Trial lesson CTA -->
+    <div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff;margin-bottom:14px">
+      <div style="font-size:12px;opacity:.7;margin-bottom:4px">${isKz?'Нәтижеңіз бойынша ұсыныс':'Предложение по вашему результату'}</div>
+      <div style="font-size:17px;font-weight:900;margin-bottom:6px">${trialTitle}</div>
+      <div style="font-size:12px;opacity:.85;margin-bottom:16px">${trialSub}</div>
+      <a href="https://wa.me/${WA}?text=${trialMsg}" target="_blank"
+        onclick="gaEvent('whatsapp_click',{offer_type:'trial_diag',subject:'${S.diagSubject||''}',pct:${pct}})"
+        style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
+        💬 ${isKz?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
+      </a>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+      <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${isKz?'PDF жүктеу':'Скачать PDF'}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${isKz?'← Артқа':'← Назад'}</button>
+    </div>
+
+    ${completed>0?`<div style="margin-top:4px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4><div class="progress-subjects">${progressH}</div></div>`:''}
+  </div>`;
   // If olymp-landing mode — show offers after diagnostic
   if(document.body.classList.contains('olymp-landing')){
     const isKz=S.lang==='kz';
