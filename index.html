@@ -2244,23 +2244,7 @@ function rOlympResult(a){
       </div>
     </div>
 
-    <!-- Contact capture form -->
-    <div class="card" style="margin-bottom:14px;background:#f8f7f4">
-      <div style="font-size:14px;font-weight:800;margin-bottom:6px">📞 ${isKz?'Біз өзіміз хабарласамыз':'Мы сами позвоним'}</div>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:12px">${isKz?'Нөміріңізді қалдырыңыз — менеджер 1 сағат ішінде хабарласады.':'Оставьте номер — менеджер свяжется в течение 1 часа.'}</p>
-      <div style="display:flex;gap:8px">
-        <input id="olympPhone" type="tel" placeholder="+7 ___  ___  __ __" inputmode="tel"
-          style="flex:1;padding:11px 14px;border:2px solid #e2e8f0;border-radius:50px;font-size:13px;outline:none;font-family:inherit"
-          onfocus="this.style.borderColor='var(--dark)'" onblur="this.style.borderColor='#e2e8f0'">
-        <button onclick="submitOlympContact('${s[0].replace(/'/g,'')}')"
-          style="background:var(--dark);color:#fff;border:none;padding:11px 18px;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap">
-          ${isKz?'Жіберу':'Отправить'}
-        </button>
-      </div>
-      <div id="olympContactDone" style="display:none;color:#2d7d46;font-size:12px;margin-top:8px;font-weight:700">
-        ✅ ${isKz?'Сәтті! Жақын арада хабарласамыз.':'Отлично! Свяжемся в ближайшее время.'}
-      </div>
-    </div>
+
 
     <!-- Share -->
     <div style="text-align:center;margin-bottom:20px">
