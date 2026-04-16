@@ -26,6 +26,12 @@
   *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
 }
 
+
+/* ===== OLYMP LANDING MODE ===== */
+body.olymp-landing .bottomnav{display:none!important}
+body.olymp-landing{padding-bottom:0!important}
+body.olymp-landing #main-header{display:none!important}
+
 html{scroll-behavior:smooth}
 body{background:var(--bg-flat);background:var(--bg);color:var(--dark);font-family:'Source Sans 3','Nunito',sans-serif;font-size:15px;
   min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
@@ -2077,68 +2083,57 @@ function rOlympResult(a){
 
     ${timerHTML}
 
-    <!-- Offers header -->
-    <div style="font-size:16px;font-weight:900;color:var(--dark);margin-bottom:12px;text-align:center">
-      ${isKz?'🎯 Келесі қадам — таңдаңыз:':'🎯 Выберите следующий шаг:'}
-    </div>
+    <!-- MAIN CTA - personalized by score -->
+    <div style="margin-bottom:14px">
+      ${pct>=75?`
+      <div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff;margin-bottom:10px">
+        <div style="font-size:13px;opacity:.8;margin-bottom:4px">${isKz?'Жоғары нәтиже — сіз үшін ұсыныс:':'Высокий результат — наше предложение:'}</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:4px">${isKz?'НИШ/БИЛ-ге дайындық':'Подготовка к НИШ/БИЛ'}</div>
+        <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?'Жеке ментор, тереңдетілген бағдарлама. 45 мин тегін сабақ бастайық.':'Личный ментор, углублённая программа. Начнём с 45 мин бесплатного урока.'}</div>
+        <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank"
+          style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
+          💬 ${isKz?'Тегін сабаққа жазылу':'Записаться на бесплатный урок'}
+        </a>
+      </div>`:`
+      <div style="background:linear-gradient(135deg,#25D366,#128C7E);border-radius:18px;padding:20px;color:#fff;margin-bottom:10px">
+        <div style="font-size:13px;opacity:.8;margin-bottom:4px">${isKz?'Пробелдерді жабайық:':'Закроем пробелы:'}</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:4px">${pct>=35?(isKz?'Тегін сынақ сабақ — 45 мин':'Бесплатный пробный урок — 45 мин'):(isKz?'Жеке оқу жоспары':'Индивидуальный план обучения')}</div>
+        <div style="font-size:12px;opacity:.85;margin-bottom:16px">${pct>=35?(isKz?'Оқытушы баланың деңгейін анықтап, не қажет екенін айтады.':'Преподаватель оценит уровень и скажет, что нужно.'):(isKz?'Диагностика + жеке жоспар. Бастапқыдан НИШ-ке дейін.':'Диагностика + план. От нуля до НИШ.')}</div>
+        <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank"
+          style="display:block;text-align:center;background:#fff;color:#128C7E;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
+          💬 ${isKz?'WhatsApp арқылы жазылу':'Записаться через WhatsApp'}
+        </a>
+      </div>`}
 
-    <!-- Offer 1: Offline diagnostic -->
-    <div class="card" style="margin-bottom:10px;border:2px solid #1B3A5C">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="font-size:28px;flex-shrink:0">🏫</div>
-        <div style="flex:1">
-          <div style="font-weight:900;font-size:14px;color:#1B3A5C;margin-bottom:2px">${isKz?'Офлайн диагностика':'Оффлайн диагностика'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Оқытушы баламен жеке жұмыс жасайды. Нақты пробелдер анықталады + жеке оқу жоспары.':'Преподаватель работает лично с ребёнком. Точные пробелы + индивидуальный план обучения.'}</div>
-          <a href="https://wa.me/${WA}?text=${waOffline}" target="_blank"
-            style="display:block;text-align:center;background:#1B3A5C;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
-            💬 ${isKz?'Жазылу':'Записаться'}
-          </a>
-        </div>
+      <!-- Secondary CTAs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button onclick="S.diagGrade='5';goTab('diag')"
+          style="background:#f0f4f8;border:2px solid #e2e8f0;border-radius:14px;padding:12px 8px;font-weight:800;font-size:12px;color:var(--dark);cursor:pointer">
+          🎯 ${isKz?'Тегін онлайн тест':'Онлайн тест бесплатно'}
+        </button>
+        <a href="https://wa.me/${WA}?text=${waDiscount}" target="_blank"
+          style="display:block;text-align:center;background:#fff8e1;border:2px solid #f59e0b;border-radius:14px;padding:12px 8px;font-weight:800;font-size:12px;color:#92400e;text-decoration:none">
+          🎁 ${isKz?'Жеңілдік алу':'Получить скидку'}
+        </a>
       </div>
     </div>
 
-    <!-- Offer 2: Online diagnostic -->
-    <div class="card" style="margin-bottom:10px;border:2px solid var(--accent)">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="font-size:28px;flex-shrink:0">🎯</div>
-        <div style="flex:1">
-          <div style="font-weight:900;font-size:14px;color:var(--dark);margin-bottom:2px">${isKz?'Онлайн диагностика':'Онлайн диагностика'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Тест тапсырып, нақты қай тақырыпта пробел бар екенін бірден білесіз. Тегін!':'Пройди тест и сразу узнай, в каких темах пробелы. Бесплатно!'}</div>
-          <button class="btn" style="width:100%;padding:11px;font-size:13px" onclick="S.diagGrade='${s[2]?'5':'5'}';goTab('diag')">
-            ${isKz?'🎯 Тегін тест бастау':'🎯 Начать бесплатный тест'}
-          </button>
+    <!-- PDF samples -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:13px;font-weight:900;color:var(--dark);margin-bottom:10px">
+        📄 ${isKz?'Итог мысалдары (PDF)':'Примеры итоговых отчётов (PDF)'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div onclick="window.open('${SITE}/samples/pdf-diag.png','_blank')" style="cursor:pointer">
+          <img src="${SITE}/samples/pdf-diag.png" alt="Диагностика PDF" style="width:100%;border-radius:10px;border:2px solid #e2e8f0">
+          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-weight:700">${isKz?'Диагностика итогы':'Итог диагностики'}</div>
+        </div>
+        <div onclick="window.open('${SITE}/samples/pdf-prof.png','_blank')" style="cursor:pointer">
+          <img src="${SITE}/samples/pdf-prof.png" alt="Профориентация PDF" style="width:100%;border-radius:10px;border:2px solid #e2e8f0">
+          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-weight:700">${isKz?'Кәсіби бағдар':'Профориентация'}</div>
         </div>
       </div>
-    </div>
-
-    <!-- Offer 3: Trial lesson -->
-    <div class="card" style="margin-bottom:10px;border:2px solid #25D366">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="font-size:28px;flex-shrink:0">📚</div>
-        <div style="flex:1">
-          <div style="font-weight:900;font-size:14px;color:var(--dark);margin-bottom:2px">${isKz?'Тегін сынақ сабақ':'Бесплатный пробный урок'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'45 минут жеке сабақ. Оқытушы баланың деңгейін анықтап, не қажет екенін айтады.':'45 минут индивидуального урока. Преподаватель оценит уровень и скажет, что нужно.'}</div>
-          <a href="https://wa.me/${WA}?text=${waTrial}" target="_blank"
-            style="display:block;text-align:center;background:#25D366;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
-            💬 ${isKz?'WhatsApp арқылы жазылу':'Записаться через WhatsApp'}
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Offer 4: Discount -->
-    <div class="card" style="margin-bottom:14px;border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff)">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="font-size:28px;flex-shrink:0">🎁</div>
-        <div style="flex:1">
-          <div style="font-weight:900;font-size:14px;color:#92400e;margin-bottom:2px">${isKz?'Олимпиада қатысушыларына жеңілдік':'Скидка для участников олимпиады'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">${isKz?'Aicup қатысушыларына арнайы жеңілдік. 20 сәуірге дейін.':'Специальная скидка для участников Aicup. До 20 апреля.'}</div>
-          <a href="https://wa.me/${WA}?text=${waDiscount}" target="_blank"
-            style="display:block;text-align:center;background:#f59e0b;color:#fff;padding:11px;border-radius:50px;font-weight:800;font-size:13px;text-decoration:none">
-            🎁 ${isKz?'Жеңілдік алу':'Получить скидку'}
-          </a>
-        </div>
-      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">${isKz?'Диагностикадан кейін осындай PDF аласыз':'После диагностики вы получите такой PDF-отчёт'}</div>
     </div>
 
     <!-- Contact capture form -->
@@ -2198,11 +2193,18 @@ function shareOlympResult(){
 // INIT
 // ============================================================
 // Check URL params
-if(new URLSearchParams(window.location.search).get('olymp')){
-  goTab('olymp');
-} else {
-  goTab('home');
-}
+(function(){
+  const up=new URLSearchParams(window.location.search);
+  const urlOlymp=up.get('olymp');
+  const urlLang=up.get('lang');
+  if(urlLang==='kz'||urlLang==='ru') S.lang=urlLang;
+  if(urlOlymp){
+    document.body.classList.add('olymp-landing');
+    goTab('olymp');
+  } else {
+    goTab('home');
+  }
+})();
 </script>
 </body>
 </html>
