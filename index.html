@@ -1585,8 +1585,8 @@ function shareDiagPDF(){
 function rDiag(a){
   if(!S.diagName&&!S.diagSubject) return rDiagName(a);
   if(S.diagGameOver) return rDiagGameOver(a);
-  if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length&&S.diagLives>0) return rDiagQuiz(a);
-  if(S.diagSubject&&S.diagQuestions&&(S.diagIdx>=S.diagQuestions.length||S.diagLives<=0)) return rDiagResult(a);
+  if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length) return rDiagQuiz(a);
+  if(S.diagSubject&&S.diagQuestions&&S.diagIdx>=S.diagQuestions.length) return rDiagResult(a);
   if(!S.diagGrade) return rDiagGrade(a);
   const subjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
   const completed=subjects.filter(s=>S.diagProgress[s]).length;const totalSubj=subjects.length;
@@ -1602,7 +1602,7 @@ function rDiag(a){
     ${completed>0?`<div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed}/${totalSubj}</div></div>`:''}
     <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
     <div class="diag-grid">${subH}</div>
-    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">❤️❤️❤️ — ${S.lang==='kz'?'3 қате жасасаң, ойын бітеді!':'3 ошибки — и игра окончена!'}</div></div>`;
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">${S.lang==='kz'?'Барлық сұрақтарға жауап беріңіз — нәтиже соңында шығады':'Отвечайте на все вопросы — результат будет в конце'}</div></div>`;
 }
 function rDiagGrade(a){
   const grades=Object.keys(GRADE_LABELS);
@@ -1642,11 +1642,10 @@ function rDiagQuiz(a){
   const qText=S.lang==='kz'?q.kz:q.ru;
   let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
   const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
-  let livesH='<div class="lives-bar">';for(let i=0;i<3;i++){livesH+=`<div class="life${i>=S.diagLives?' lost':''}">❤️</div>`}livesH+='</div>';
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <button class="btn-outline" style="padding:6px 12px;font-size:11px" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
-      ${livesH}
+      <span style="font-size:11px;color:var(--muted);font-weight:700">${S.diagIdx+1}/${qs.length}</span>
     </div>
     <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
@@ -1660,18 +1659,15 @@ function diagAnswer(chosen,correct){
   S.diagAnswers.push({idx:S.diagIdx,correct:isCorrect,block:S.diagQuestions[S.diagIdx].block});
   if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;
     playSound(S.diagStreak>=3?'streak':'correct')}
-  else{S.diagStreak=0;S.diagLives--;playSound(S.diagLives<=0?'gameover':'wrong');
-    const lives=document.querySelectorAll('.life');
-    if(lives[S.diagLives])lives[S.diagLives].classList.add('lost','life-lost-anim')}
+  else{S.diagStreak=0;playSound('wrong');}
   document.querySelectorAll('.diag-opt').forEach((el,i)=>{
     if(i===correct)el.classList.add('correct');
     else if(i===chosen)el.classList.add('wrong');
     el.style.pointerEvents='none';});
   const si=document.getElementById('streakInd');
   if(si){if(S.diagStreak>=2){si.className='streak-indicator visible';si.innerHTML='🔥 '+S.diagStreak+' '+(S.lang==='kz'?'қатарынан!':'подряд!')}
-    else if(!isCorrect&&S.diagLives>0){si.className='streak-indicator visible';si.textContent='💔';setTimeout(()=>si.classList.remove('visible'),800)}
+    else if(!isCorrect){si.className='streak-indicator visible';si.textContent='❌';setTimeout(()=>si.classList.remove('visible'),800)}
     else{si.classList.remove('visible')}}
-  if(S.diagLives<=0){setTimeout(()=>{S.diagGameOver=true;rDiag(app())},1500);return}
   setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
 }
 function rDiagGameOver(a){
