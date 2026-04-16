@@ -1653,7 +1653,10 @@ function startDiag(subj){
 function rDiagQuiz(a){
   const qs=S.diagQuestions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
   const qText=S.lang==='kz'?q.kz:q.ru;
-  let optsH='';q.opts.forEach((o,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${q.correct})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${o}</div>`});
+  const shuffled=q.opts.map((opt,i)=>({opt,isCorrect:i===q.correct}));
+  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+  const newCorrect=shuffled.findIndex(x=>x.isCorrect);
+  let optsH='';shuffled.forEach((item,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${newCorrect})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${item.opt}</div>`});
   const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -1670,9 +1673,8 @@ function diagAnswer(chosen,correct){
   if(S.diagAnswered)return;S.diagAnswered=true;
   const isCorrect=chosen===correct;
   S.diagAnswers.push({idx:S.diagIdx,correct:isCorrect,block:S.diagQuestions[S.diagIdx].block});
-  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;
-    playSound(S.diagStreak>=3?'streak':'correct')}
-  else{S.diagStreak=0;playSound('wrong');}
+  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;}
+  else{S.diagStreak=0;}
   document.querySelectorAll('.diag-opt').forEach((el,i)=>{
     if(i===correct)el.classList.add('correct');
     else if(i===chosen)el.classList.add('wrong');
