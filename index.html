@@ -507,9 +507,9 @@ const SITE_URL="https://olymp.aiplus.school";
 
 function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function sanitizeFname(s){return String(s||'').replace(/[^\w\sа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ-]/g,'').trim()||'student';}
-function saveDiagState(){try{localStorage.setItem('aiplus_diag',JSON.stringify({diagName:S.diagName,diagGrade:S.diagGrade,diagProgress:S.diagProgress,diagLangPicked:S.diagLangPicked,lang:S.lang}));}catch(e){}}
+function saveDiagState(){try{localStorage.setItem('aiplus_diag',JSON.stringify({diagName:S.diagName,diagGrade:S.diagGrade,diagProgress:S.diagProgress,lang:S.lang}));}catch(e){}}
 function clearDiagState(){try{localStorage.removeItem('aiplus_diag');}catch(e){}}
-(function(){try{const d=JSON.parse(localStorage.getItem('aiplus_diag')||'{}');if(d.diagName&&typeof d.diagName==='string'&&d.diagName.length<100){S.diagName=d.diagName;S.diagGrade=typeof d.diagGrade==='string'?d.diagGrade:null;S.diagProgress=d.diagProgress&&typeof d.diagProgress==='object'?d.diagProgress:{};S.diagLangPicked=!!d.diagLangPicked;S.lang=(d.lang==='kz'||d.lang==='ru')?d.lang:'ru';}}catch(e){}})();
+(function(){try{const d=JSON.parse(localStorage.getItem('aiplus_diag')||'{}');if(d.diagName&&typeof d.diagName==='string'&&d.diagName.length<100){S.diagName=d.diagName;S.diagGrade=typeof d.diagGrade==='string'?d.diagGrade:null;S.diagProgress=d.diagProgress&&typeof d.diagProgress==='object'?d.diagProgress:{};S.lang=(d.lang==='kz'||d.lang==='ru')?d.lang:'ru';}}catch(e){}})();
 
 // ============================================================
 // CATEGORIES & ICONS
@@ -1672,7 +1672,10 @@ function rDiagQuiz(a){
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="font-size:11px;font-weight:700;color:var(--muted)">${subjLabel} · ${subjName}</div>
-      <span style="font-size:11px;color:var(--muted);font-weight:700">${S.diagIdx+1}/${qs.length}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="S.lang=S.lang==='kz'?'ru':'kz';rDiag(app())" style="border:1px solid var(--border);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:800;background:#fff;cursor:pointer;color:var(--dark)">${S.lang==='kz'?'RU':'KZ'}</button>
+        <span style="font-size:11px;color:var(--muted);font-weight:700">${S.diagIdx+1}/${qs.length}</span>
+      </div>
     </div>
     <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
