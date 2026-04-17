@@ -1595,7 +1595,19 @@ function shareDiagPDF(){
     :`${rank.icon} ${nm} сдал тест по "${subName}"!\n\nРезультат: ${S.diagScore}/${qs.length} (${pct}%)\nРанг: ${rankName}${gapList}\n📄 PDF отчёт загружается...\n\nПройди тест: ${SITE_URL}`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}
 
+function rDiagLang(a){
+  a.innerHTML=`<div class="card" style="margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🧠</div>
+    <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Тест тілін таңда</h2>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Выберите язык теста</p>
+    <div style="display:flex;gap:16px;justify-content:center">
+      <div class="lang-btn" onclick="S.lang='kz';S.diagLangPicked=true;rDiag(app())"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
+      <div class="lang-btn" onclick="S.lang='ru';S.diagLangPicked=true;rDiag(app())"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
+    </div>
+  </div>`;
+}
 function rDiag(a){
+  if(!S.diagLangPicked) return rDiagLang(a);
   if(!S.diagName&&!S.diagSubject) return rDiagName(a);
   if(S.diagGameOver) return rDiagGameOver(a);
   if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length) return rDiagQuiz(a);
@@ -1611,7 +1623,7 @@ function rDiag(a){
     subH+=`<div class="diag-subject${p?' active':''}" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
   a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
     <p class="section-sub">${gl}</p>
-    <div style="font-size:13px;margin-bottom:6px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>! <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagName=null;S.diagGrade=null;rDiag(app())">${S.lang==='kz'?'атын өзгерту':'сменить имя'}</span> · <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagGrade=null;rDiag(app())">${S.lang==='kz'?'сыныпты өзгерту':'сменить класс'}</span></div>
+    <div style="font-size:13px;margin-bottom:6px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>! <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagName=null;S.diagGrade=null;S.diagLangPicked=false;rDiag(app())">${S.lang==='kz'?'атын өзгерту':'сменить имя'}</span> · <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagGrade=null;rDiag(app())">${S.lang==='kz'?'сыныпты өзгерту':'сменить класс'}</span></div>
     ${completed>0?`<div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed}/${totalSubj}</div></div>`:''}
     <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
     <div class="diag-grid">${subH}</div>
