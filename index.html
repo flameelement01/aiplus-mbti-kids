@@ -2066,7 +2066,7 @@ function renderOlympResults(){
     const school=OLYMP_DATA.s[s[1]];
     const dept='';
     const rank=OLYMP_DATA.d.indexOf(s)+1;
-    h+=`<div onclick="S.olympStudent=OLYMP_DATA.d[${OLYMP_DATA.d.indexOf(s)}];gaEvent('olymp_result_open',{student:'${s[0].replace(/'/g,'')}'});rOlymp(app())"
+    h+=`<div onclick="S.olympStudent=OLYMP_DATA.d[${OLYMP_DATA.d.indexOf(s)}];S.lang=S.olympStudent[2]?'kz':'ru';gaEvent('olymp_result_open',{student:'${s[0].replace(/'/g,'')}'});rOlymp(app())"
       style="padding:14px 16px;border-radius:12px;background:#f8f7f4;margin-bottom:8px;cursor:pointer;transition:all .15s;border:2px solid transparent"
       onmouseover="this.style.borderColor='var(--dark)';this.style.transform='translateX(4px)'"
       onmouseout="this.style.borderColor='transparent';this.style.transform='none'">
@@ -2140,7 +2140,10 @@ function rOlympResult(a){
   }
 
   a.innerHTML=`<div style="padding-top:16px">
-    <button class="btn-outline" style="padding:8px 16px;font-size:11px;margin-bottom:14px" onclick="S.olympStudent=null;rOlymp(app())">← ${isKz?'Іздеуге оралу':'Назад к поиску'}</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <button class="btn-outline" style="padding:8px 16px;font-size:11px" onclick="S.olympStudent=null;rOlymp(app())">← ${isKz?'Іздеуге оралу':'Назад к поиску'}</button>
+      <button class="btn-outline" style="padding:8px 14px;font-size:11px;font-weight:800" onclick="S.lang=S.lang==='kz'?'ru':'kz';rOlympResult(app())">${isKz?'RU':'KZ'}</button>
+    </div>
 
     <!-- Result card -->
     <div class="card" style="text-align:center;margin-bottom:12px;padding:20px">
