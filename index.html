@@ -505,6 +505,10 @@ const $=id=>document.getElementById(id);
 const app=()=>$("app");
 const SITE_URL="https://flameelement01.github.io/aiplus-mbti-kids";
 
+function saveDiagState(){try{localStorage.setItem('aiplus_diag',JSON.stringify({diagName:S.diagName,diagGrade:S.diagGrade,diagProgress:S.diagProgress,diagLangPicked:S.diagLangPicked,lang:S.lang}));}catch(e){}}
+function clearDiagState(){try{localStorage.removeItem('aiplus_diag');}catch(e){}}
+(function(){try{const d=JSON.parse(localStorage.getItem('aiplus_diag')||'{}');if(d.diagName){S.diagName=d.diagName;S.diagGrade=d.diagGrade||null;S.diagProgress=d.diagProgress||{};S.diagLangPicked=d.diagLangPicked||false;S.lang=d.lang||'ru';}}catch(e){}})();
+
 // ============================================================
 // CATEGORIES & ICONS
 // ============================================================
@@ -1569,7 +1573,9 @@ function generateDiagPDF(){
         srcY+=ch;remainH-=ch;page++;
       }
     }
-    pdf.save('Aiplus_'+grade+(isKz?'сынып':'класс')+'_'+nm+'_'+dateStr.replace(/\./g,'-')+'.pdf');
+    const fname='Aiplus_'+grade+(isKz?'сынып':'класс')+'_'+nm+'_'+dateStr.replace(/\./g,'-')+'.pdf';
+    if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){window.open(pdf.output('bloburl'),'_blank');}
+    else{pdf.save(fname);}
     cap.innerHTML='';cap.style.cssText='';
   });
   return 'generating';
@@ -1604,34 +1610,70 @@ function rDiagLang(a){
     </div>
   </div>`;
 }
+function rDiagAllDone(a){
+  const isKz=S.lang==='kz';
+  const subjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
+  const nm=S.diagName||'';
+  const WA='77072374305';
+  let totalScore=0,totalQ=0;
+  let summaryH='';
+  subjects.forEach(s=>{
+    const p=S.diagProgress[s];if(!p)return;
+    totalScore+=p.score;totalQ+=p.total;
+    const col=p.pct>=75?'#2d7d46':p.pct>=50?'#d97706':'#ea580c';
+    summaryH+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">${DIAG[s][S.lang].icon}</span><span style="font-size:14px;font-weight:700">${DIAG[s][S.lang].name}</span></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:900;color:${col}">${p.pct}%</div><div style="font-size:11px;color:#999">${p.score}/${p.total}</div></div>
+    </div>`;
+  });
+  const totalPct=totalQ>0?Math.round(totalScore/totalQ*100):0;
+  const totalCol=totalPct>=75?'#2d7d46':totalPct>=50?'#d97706':'#ea580c';
+  const doneMsg=encodeURIComponent(isKz
+    ?`Сәлем! Aiplus диагностикасын толық өттік 🎓\n\n👤 Оқушы: ${nm}\n📊 Жалпы нәтиже: ${totalScore}/${totalQ} (${totalPct}%)\n\n✅ Тегін сынақ сабаққа (60 мин) жазылғымыз келеді`
+    :`Здравствуйте! Прошли полную диагностику Aiplus 🎓\n\n👤 Ученик: ${nm}\n📊 Общий результат: ${totalScore}/${totalQ} (${totalPct}%)\n\n✅ Хотим записаться на бесплатный пробный урок (60 мин)`);
+  a.innerHTML=`<div style="margin-top:16px">
+    <div class="card" style="text-align:center;padding:24px;margin-bottom:14px">
+      <div style="font-size:48px;margin-bottom:8px">🎓</div>
+      <h2 style="font-size:20px;font-weight:900;margin-bottom:4px">${isKz?'Диагностика аяқталды!':'Диагностика завершена!'}</h2>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${nm}</div>
+      <div style="font-size:52px;font-weight:900;color:${totalCol};line-height:1;margin-bottom:4px">${totalPct}%</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${totalScore} ${isKz?'дұрыс':'правильных'} ${isKz?'ішінен':'из'} ${totalQ}</div>
+      <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden">${`<div style="height:100%;width:${totalPct}%;background:${totalCol};border-radius:8px"></div>`}</div>
+    </div>
+    <div class="card" style="padding:16px;margin-bottom:14px">${summaryH}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">
+      <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${isKz?'PDF жүктеу':'Скачать PDF'}</button>
+      <button class="btn-outline" onclick="S.diagGrade=null;rDiag(app())">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff">
+      <div style="font-size:17px;font-weight:900;margin-bottom:6px">${isKz?'Жеке оқу жоспарын жасайық':'Составим индивидуальный план обучения'}</div>
+      <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?`Ментор ${nm}-мен барлық пәндер бойынша нәтижені талдайды`:`Ментор разберёт результаты по всем предметам с ${nm}`}</div>
+      <a href="https://wa.me/${WA}?text=${doneMsg}" target="_blank"
+        style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
+        💬 ${isKz?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
+      </a>
+    </div>
+  </div>`;
+}
 function rDiag(a){
   if(!S.diagLangPicked) return rDiagLang(a);
-  if(!S.diagName&&!S.diagSubject) return rDiagName(a);
+  if(!S.diagName) return rDiagName(a);
   if(S.diagGameOver) return rDiagGameOver(a);
   if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length) return rDiagQuiz(a);
   if(S.diagSubject&&S.diagQuestions&&S.diagIdx>=S.diagQuestions.length) return rDiagResult(a);
   if(!S.diagGrade) return rDiagGrade(a);
+  // Auto-flow: start next uncompleted subject or show final screen
   const subjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
-  const completed=subjects.filter(s=>S.diagProgress[s]).length;const totalSubj=subjects.length;
-  const collectPct=Math.round(completed/totalSubj*100);
-  const gl=GRADE_LABELS[S.diagGrade][S.lang];
-  let subH='';subjects.forEach(s=>{const d=DIAG[s][S.lang];const p=S.diagProgress[s];
-    const qLen=DIAG[s].questions.length;
-    const badge=p?`<div style="color:#f59e0b;font-size:11px;margin-top:4px">${'⭐'.repeat(p.stars)} ${p.pct}%</div>`:`<p style="font-size:11px;color:var(--muted)">${qLen} ${S.lang==='kz'?'сұрақ':'вопросов'}</p>`;
-    subH+=`<div class="diag-subject${p?' active':''}" onclick="startDiag('${s}')"><div class="ds-ic">${d.icon}</div><h4>${d.name}</h4>${badge}</div>`;});
-  a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
-    <p class="section-sub">${gl}</p>
-    <div style="font-size:13px;margin-bottom:6px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>! <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagName=null;S.diagGrade=null;S.diagLangPicked=false;rDiag(app())">${S.lang==='kz'?'атын өзгерту':'сменить имя'}</span> · <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.diagGrade=null;rDiag(app())">${S.lang==='kz'?'сыныпты өзгерту':'сменить класс'}</span></div>
-    ${completed>0?`<div class="collect-bar"><div class="cb-prog"><div class="cb-label">${S.lang==='kz'?'Барлық рангты жина!':'Собери все ранги!'} ${completed}/${totalSubj}</div><div class="cb-track"><div class="cb-fill" style="width:${collectPct}%"></div></div></div><div class="cb-count">${completed}/${totalSubj}</div></div>`:''}
-    <p style="font-size:13px;font-weight:700;margin-bottom:12px">${t('diagChoose')}</p>
-    <div class="diag-grid">${subH}</div>
-    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">${S.lang==='kz'?'Барлық сұрақтарға жауап беріңіз — нәтиже соңында шығады':'Отвечайте на все вопросы — результат будет в конце'}</div></div>`;
+  const allDone=subjects.every(s=>S.diagProgress[s]);
+  if(allDone) return rDiagAllDone(a);
+  const next=subjects.find(s=>!S.diagProgress[s]);
+  startDiag(next);
 }
 function rDiagGrade(a){
   const grades=Object.keys(GRADE_LABELS);
   let gH='';grades.forEach(g=>{const gl=GRADE_LABELS[g][S.lang];
     const cnt=Object.keys(DIAG).filter(k=>DIAG[k].grade===g).length;
-    gH+=`<div class="diag-subject" onclick="S.diagGrade='${g}';rDiag(app())" style="text-align:center;padding:20px">
+    gH+=`<div class="diag-subject" onclick="S.diagGrade='${g}';saveDiagState();rDiag(app())" style="text-align:center;padding:20px">
       <div style="font-size:32px;margin-bottom:6px">🎓</div><h4>${gl}</h4>
       <p style="font-size:11px;color:var(--muted)">${cnt} ${S.lang==='kz'?'пән':'предметов'}</p></div>`;});
   a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
@@ -1643,22 +1685,21 @@ function rDiagName(a){
   a.innerHTML=`<div class="card" style="margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;text-align:center">
     <div style="font-size:40px;margin-bottom:12px">🧠</div>
     <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">${S.lang==='kz'?'Сенің атың кім?':'Как тебя зовут?'}</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">${S.lang==='kz'?'Атыңды жаз — рейтингте көрінесің!':'Напиши имя — появишься в рейтинге!'}</p>
-    <input class="inp" id="diagNameInp" placeholder="${S.lang==='kz'?'Сенің атың':'Твоё имя'}" style="text-align:center">
-    <input class="inp" id="diagPhoneInp" placeholder="${S.lang==='kz'?'Ата-ана телефоны (міндетті емес)':'Телефон родителя (необязательно)'}" type="tel" style="text-align:center;margin-top:8px">
-    <button class="btn" style="width:100%;margin-top:12px" onclick="setDiagName()">🚀 ${S.lang==='kz'?'Бастау':'Поехали!'}</button></div>`;
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">${S.lang==='kz'?'Атыңды жаз — нәтиже PDF-ке жазылады':'Напиши имя — оно появится в PDF-отчёте'}</p>
+    <input class="inp" id="diagNameInp" placeholder="${S.lang==='kz'?'Аты-жөнің':'Имя и фамилия'}" style="text-align:center;font-size:16px">
+    <button class="btn" style="width:100%;margin-top:16px" onclick="setDiagName()">🚀 ${S.lang==='kz'?'Бастау':'Начать тест'}</button></div>`;
   setTimeout(()=>{const inp=$('diagNameInp');if(inp)inp.focus()},100);
 }
 function setDiagName(){
   const inp=$('diagNameInp');const name=inp?inp.value.trim():'';
   if(!name){inp.style.borderColor='var(--red)';return}
-  S.diagName=name;
-  const ph=$('diagPhoneInp');S.diagPhone=ph?ph.value.trim():'';
+  S.diagName=name;saveDiagState();
   rDiag(app())}
 function startDiag(subj){
   S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;
   S.diagStreak=0;S.diagMaxStreak=0;S.diagLives=3;S.diagGameOver=false;S.diagAnswers=[];
   S.diagQuestions=shuffle(DIAG[subj].questions);
+  window.onbeforeunload=()=>'';
   rDiag(app())}
 function rDiagQuiz(a){
   const qs=S.diagQuestions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
@@ -1667,17 +1708,19 @@ function rDiagQuiz(a){
   for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
   const newCorrect=shuffled.findIndex(x=>x.isCorrect);
   let optsH='';shuffled.forEach((item,i)=>{optsH+=`<div class="diag-opt" id="dopt${i}" onclick="diagAnswer(${i},${newCorrect})"><div class="opt-let">${String.fromCharCode(65+i)}</div>${item.opt}</div>`});
-  const streakH=S.diagStreak>=2?`<div class="streak-bar hot">🔥 ${S.diagStreak} ${S.lang==='kz'?'қатарынан дұрыс!':'подряд верно!'}</div>`:(S.diagScore>0?`<div class="streak-bar cold">✅ ${S.diagScore}/${S.diagIdx}</div>`:'');
+  // Subject indicator: "Предмет 1 из 3"
+  const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
+  const subjIdx=gradeSubjects.indexOf(S.diagSubject);
+  const subjLabel=S.lang==='kz'?`Пән ${subjIdx+1}/${gradeSubjects.length}`:`Предмет ${subjIdx+1} из ${gradeSubjects.length}`;
+  const subjName=DIAG[S.diagSubject][S.lang].name;
   a.innerHTML=`<div class="card" style="margin-top:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <button class="btn-outline" style="padding:6px 12px;font-size:11px" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
+      <div style="font-size:11px;font-weight:700;color:var(--muted)">${subjLabel} · ${subjName}</div>
       <span style="font-size:11px;color:var(--muted);font-weight:700">${S.diagIdx+1}/${qs.length}</span>
     </div>
     <div class="prog"><div class="prog-bar" style="width:${pct}%"></div></div>
     <div class="prog-info"><span>${t('diagQ')} ${S.diagIdx+1} ${t('diagOf')} ${qs.length}</span><span>${pct}%</span></div>
-    ${streakH}
-    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>
-    <div class="streak-indicator" id="streakInd"></div>`;
+    <div class="q-text">${qText}</div><div class="opts">${optsH}</div></div>`;
 }
 function diagAnswer(chosen,correct){
   if(S.diagAnswered)return;S.diagAnswered=true;
@@ -1689,10 +1732,6 @@ function diagAnswer(chosen,correct){
     if(i===correct)el.classList.add('correct');
     else if(i===chosen)el.classList.add('wrong');
     el.style.pointerEvents='none';});
-  const si=document.getElementById('streakInd');
-  if(si){if(S.diagStreak>=2){si.className='streak-indicator visible';si.innerHTML='🔥 '+S.diagStreak+' '+(S.lang==='kz'?'қатарынан!':'подряд!')}
-    else if(!isCorrect){si.className='streak-indicator visible';si.textContent='❌';setTimeout(()=>si.classList.remove('visible'),800)}
-    else{si.classList.remove('visible')}}
   setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
 }
 function rDiagGameOver(a){
@@ -1808,6 +1847,7 @@ function rDiagResult(a){
   const subName=DIAG[S.diagSubject][S.lang].name;
   if(!S.diagProgress)S.diagProgress={};
   S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,answers:[...S.diagAnswers]};
+  saveDiagState();window.onbeforeunload=null;
   sendToSheets(true);
   const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
   const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;
@@ -1859,7 +1899,7 @@ function rDiagResult(a){
 
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
       <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${isKz?'PDF жүктеу':'Скачать PDF'}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;rDiag(app())">${isKz?'← Артқа':'← Назад'}</button>
+      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;S.diagGrade=null;rDiag(app())">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
     </div>
 
     ${completed>0?`<div style="margin-top:4px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4><div class="progress-subjects">${progressH}</div></div>`:''}
