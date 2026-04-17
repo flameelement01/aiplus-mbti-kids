@@ -498,16 +498,18 @@ const S={
   tab:"home",screen:"welcome",lang:"ru",idx:0,
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
-  diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagStreak:0,diagMaxStreak:0,diagBest:{},diagLives:3,diagGameOver:false,diagAnswers:[],diagName:null,diagPhone:null,diagQuestions:null,
+  diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagAnswers:[],diagName:null,diagQuestions:null,diagLangPicked:false,
   chatMessages:[],articleOpen:null,olympStudent:null
 };
 const $=id=>document.getElementById(id);
 const app=()=>$("app");
 const SITE_URL="https://flameelement01.github.io/aiplus-mbti-kids";
 
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sanitizeFname(s){return String(s||'').replace(/[^\w\sа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ-]/g,'').trim()||'student';}
 function saveDiagState(){try{localStorage.setItem('aiplus_diag',JSON.stringify({diagName:S.diagName,diagGrade:S.diagGrade,diagProgress:S.diagProgress,diagLangPicked:S.diagLangPicked,lang:S.lang}));}catch(e){}}
 function clearDiagState(){try{localStorage.removeItem('aiplus_diag');}catch(e){}}
-(function(){try{const d=JSON.parse(localStorage.getItem('aiplus_diag')||'{}');if(d.diagName){S.diagName=d.diagName;S.diagGrade=d.diagGrade||null;S.diagProgress=d.diagProgress||{};S.diagLangPicked=d.diagLangPicked||false;S.lang=d.lang||'ru';}}catch(e){}})();
+(function(){try{const d=JSON.parse(localStorage.getItem('aiplus_diag')||'{}');if(d.diagName&&typeof d.diagName==='string'&&d.diagName.length<100){S.diagName=d.diagName;S.diagGrade=typeof d.diagGrade==='string'?d.diagGrade:null;S.diagProgress=d.diagProgress&&typeof d.diagProgress==='object'?d.diagProgress:{};S.diagLangPicked=!!d.diagLangPicked;S.lang=(d.lang==='kz'||d.lang==='ru')?d.lang:'ru';}}catch(e){}})();
 
 // ============================================================
 // CATEGORIES & ICONS
@@ -1331,42 +1333,8 @@ function confetti(){const c=document.createElement('div');c.className='confetti-
     width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;border-radius:${Math.random()>.5?'50%':'2px'};
     animation-delay:${Math.random()*2}s;animation-duration:${2+Math.random()*2}s`;c.appendChild(p)}
   setTimeout(()=>c.remove(),5000)}
-// Sound effects via Web Audio API
-const AC=window.AudioContext||window.webkitAudioContext;let audioCtx;
-function playSound(type){
-  try{if(!audioCtx)audioCtx=new AC();const o=audioCtx.createOscillator();const g=audioCtx.createGain();
-  o.connect(g);g.connect(audioCtx.destination);g.gain.value=0.08;
-  if(type==='correct'){o.frequency.value=880;o.type='sine';g.gain.setValueAtTime(0.08,audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.2);o.start();o.stop(audioCtx.currentTime+0.2)}
-  else if(type==='wrong'){o.frequency.value=200;o.type='sawtooth';g.gain.setValueAtTime(0.06,audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.3);o.start();o.stop(audioCtx.currentTime+0.3)}
-  else if(type==='streak'){o.frequency.value=660;o.type='sine';g.gain.setValueAtTime(0.07,audioCtx.currentTime);
-    const o2=audioCtx.createOscillator();o2.connect(g);o2.frequency.value=990;o2.type='sine';
-    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);o.start();o2.start(audioCtx.currentTime+0.1);
-    o.stop(audioCtx.currentTime+0.2);o2.stop(audioCtx.currentTime+0.4)}
-  else if(type==='gameover'){o.frequency.value=440;o.type='sawtooth';
-    o.frequency.exponentialRampToValueAtTime(100,audioCtx.currentTime+0.5);
-    g.gain.setValueAtTime(0.06,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.5);
-    o.start();o.stop(audioCtx.currentTime+0.5)}
-  else if(type==='win'){[523,659,784].forEach((f,i)=>{const oo=audioCtx.createOscillator();const gg=audioCtx.createGain();
-    oo.connect(gg);gg.connect(audioCtx.destination);oo.frequency.value=f;oo.type='sine';
-    gg.gain.setValueAtTime(0.06,audioCtx.currentTime+i*0.15);
-    gg.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+i*0.15+0.3);
-    oo.start(audioCtx.currentTime+i*0.15);oo.stop(audioCtx.currentTime+i*0.15+0.3)})}
-  }catch(e){}}
 // Shuffle array
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-// Fake leaderboard
-const FAKE_NAMES=["Аружан","Данияр","Айлин","Алихан","Амина","Тимур","Дарина","Нурали","Камила","Ернар","Айару","Мадияр","Инжу","Адиль","Жансая"];
-function genLeaderboard(myScore,total){
-  const board=[];const used=new Set();
-  for(let i=0;i<7;i++){let ni;do{ni=Math.floor(Math.random()*FAKE_NAMES.length)}while(used.has(ni));used.add(ni);
-    let sc=Math.max(0,Math.min(total,myScore+Math.floor(Math.random()*5)-2));
-    if(Math.random()>.6)sc=Math.min(total,myScore+1+Math.floor(Math.random()*2));
-    board.push({name:FAKE_NAMES[ni],score:sc,isMe:false})}
-  board.push({name:S.diagName||'—',score:myScore,isMe:true});
-  board.sort((a,b)=>b.score-a.score||(a.isMe?-1:1));
-  return board.slice(0,8)}
 
 // Google Sheets integration
 const SHEETS_URL='https://script.google.com/macros/s/AKfycbz2EoX8Qa3f2R6yebpoWjEFT2cR8mk-eULsVIbhAedCx_lOwGXAotY9Vj_vFk-gVzlHzA/exec';
@@ -1374,9 +1342,9 @@ function sendToSheets(completed){
   if(!SHEETS_URL)return;
   const qs=S.diagQuestions||[];const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
   const rank=getRank(pct);const subName=S.diagSubject?DIAG[S.diagSubject][S.lang].name:'';
-  const data={name:S.diagName||'',phone:S.diagPhone||'',grade:S.diagGrade||'',subject:subName,
+  const data={name:S.diagName||'',grade:S.diagGrade||'',subject:subName,
     score:S.diagScore,total:qs.length,percent:pct,rank:S.lang==='kz'?rank.kz:rank.ru,
-    maxStreak:S.diagMaxStreak,completed:completed};
+    completed:completed};
   const params=new URLSearchParams();Object.entries(data).forEach(([k,v])=>params.append(k,v));
   const img=new Image();img.src=SHEETS_URL+'?'+params.toString();}
 
@@ -1536,7 +1504,7 @@ function generateDiagPDF(){
       </div>
       <div style="font-size:18px;font-weight:800">${isKz?'Білім диагностикасы':'Диагностика знаний'} — ${grade} ${isKz?'Сынып':'Класс'}</div>
       <div style="margin-top:6px;font-size:13px;opacity:.85">
-        ${isKz?'Оқушы':'Ученик'}: ${nm} &nbsp;&nbsp; ${isKz?'Күні':'Дата'}: ${dateStr}${S.diagPhone?' &nbsp;&nbsp; '+(isKz?'Тел':'Тел')+': '+S.diagPhone:''}
+        ${isKz?'Оқушы':'Ученик'}: ${escapeHtml(nm)} &nbsp;&nbsp; ${isKz?'Күні':'Дата'}: ${dateStr}
       </div>
     </div>
 
@@ -1552,6 +1520,7 @@ function generateDiagPDF(){
   html2canvas(cap,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
     const imgData=canvas.toDataURL('image/jpeg',0.95);
     const{jsPDF}=window.jspdf;
+    if(!jsPDF){throw new Error('jsPDF not loaded');}
     const pdf=new jsPDF('p','mm','a4');
     const pageW=pdf.internal.pageSize.getWidth();
     const pageH=pdf.internal.pageSize.getHeight();
@@ -1573,32 +1542,19 @@ function generateDiagPDF(){
         srcY+=ch;remainH-=ch;page++;
       }
     }
-    const fname='Aiplus_'+grade+(isKz?'сынып':'класс')+'_'+nm+'_'+dateStr.replace(/\./g,'-')+'.pdf';
+    const fname='Aiplus_'+grade+(isKz?'сынып':'класс')+'_'+sanitizeFname(nm)+'_'+dateStr.replace(/\./g,'-')+'.pdf';
     if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){window.open(pdf.output('bloburl'),'_blank');}
     else{pdf.save(fname);}
     cap.innerHTML='';cap.style.cssText='';
+  }).catch(err=>{
+    console.error('PDF generation failed',err);
+    cap.innerHTML='';cap.style.cssText='';
+    alert(S.lang==='kz'?'PDF жасау мүмкін болмады. Қайталап көріңіз.':'Не удалось создать PDF. Попробуйте ещё раз.');
   });
   return 'generating';
 }
 
 // Share PDF via WhatsApp
-function shareDiagPDF(){
-  generateDiagPDF();
-  const qs=S.diagQuestions||[];const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
-  const rank=getRank(pct);const subName=S.diagSubject?DIAG[S.diagSubject][S.lang].name:'';
-  const rankName=S.lang==='kz'?rank.kz:rank.ru;const nm=S.diagName||'';
-  const gaps=getGapAnalysis();const weak=gaps.filter(g=>g.pct<80);
-  const isKz=S.lang==='kz';
-  let gapList='';
-  if(weak.length>0){
-    gapList='\n\n'+(isKz?'⚠️ Пробелдер:':'⚠️ Пробелы:')+'\n';
-    weak.forEach(g=>{const loc=isKz?g.block.kz:g.block.ru;gapList+=`• ${loc.name}: ${g.correct}/${g.total}\n`});
-  }
-  const msg=isKz
-    ?`${rank.icon} ${nm} "${subName}" бойынша тест тапсырды!\n\nНәтиже: ${S.diagScore}/${qs.length} (${pct}%)\nДәреже: ${rankName}${gapList}\n📄 PDF есеп жүктелуде...\n\nТестті тапсырып көр: ${SITE_URL}`
-    :`${rank.icon} ${nm} сдал тест по "${subName}"!\n\nРезультат: ${S.diagScore}/${qs.length} (${pct}%)\nРанг: ${rankName}${gapList}\n📄 PDF отчёт загружается...\n\nПройди тест: ${SITE_URL}`;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank')}
-
 function rDiagLang(a){
   a.innerHTML=`<div class="card" style="margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;text-align:center">
     <div style="font-size:40px;margin-bottom:12px">🧠</div>
@@ -1611,6 +1567,7 @@ function rDiagLang(a){
   </div>`;
 }
 function rDiagAllDone(a){
+  window.onbeforeunload=null;
   const isKz=S.lang==='kz';
   const subjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
   const nm=S.diagName||'';
@@ -1635,19 +1592,20 @@ function rDiagAllDone(a){
     <div class="card" style="text-align:center;padding:24px;margin-bottom:14px">
       <div style="font-size:48px;margin-bottom:8px">🎓</div>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:4px">${isKz?'Диагностика аяқталды!':'Диагностика завершена!'}</h2>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${nm}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${escapeHtml(nm)}</div>
       <div style="font-size:52px;font-weight:900;color:${totalCol};line-height:1;margin-bottom:4px">${totalPct}%</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:16px">${totalScore} ${isKz?'дұрыс':'правильных'} ${isKz?'ішінен':'из'} ${totalQ}</div>
       <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden">${`<div style="height:100%;width:${totalPct}%;background:${totalCol};border-radius:8px"></div>`}</div>
     </div>
     <div class="card" style="padding:16px;margin-bottom:14px">${summaryH}</div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px">
       <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${isKz?'PDF жүктеу':'Скачать PDF'}</button>
-      <button class="btn-outline" onclick="S.diagGrade=null;rDiag(app())">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
+      <button class="btn-outline" onclick="if(confirm(S.lang==='kz'?'Барлық нәтижелерді жойып, қайта бастайсыз ба?':'Сбросить все результаты и пройти заново?')){Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade).forEach(k=>delete S.diagProgress[k]);saveDiagState();rDiag(app())}">🔄 ${isKz?'Қайта тапсыру':'Пройти заново'}</button>
+      <button class="btn-outline" onclick="S.diagGrade=null;saveDiagState();rDiag(app())">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
     </div>
     <div style="background:linear-gradient(135deg,#1B3A5C,#2563eb);border-radius:18px;padding:20px;color:#fff">
       <div style="font-size:17px;font-weight:900;margin-bottom:6px">${isKz?'Жеке оқу жоспарын жасайық':'Составим индивидуальный план обучения'}</div>
-      <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?`Ментор ${nm}-мен барлық пәндер бойынша нәтижені талдайды`:`Ментор разберёт результаты по всем предметам с ${nm}`}</div>
+      <div style="font-size:12px;opacity:.85;margin-bottom:16px">${isKz?`Ментор ${escapeHtml(nm)}-мен барлық пәндер бойынша нәтижені талдайды`:`Ментор разберёт результаты по всем предметам с ${escapeHtml(nm)}`}</div>
       <a href="https://wa.me/${WA}?text=${doneMsg}" target="_blank"
         style="display:block;text-align:center;background:#faa318;color:#fff;padding:14px;border-radius:50px;font-weight:900;font-size:15px;text-decoration:none">
         💬 ${isKz?'Тегін сабаққа жазылу (60 мин)':'Записаться на пробный урок (60 мин)'}
@@ -1658,7 +1616,6 @@ function rDiagAllDone(a){
 function rDiag(a){
   if(!S.diagLangPicked) return rDiagLang(a);
   if(!S.diagName) return rDiagName(a);
-  if(S.diagGameOver) return rDiagGameOver(a);
   if(S.diagSubject&&S.diagQuestions&&S.diagIdx<S.diagQuestions.length) return rDiagQuiz(a);
   if(S.diagSubject&&S.diagQuestions&&S.diagIdx>=S.diagQuestions.length) return rDiagResult(a);
   if(!S.diagGrade) return rDiagGrade(a);
@@ -1678,7 +1635,7 @@ function rDiagGrade(a){
       <p style="font-size:11px;color:var(--muted)">${cnt} ${S.lang==='kz'?'пән':'предметов'}</p></div>`;});
   a.innerHTML=`<div style="padding-top:20px"><h2 class="section-title">${t('diagTitle')}</h2>
     <p class="section-sub">${S.lang==='kz'?'Сыныбыңды таңда':'Выбери свой класс'}</p>
-    <div style="font-size:13px;margin-bottom:12px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${S.diagName}</b>!</div>
+    <div style="font-size:13px;margin-bottom:12px">👋 ${S.lang==='kz'?'Сәлем':'Привет'}, <b>${escapeHtml(S.diagName)}</b>! · <span style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="S.lang=(S.lang==='kz'?'ru':'kz');saveDiagState();rDiag(app())">${S.lang==='kz'?'RU':'KZ'}</span></div>
     <div class="diag-grid">${gH}</div></div>`;
 }
 function rDiagName(a){
@@ -1691,15 +1648,14 @@ function rDiagName(a){
   setTimeout(()=>{const inp=$('diagNameInp');if(inp)inp.focus()},100);
 }
 function setDiagName(){
-  const inp=$('diagNameInp');const name=inp?inp.value.trim():'';
-  if(!name){inp.style.borderColor='var(--red)';return}
+  const inp=$('diagNameInp');const name=inp?inp.value.trim().slice(0,60):'';
+  if(!name||name.length<2){inp.style.borderColor='var(--red)';return}
   S.diagName=name;saveDiagState();
   rDiag(app())}
 function startDiag(subj){
   S.diagSubject=subj;S.diagIdx=0;S.diagScore=0;S.diagAnswered=false;
-  S.diagStreak=0;S.diagMaxStreak=0;S.diagLives=3;S.diagGameOver=false;S.diagAnswers=[];
+  S.diagAnswers=[];
   S.diagQuestions=shuffle(DIAG[subj].questions);
-  window.onbeforeunload=()=>'';
   rDiag(app())}
 function rDiagQuiz(a){
   const qs=S.diagQuestions;const q=qs[S.diagIdx];const pct=Math.round(S.diagIdx/qs.length*100);
@@ -1724,41 +1680,16 @@ function rDiagQuiz(a){
 }
 function diagAnswer(chosen,correct){
   if(S.diagAnswered)return;S.diagAnswered=true;
+  window.onbeforeunload=()=>'';
   const isCorrect=chosen===correct;
   S.diagAnswers.push({idx:S.diagIdx,correct:isCorrect,block:S.diagQuestions[S.diagIdx].block});
-  if(isCorrect){S.diagScore++;S.diagStreak++;if(S.diagStreak>S.diagMaxStreak)S.diagMaxStreak=S.diagStreak;}
-  else{S.diagStreak=0;}
+  if(isCorrect){S.diagScore++;}
   document.querySelectorAll('.diag-opt').forEach((el,i)=>{
     if(i===correct)el.classList.add('correct');
     else if(i===chosen)el.classList.add('wrong');
     el.style.pointerEvents='none';});
-  setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1200);
+  setTimeout(()=>{S.diagIdx++;S.diagAnswered=false;rDiag(app())},1500);
 }
-function rDiagGameOver(a){
-  playSound('gameover');
-  const qs=S.diagQuestions;const pct=qs.length>0?Math.round(S.diagScore/qs.length*100):0;
-  const starCount=pct>=90?5:pct>=70?4:pct>=50?3:pct>=30?2:1;
-  const rank=getRank(pct);const rankName=S.lang==='kz'?rank.kz:rank.ru;
-  if(!S.diagProgress)S.diagProgress={};
-  S.diagProgress[S.diagSubject]={score:S.diagScore,total:qs.length,pct,stars:starCount,rank:rankName,answers:[...S.diagAnswers]};
-  sendToSheets(false);
-  a.innerHTML=`<div class="card" style="margin-top:20px;text-align:center;animation:fadeUp .5s ease">
-    <div style="font-size:60px;margin-bottom:12px">💀</div>
-    <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">${S.lang==='kz'?'Ойын бітті!':'Игра окончена!'}</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:6px">${S.lang==='kz'?'3 қате жасадың':'3 ошибки!'}</p>
-    <div style="font-size:28px;font-weight:900;margin:12px 0">${S.diagScore}/${qs.length}</div>
-    <div class="rank-badge ${rank.cls}" style="margin:8px auto">${rank.icon} ${rankName}</div>
-    <p style="font-size:13px;margin:16px 0">${S.lang==='kz'?'Қайталап көр — бұл жолы жеңесің! 💪':'Попробуй ещё — в этот раз точно лучше! 💪'}</p>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-      <button class="challenge-btn retry" onclick="startDiag('${S.diagSubject}')">🔄 ${S.lang==='kz'?'Қайталау!':'Ещё раз!'}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;S.diagGameOver=false;S.diagQuestions=null;rDiag(app())">${t('diagBack')}</button>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-      <button class="btn-sm" style="background:var(--dark);color:#fff" onclick="generateDiagPDF()">📄 ${S.lang==='kz'?'PDF жүктеу':'Скачать PDF'}</button>
-      <button class="btn-sm" style="background:#25d366;color:#fff" onclick="shareDiagPDF()">💬 WhatsApp</button>
-    </div>${renderGapAnalysis()}</div>`;
-}
-
 function getGapAnalysis(){
   if(!S.diagAnswers||S.diagAnswers.length===0) return [];
   const subj=S.diagSubject;
@@ -1852,9 +1783,12 @@ function rDiagResult(a){
   const gradeSubjects=Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade);
   const completed=gradeSubjects.filter(s=>S.diagProgress[s]).length;
   const totalSubj=gradeSubjects.length;
-  const currentSubjIdx=gradeSubjects.indexOf(S.diagSubject);
-  const nextSubject=currentSubjIdx<gradeSubjects.length-1?gradeSubjects[currentSubjIdx+1]:null;
-  const nextSubjectHTML=nextSubject?`<button onclick="startDiag('${nextSubject}')" style="width:100%;background:linear-gradient(135deg,var(--dark),#2563eb);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">→ ${isKz?'Келесі пән:':'Следующий предмет:'} ${DIAG[nextSubject][S.lang].name}</button>`:'';
+  // Find first uncompleted subject (not just next by index)
+  const nextSubject=gradeSubjects.find(s=>!S.diagProgress[s])||null;
+  const allDone=!nextSubject;
+  const nextSubjectHTML=nextSubject
+    ?`<button onclick="startDiag('${nextSubject}')" style="width:100%;background:linear-gradient(135deg,var(--dark),#2563eb);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">→ ${isKz?'Келесі пән:':'Следующий предмет:'} ${DIAG[nextSubject][S.lang].name}</button>`
+    :`<button onclick="rDiagAllDone(app())" style="width:100%;background:linear-gradient(135deg,#2d7d46,#4CAF50);color:#fff;border:none;padding:14px;border-radius:50px;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px">🎓 ${isKz?'Жалпы нәтижені көру':'Смотреть общий результат'}</button>`;
   const nm=S.diagName||'';
   const WA='77072374305';
   const trialMsg=encodeURIComponent(isKz
@@ -1865,14 +1799,15 @@ function rDiagResult(a){
   const levelLabel=pct>=75?(isKz?'Жоғары деңгей':'Высокий уровень'):pct>=50?(isKz?'Орта деңгей':'Средний уровень'):pct>=35?(isKz?'Базалық деңгей':'Базовый уровень'):(isKz?'Критикалық деңгей':'Критический уровень');
   const levelDesc=pct>=75?(isKz?'Өте жақсы нәтиже. НИШ/БИЛ-ге дайындықты тереңдетуге болады.':'Отличный результат. Можно углублять подготовку к НИШ/БИЛ.'):pct>=50?(isKz?'Жақсы база бар, бірақ пробелдер бар. 2-3 айда нәтижені жақсартуға болады.':'Хорошая база, но есть пробелы. За 2-3 месяца результат можно улучшить.'):pct>=35?(isKz?'Негізгі тақырыптарда кемшіліктер бар. Жүйелі жұмыс қажет.':'Есть пробелы в базовых темах. Нужна системная работа.'):(isKz?'Маңызды тақырыптарда үлкен кемшіліктер. Жеке жоспар керек.':'Серьёзные пробелы. Нужен индивидуальный план.');
   const trialTitle=pct>=75?(isKz?'НИШ/БИЛ-ге дайындықты тереңдетейік':'Углубим подготовку к НИШ/БИЛ'):pct>=50?(isKz?'Пробелдерді бірге жабайық':'Закроем пробелы вместе'):(isKz?'Жеке оқу жоспары жасайық':'Составим индивидуальный план');
-  const trialSub=pct>=75?(isKz?`Ментор ${nm}-ға жеке дайындық жоспарын жасайды`:`Ментор составит индивидуальный план для ${nm}`):(isKz?`60 мин сабақта ментор ${nm}-мен дәл осы тақырыптарды талдайды`:`За 60 мин ментор разберёт с ${nm} именно эти темы`);
+  const nmE=escapeHtml(nm);
+  const trialSub=pct>=75?(isKz?`Ментор ${nmE}-ға жеке дайындық жоспарын жасайды`:`Ментор составит индивидуальный план для ${nmE}`):(isKz?`60 мин сабақта ментор ${nmE}-мен дәл осы тақырыптарды талдайды`:`За 60 мин ментор разберёт с ${nmE} именно эти темы`);
   let progressH='';gradeSubjects.forEach(subj=>{const d=DIAG[subj][S.lang];const p=S.diagProgress[subj];
     progressH+=`<div class="subj-progress" onclick="startDiag('${subj}')"><div class="sp-ic">${d.icon}</div><div class="sp-name">${d.name}</div><div class="sp-score">${p?p.score+'/'+p.total:'—'}</div>${p?`<div style="font-size:11px;color:${p.pct>=75?'#2d7d46':p.pct>=50?'#d97706':'#ea580c'};font-weight:700">${p.pct}%</div>`:''}</div>`;});
 
   a.innerHTML=`<div style="margin-top:16px">
     <!-- Result card -->
     <div class="card" style="text-align:center;padding:24px;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${nm} · ${subName}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${escapeHtml(nm)} · ${escapeHtml(subName)}</div>
       <div style="font-size:60px;font-weight:900;color:${levelColor};line-height:1.1;margin-bottom:4px">${pct}%</div>
       <div style="font-size:15px;color:var(--muted);margin-bottom:14px">${S.diagScore} ${isKz?'дұрыс':'правильных'} ${isKz?'ішінен':'из'} ${qs.length}</div>
       <div style="height:8px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:14px">
@@ -1899,7 +1834,7 @@ function rDiagResult(a){
 
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
       <button class="btn-sm" style="background:var(--dark);color:#fff;padding:10px 20px" onclick="generateDiagPDF()">📄 ${isKz?'PDF жүктеу':'Скачать PDF'}</button>
-      <button class="btn-outline" onclick="S.diagSubject=null;S.diagQuestions=null;S.diagGrade=null;rDiag(app())">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
+      <button class="btn-outline" onclick="if(confirm(S.lang==='kz'?'Сыныпты өзгерткенде қазіргі класс бойынша нәтижелер жойылады. Жалғастырасыз ба?':'При смене класса результаты текущего класса будут сброшены. Продолжить?')){Object.keys(DIAG).filter(k=>DIAG[k].grade===S.diagGrade).forEach(k=>delete S.diagProgress[k]);S.diagSubject=null;S.diagQuestions=null;S.diagGrade=null;saveDiagState();rDiag(app())}">${isKz?'← Сыныпты өзгерту':'← Сменить класс'}</button>
     </div>
 
     ${completed>0?`<div style="margin-top:4px;text-align:left"><h4 style="font-size:13px;font-weight:800;margin-bottom:8px">${t('diagAllTitle')}</h4><div class="progress-subjects">${progressH}</div></div>`:''}
@@ -1923,7 +1858,7 @@ function rDiagResult(a){
         <div style="font-size:12px;opacity:.85;margin-bottom:14px">${isKz?'Оқытушы пробелдерді түсіндіріп, жеке жоспар ұсынады.':'Преподаватель разберёт пробелы и предложит индивидуальный план.'}</div>
         <a href="https://wa.me/${WA_NUM}?text=${waTrial2}" target="_blank"
           style="display:block;text-align:center;background:#fff;color:#128C7E;padding:13px;border-radius:50px;font-weight:900;font-size:14px;text-decoration:none"
-          onclick="trackOffer('trial_after_diag','${S.diagName||''}')">
+          onclick="trackOffer('trial_after_diag',S.diagName||'')">
           💬 ${isKz?'WhatsApp арқылы жазылу':'Записаться через WhatsApp'}
         </a>
       </div>
