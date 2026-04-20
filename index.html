@@ -2094,6 +2094,22 @@ function rOlympResult(a){
   const topPct=Math.round(rank/total*100);
   const WA='77007870264';
 
+  // Segment (5-6 class thresholds: A>=24, B>=16, C<16)
+  const seg=score>=24?'A':score>=16?'B':'C';
+  const segMap={
+    A:{bg:'#dcfce7',color:'#15803d',icon:'🔥',titleRu:'Сильный уровень',titleKz:'Күшті деңгей',descRu:'Отличный результат — важно не останавливаться и развивать потенциал',descKz:'Тамаша нәтиже — тоқтамай дамытуды жалғастыру керек'},
+    B:{bg:'#fef9c3',color:'#92400e',icon:'⭐',titleRu:'Средний уровень',titleKz:'Орта деңгей',descRu:'Есть потенциал — нужна система и наставник',descKz:'Потенциал бар — жүйе мен тәлімгер керек'},
+    C:{bg:'#fee2e2',color:'#991b1b',icon:'💪',titleRu:'Базовый уровень',titleKz:'Базалық деңгей',descRu:'Хорошая база для старта — важно начать сейчас',descKz:'Старт үшін жақсы негіз — қазір бастау маңызды'},
+  };
+  const sd=segMap[seg];
+  const cityAvg=Math.round(OLYMP_DATA.d.reduce((sum,r)=>sum+r[3],0)/OLYMP_DATA.d.length);
+  const barStudPct=Math.round(score/45*100);
+  const barAvgPct=Math.round(cityAvg/45*100);
+  const barColor2=seg==='A'?'#4ade80':seg==='B'?'#fbbf24':'#f87171';
+  const firstName=s[0].split(' ')[1]||s[0].split(' ')[0];
+  const letterRu=`Уважаемые родители ${firstName},\n\nВы только что увидели результат — и это уже важный шаг. Большинство родителей не знают реального уровня своего ребёнка. Вы знаете.\n\n${firstName} занял ${rank} место среди ${total} учеников города.\n\nДо вступительных в НИШ и КТЛ — меньше года. Дети, которые поступают, начали готовиться не весной перед экзаменом. Они начали сейчас.\n\nРазница между «поступил» и «не прошёл» — это не талант. Это 6–8 месяцев системной работы с правильными людьми.\n\nПриходите на бесплатный пробный урок. ${firstName} позанимается с преподавателем — и вы сами увидите разницу.\n\nНи к чему не обязывает.`;
+  const letterKz=`Құрметті ${firstName} ата-анасы,\n\nНәтижені көрдіңіз — бұл маңызды қадам. Ата-аналардың көпшілігі баласының нақты деңгейін білмейді. Сіз білдіңіз.\n\n${firstName} қалада ${total} оқушының арасында ${rank}-орынды иеленді.\n\nНИШ/БИЛ-ге түсу емтиханына — 1 жылдан аз. Түскен балалар көктемде емес, қазір дайындала бастады.\n\nТегін сынақ сабаққа жазылыңыз. ${firstName} ұстазбен сабақ өткізіп, нәтижені өз көзіңізбен көресіз.\n\nЕш міндеттемесіз.`;
+
   // Level
   let gapLevel,gapColor,gapIcon,gapText;
   if(pct>=75){
@@ -2257,6 +2273,43 @@ function rOlympResult(a){
 
 
 
+    <!-- Segment card -->
+    <div style="border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:14px;background:${sd.bg}">
+      <div style="font-size:32px;line-height:1">${sd.icon}</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:${sd.color}">${isKz?sd.titleKz:sd.titleRu}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px">${isKz?sd.descKz:sd.descRu}</div>
+      </div>
+    </div>
+
+    <!-- Bar: student vs city avg -->
+    <div class="card" style="margin-bottom:14px;padding:16px 20px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${isKz?'Сіздің нәтижеңіз vs қала орташасы':'Ваш результат vs средний по городу'}</div>
+      <div style="background:#f0f4f8;border-radius:20px;height:20px;position:relative;overflow:hidden">
+        <div id="olympBar" style="height:100%;width:0%;background:${barColor2};border-radius:20px;transition:width 1s ease"></div>
+        <div style="position:absolute;top:0;bottom:0;left:${barAvgPct}%;width:2px;background:#94a3b8"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted)">
+        <span>${isKz?'Сіздің':'Ваш'}: ${score} б. (${barStudPct}%)</span>
+        <span>${isKz?'Орташа':'Средний'}: ${cityAvg} б. (${barAvgPct}%)</span>
+      </div>
+    </div>
+
+    <!-- Letter to parents -->
+    <div class="card" style="margin-bottom:14px;border-top:4px solid var(--accent)">
+      <div style="display:inline-block;background:#ede9fe;color:var(--accent);font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px">${isKz?'Ата-аналарға хат':'Письмо родителям'}</div>
+      <div style="font-size:14px;line-height:1.7;color:#334155;white-space:pre-line">${isKz?letterKz:letterRu}</div>
+    </div>
+
+    <!-- Facts -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">${isKz?'Aiplus сандарда':'Айплюс в цифрах'}</div>
+      <div style="font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-weight:900;color:var(--accent);min-width:52px;font-size:15px">10 лет</span>${isKz?'НИШ / КТЛ-ге дайындау тәжірибесі':'опыта подготовки к НИШ / КТЛ'}</div>
+      <div style="font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-weight:900;color:var(--accent);min-width:52px;font-size:15px">5000+</span>${isKz?'оқушы мамандық мектептерге түсті':'учеников поступили в спецшколы'}</div>
+      <div style="font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-weight:900;color:var(--accent);min-width:52px;font-size:15px">1 из 4</span>${isKz?'түлек — НИШ-те':'выпускников — в НИШ'}</div>
+      <div style="font-size:13px;display:flex;align-items:center;gap:10px"><span style="font-weight:900;color:var(--accent);min-width:52px;font-size:15px">9</span>${isKz?'Қазақстандағы филиалдар':'филиалов по всему Казахстану'}</div>
+    </div>
+
     <!-- Share -->
     <div style="text-align:center;margin-bottom:20px">
       <button class="btn-outline" style="font-size:11px" onclick="shareOlympResult()">
@@ -2264,6 +2317,7 @@ function rOlympResult(a){
       </button>
     </div>
   </div>`;
+  setTimeout(()=>{const b=document.getElementById('olympBar');if(b)b.style.width=barStudPct+'%';},100);
 }
 
 function submitOlympContact(name){
