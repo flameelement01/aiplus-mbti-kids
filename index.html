@@ -22,7 +22,7 @@
 <meta name="theme-color" content="#193b53">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
@@ -2224,9 +2224,12 @@ function rOlympResult(a){
     </div>
 
     <!-- Letter to parents -->
-    <div class="card" style="margin-bottom:14px;border-top:4px solid var(--accent)">
-      <div style="display:inline-block;background:#ede9fe;color:var(--accent);font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1.5px">${isKz?'Ата-аналарға хат':'Письмо родителям'}</div>
-      <div style="font-size:15px;line-height:1.85;color:#1e293b;white-space:pre-line;font-weight:500;letter-spacing:0.01em">${isKz?letterKz:letterRu}</div>
+    <div class="card" style="margin-bottom:14px;border-top:4px solid var(--accent);position:relative;overflow:hidden">
+      <img src="https://static.tildacdn.pro/tild6138-6238-4632-b230-313838323361/logo.svg" alt="" aria-hidden="true" style="position:absolute;right:-40px;bottom:-50px;width:220px;opacity:0.05;pointer-events:none;transform:rotate(-15deg);user-select:none" loading="lazy">
+      <div style="position:relative;z-index:1">
+        <div style="display:inline-block;background:#ede9fe;color:var(--accent);font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1.5px;font-family:'Manrope',sans-serif">${isKz?'Ата-аналарға хат':'Письмо родителям'}</div>
+        <div style="font-family:'Merriweather',Georgia,serif;font-size:15px;line-height:1.85;color:#1e293b;white-space:pre-line;font-weight:400;letter-spacing:0">${isKz?letterKz:letterRu}</div>
+      </div>
     </div>
 
     <!-- Facts -->
