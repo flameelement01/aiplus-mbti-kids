@@ -2190,20 +2190,6 @@ function rOlympResult(a){
       </div>
     </div>
 
-    <!-- Level & bar -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <span style="font-size:26px">${gapIcon}</span>
-        <div>
-          <div style="font-weight:900;font-size:15px;color:${gapColor}">${gapLevel}</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.5">${gapText}</div>
-        </div>
-      </div>
-      <div style="height:7px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
-        <div style="height:100%;width:${percentile}%;background:linear-gradient(90deg,${gapColor},var(--accent));border-radius:8px"></div>
-      </div>
-      <div style="font-size:10px;color:var(--muted);text-align:right">TOP ${topPct}%</div>
-    </div>
 
     ${timerHTML}
 
@@ -2239,17 +2225,10 @@ function rOlympResult(a){
     <!-- PDF samples -->
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:13px;font-weight:900;color:var(--dark);margin-bottom:10px">
-        📄 ${isKz?'Итог мысалдары (PDF)':'Примеры итоговых отчётов (PDF)'}
+        📄 ${isKz?'Диагностика нәтижесі (PDF)':'Пример итогового отчёта (PDF)'}
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div onclick="window.open('${SITE_URL}/samples/pdf-diag.png','_blank')" style="cursor:pointer">
-          <img src="${SITE_URL}/samples/pdf-diag.png" alt="Диагностика PDF" style="width:100%;border-radius:10px;border:2px solid #e2e8f0">
-          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-weight:700">${isKz?'Диагностика итогы':'Итог диагностики'}</div>
-        </div>
-        <div onclick="window.open('${SITE_URL}/samples/pdf-prof.png','_blank')" style="cursor:pointer">
-          <img src="${SITE_URL}/samples/pdf-prof.png" alt="Профориентация PDF" style="width:100%;border-radius:10px;border:2px solid #e2e8f0">
-          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-weight:700">${isKz?'Кәсіби бағдар':'Профориентация'}</div>
-        </div>
+      <div onclick="window.open('${SITE_URL}/samples/pdf-diag.png','_blank')" style="cursor:pointer">
+        <img src="${SITE_URL}/samples/pdf-diag.png" alt="Диагностика PDF" style="width:100%;border-radius:10px;border:2px solid #e2e8f0">
       </div>
       <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">${isKz?'Диагностикадан кейін осындай PDF аласыз':'После диагностики вы получите такой PDF-отчёт'}</div>
     </div>
