@@ -1990,13 +1990,30 @@ function searchOlymp(query){
     .replace(/ғ/g,'г').replace(/қ/g,'к').replace(/ү/g,'у')
     .replace(/ұ/g,'у').replace(/ө/g,'о').replace(/ә/g,'а')
     .replace(/һ/g,'х').replace(/\s+/g,' ');
+  // Stem match: checks if short word matches somewhere in long text, tolerating Russian case endings
+  const stemMatch=(w,text)=>{
+    if(text.includes(w)) return true;
+    if(w.length>=4){
+      if(text.includes(w.slice(0,-1))) return true;
+      if(w.length>=5 && text.includes(w.slice(0,-2))) return true;
+    }
+    return false;
+  };
   const q=normalize(query);
   const parts=q.split(' ').filter(p=>p.length>0);
-  // Require at least 2 words (surname + name)
   if(parts.length<2) return null;
   return OLYMP_DATA.d.filter(s=>{
     const name=normalize(s[0]);
-    return parts.every(p=>name.includes(p));
+    // Standard: every query word matches in name (with stem tolerance)
+    if(parts.every(p=>stemMatch(p,name))) return true;
+    // Reverse match: entry has fewer words than query, and every entry word matches in query
+    const nameParts=name.split(' ').filter(p=>p.length>0);
+    if(nameParts.length<parts.length){
+      const hasLong=nameParts.some(np=>np.length>=5);
+      const allMatch=nameParts.every(np=>parts.some(p=>stemMatch(np,p)||stemMatch(p,np)));
+      if(hasLong&&allMatch) return true;
+    }
+    return false;
   }).slice(0,10);
 }
 
