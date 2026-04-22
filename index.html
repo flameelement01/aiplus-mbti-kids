@@ -2869,10 +2869,20 @@ function entReset(){
   if(urlOlymp){
     document.body.classList.add('olymp-landing');
     goTab('olymp');
+    // Auto-find student from URL param
+    const decoded=decodeURIComponent(urlOlymp);
+    const results=searchOlymp(decoded);
+    if(results.length===1){
+      S.olympStudent=results[0];
+      S.lang=S.olympStudent[2]?'kz':'ru';
+      rOlymp(app());
+    } else {
+      setTimeout(()=>{const el=document.getElementById('olympSearch');if(el){el.value=decoded;renderOlympResults();}},50);
+    }
   } else {
-    goTab('olymp');
+    goTab('home');
   }
-  loadEntData();
+  // ENT data loads lazily when user opens the ENT tab
 })();
 </script>
 </body>
