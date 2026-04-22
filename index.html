@@ -63,8 +63,8 @@ body{background:var(--bg-flat);background:var(--bg);color:var(--dark);font-famil
   background:var(--dark-bg);display:flex;justify-content:space-around;
   padding:6px 0 env(safe-area-inset-bottom,6px);border-top:1px solid rgba(255,255,255,.08)}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:10px 8px;cursor:pointer;color:rgba(255,255,255,.45);
-  font-size:11px;font-weight:700;transition:.2s;min-width:64px;min-height:44px;text-decoration:none;
+  padding:8px 4px;cursor:pointer;color:rgba(255,255,255,.45);
+  font-size:10px;font-weight:700;transition:.2s;min-width:54px;min-height:44px;text-decoration:none;
   -webkit-tap-highlight-color:transparent}
 .nav-item.active{color:var(--accent)}
 .nav-item .nav-ic{font-size:20px;line-height:1}
@@ -96,6 +96,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
 .section-title{font-family:'Manrope',sans-serif;font-size:22px;font-weight:900;letter-spacing:-0.03em;
   letter-spacing:-.5px;margin-bottom:6px}
 .section-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* PROGRESS */
 .prog{height:4px;background:rgba(0,0,0,.07);border-radius:4px;margin:16px 0 4px}
@@ -485,6 +486,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
   <div class="nav-item active" onclick="goTab('home')"><div class="nav-ic">🏠</div>Главная</div>
   <div class="nav-item" onclick="goTab('test')"><div class="nav-ic">🎯</div>Тест</div>
   <div class="nav-item" onclick="goTab('diag')"><div class="nav-ic">📝</div>Знания</div>
+  <div class="nav-item" onclick="goTab('ent')"><div class="nav-ic">📋</div>ЕНТ</div>
   <div class="nav-item" onclick="goTab('courses')"><div class="nav-ic">🎬</div>Курсы</div>
   <div class="nav-item" onclick="goTab('ai')"><div class="nav-ic">🤖</div>ИИ</div>
 </nav>
@@ -501,7 +503,8 @@ const S={
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
   diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagAnswers:[],diagName:null,diagQuestions:null,diagLangPicked:false,
-  chatMessages:[],articleOpen:null,olympStudent:null
+  chatMessages:[],articleOpen:null,olympStudent:null,
+  entData:null,entScreen:'setup',entLang:'ru',entProfile:[],entQuestions:[],entIdx:0,entAnswers:{},entSecondsLeft:8400,entTimerInterval:null,entDone:false,entReviewTab:'wrong'
 };
 const $=id=>document.getElementById(id);
 const app=()=>$("app");
@@ -939,7 +942,7 @@ const REVIEWS=[
 // i18n
 // ============================================================
 const T={
-  ru:{home:"Главная",test:"Тест",diag:"Знания",courses:"Курсы",ai:"ИИ",
+  ru:{home:"Главная",test:"Тест",diag:"Знания",ent:"ЕНТ",courses:"Курсы",ai:"ИИ",
     homeTitle:"Aiplus Kids",homeSub:"Образовательная платформа для 5-6 классов",
     testCard:"Профориентация",testCardDesc:"24 вопроса → твоя будущая профессия",
     diagCard:"Проверь знания",diagCardDesc:"4 предмета — оценка уровня для НИШ/БИЛ",
@@ -976,7 +979,7 @@ const T={
     faqParent:"Для родителей:",faqKid:"Для учеников:",
     diagAllTitle:"Твой прогресс"
   },
-  kz:{home:"Басты",test:"Тест",diag:"Білім",courses:"Курстар",ai:"ЖИ",
+  kz:{home:"Басты",test:"Тест",diag:"Білім",ent:"ЕНТ",courses:"Курстар",ai:"ЖИ",
     homeTitle:"Aiplus Kids",homeSub:"5-6 сынып оқушыларына арналған білім платформасы",
     testCard:"Кәсіби бағдар",testCardDesc:"24 сұрақ → болашақ мамандығың",
     diagCard:"Білімді тексер",diagCardDesc:"4 пән — НИШ/БИЛ-ге деңгейді бағалау",
@@ -1027,8 +1030,11 @@ function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("sho
 function goTab(tab){
   S.tab=tab;
   if(tab==='test'&&!S.testDone) S.screen='welcome';
+  // If leaving ENT quiz, restore nav & stop timer
+  if(tab!=='ent'&&S.entScreen==='quiz'){entStopTimer();S.entScreen='setup';}
+  entShowNav(true);
   document.querySelectorAll('.nav-item').forEach((el,i)=>{
-    const tabs=['home','test','diag','courses','ai'];
+    const tabs=['home','test','diag','ent','courses','ai'];
     el.classList.toggle('active',tabs[i]===tab);
     el.lastChild.textContent=t(tabs[i]);
   });
@@ -1045,6 +1051,7 @@ function renderTab(){
     case'courses':rCourses(a);break;
     case'ai':rAI(a);break;
     case'olymp':rOlymp(a);break;
+    case'ent':rEnt(a);break;
   }
 }
 
@@ -1070,6 +1077,8 @@ function rHome(a){
       <div class="hc-badge" style="background:#fff3d0;color:#7a4800">GetCourse</div></div>
     <div class="home-card" onclick="goTab('ai')"><div class="hc-ic">🤖</div><h3>${t('aiCard')}</h3><p>${t('aiCardDesc')}</p>
       <div class="hc-badge" style="background:#ffe8e0;color:var(--red)">AI</div></div>
+    <div class="home-card full" onclick="goTab('ent')" style="background:linear-gradient(135deg,#e0f2fe,#dbeafe);border:2px solid #3b82f6"><div class="hc-ic">📋</div><h3>${S.lang==='kz'?'Пробный ЕНТ':'Пробный ЕНТ'}</h3><p>${S.lang==='kz'?'Нақты сұрақтармен жаттықтыр · 140 минут':'Тренируйся на реальных вопросах · 140 минут'}</p>
+      <div class="hc-badge" style="background:#dbeafe;color:#1d4ed8">${S.lang==='kz'?'Тегін':'Бесплатно'}</div></div>
     <div class="home-card full" onclick="goTab('olymp')" style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:2px solid var(--accent)"><div class="hc-ic">🏆</div><h3>${S.lang==='kz'?'Aicup Олимпиада нәтижелері':'Результаты олимпиады Aicup'}</h3><p>${S.lang==='kz'?'2500+ оқушы қатысты. Өз нәтижеңді біл!':'2500+ учеников. Узнай свой результат!'}</p>
       <div class="hc-badge" style="background:#ffe0b2;color:#e65100">2500+ ${S.lang==='kz'?'оқушы':'учеников'}</div></div>
     <div class="home-card full" onclick="S.tab='info';rInfo(app())"><div class="hc-ic">📖</div><h3>${t('infoCard')}</h3><p>${t('infoCardDesc')}</p></div>
@@ -2367,6 +2376,488 @@ function shareOlympResult(){
 
 
 // ============================================================
+// ENT SIMULATOR
+// ============================================================
+const ENT_PROFILES={
+  math:        {ru:'Математика',        kz:'Математика'},
+  physics:     {ru:'Физика',            kz:'Физика'},
+  chemistry:   {ru:'Химия',             kz:'Химия'},
+  biology:     {ru:'Биология',          kz:'Биология'},
+  geography:   {ru:'География',         kz:'География'},
+  informatics: {ru:'Информатика',       kz:'Информатика'},
+  world_history:{ru:'Всемирная история',kz:'Дүниежүзі тарихы'},
+  english:     {ru:'Английский язык',   kz:'Ағылшын тілі'},
+  law:         {ru:'Основы права',      kz:'Құқық негіздері'},
+};
+
+const ENT_SUBJ_LABEL={
+  history:      {ru:'История Казахстана',       kz:'Қазақстан тарихы'},
+  math_literacy:{ru:'Математическая грамотность',kz:'Математикалық сауаттылық'},
+  reading:      {ru:'Грамотность чтения',        kz:'Оқу сауаттылығы'},
+  ...Object.fromEntries(Object.entries(ENT_PROFILES).map(([k,v])=>[k,v]))
+};
+
+function loadEntData(){
+  if(S.entData) return;
+  fetch('ent_questions.json').then(r=>r.json()).then(d=>{
+    S.entData=d;
+    if(S.tab==='ent') rEnt(app());
+  }).catch(()=>{
+    if(S.tab==='ent') app().innerHTML='<div style="padding:32px;text-align:center;color:#f87171">Не удалось загрузить базу вопросов</div>';
+  });
+}
+
+function entGetQ(subj, lang, n){
+  const d=S.entData;
+  const pool=(d[subj]?.[lang]||d[subj]?.ru||[]).filter(q=>q.options&&Object.keys(q.options).length>=4&&q.correct);
+  return pool.slice(0,n);
+}
+
+function entBuildQuestions(){
+  const lang=S.entLang;
+  const reading=lang==='kz'?'reading_kz':'reading_ru';
+  const mandatory=[
+    ...entGetQ('history',lang,20).map(q=>({...q,subject:'history'})),
+    ...entGetQ('math_literacy',lang,10).map(q=>({...q,subject:'math_literacy'})),
+    ...entGetQ(reading,lang,10).map(q=>({...q,subject:'reading'})),
+  ];
+  const profile=S.entProfile.flatMap(subj=>entGetQ(subj,lang,30).map(q=>({...q,subject:subj})));
+  return [...mandatory,...profile].map((q,i)=>({...q,_idx:i}));
+}
+
+function entFmtTime(s){
+  const m=Math.floor(s/60),sc=s%60;
+  return `${m}:${sc.toString().padStart(2,'0')}`;
+}
+
+function entStartTimer(){
+  if(S.entTimerInterval) clearInterval(S.entTimerInterval);
+  S.entTimerInterval=setInterval(()=>{
+    if(S.entSecondsLeft<=0){
+      clearInterval(S.entTimerInterval);
+      S.entTimerInterval=null;
+      S.entDone=true;
+      S.entScreen='result';
+      rEnt(app());
+      return;
+    }
+    S.entSecondsLeft--;
+    const el=document.getElementById('ent-timer');
+    if(el){
+      el.textContent=entFmtTime(S.entSecondsLeft);
+      el.style.color=S.entSecondsLeft<300?'#f87171':'';
+    }
+  },1000);
+}
+
+function entStopTimer(){
+  if(S.entTimerInterval) clearInterval(S.entTimerInterval);
+  S.entTimerInterval=null;
+}
+
+function rEnt(a){
+  if(!S.entData){
+    a.innerHTML=`<div style="padding:40px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">📋</div>
+      <div style="font-size:15px;color:#64748b">Загружаем базу вопросов...</div>
+    </div>`;
+    loadEntData();
+    return;
+  }
+  entShowNav(S.entScreen!=='quiz');
+  switch(S.entScreen){
+    case'setup':   rEntSetup(a);  break;
+    case'quiz':    rEntQuiz(a);   break;
+    case'result':  rEntResult(a); break;
+    case'review':  rEntReview(a); break;
+    default:       rEntSetup(a);
+  }
+}
+
+const ENT_PROF_ICONS={math:'📐',physics:'⚛️',chemistry:'🧪',biology:'🌿',geography:'🌍',informatics:'💻',world_history:'🌐',english:'🇬🇧',law:'⚖️'};
+
+function entShowNav(v){const n=$('bottomnav');if(n)n.style.display=v?'':'none';}
+
+function rEntSetup(a){
+  entStopTimer();entShowNav(true);
+  const isKz=S.entLang==='kz';
+  const prof=S.entProfile;
+  const ready=prof.length===2;
+  const mandatoryQ=entGetQ('history',S.entLang,20).length+entGetQ('math_literacy',S.entLang,10).length+entGetQ(S.entLang==='kz'?'reading_kz':'reading_ru',S.entLang,10).length;
+  const profHTML=Object.entries(ENT_PROFILES).map(([key,names])=>{
+    const sel=prof.includes(key);const disabled=!sel&&prof.length>=2;
+    const name=isKz?names.kz:names.ru;const icon=ENT_PROF_ICONS[key]||'📖';
+    const qCount=entGetQ(key,S.entLang,30).length;
+    return `<div onclick="${disabled?'':``entToggleProfile('${key}')``}" style="padding:12px 14px;border-radius:12px;border:2px solid ${sel?'var(--accent)':disabled?'#f1f5f9':'#e2e8f0'};background:${sel?'#fff7ed':disabled?'#fafafa':'#fff'};cursor:${disabled?'default':'pointer'};font-size:14px;font-weight:600;color:${sel?'var(--accent)':disabled?'#cbd5e1':'#334155'};transition:.15s;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px;opacity:${disabled?0.3:1}">${icon}</span>
+      <span style="flex:1">${name}</span>
+      <span style="font-size:11px;font-weight:700;color:${sel?'var(--accent)':'#94a3b8'};background:${sel?'#fff7ed':'#f1f5f9'};padding:2px 8px;border-radius:8px">${qCount}</span>
+      ${sel?'<span style="color:var(--accent);font-size:18px">✓</span>':''}
+    </div>`;
+  }).join('');
+  const totalEst=ready?mandatoryQ+prof.reduce((s,k)=>s+entGetQ(k,S.entLang,30).length,0):0;
+
+  a.innerHTML=`<div style="padding:16px 16px 90px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:44px;margin-bottom:8px">📋</div>
+      <h2 style="margin:0 0 4px;font-size:22px;font-weight:800">${isKz?'Пробный ЕНТ':'Пробный ЕНТ'}</h2>
+      <p style="margin:0;font-size:13px;color:#64748b">${isKz?'Нақты сұрақтар · 140 минут':'Реальные вопросы ЕНТ · 140 минут'}</p>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">${isKz?'Тіл / Язык':'Язык / Тіл'}</div>
+      <div style="display:flex;gap:8px">
+        <div onclick="S.entLang='ru';rEntSetup(app())" style="flex:1;padding:11px;border-radius:10px;border:2px solid ${!isKz?'var(--accent)':'#e2e8f0'};background:${!isKz?'#fff7ed':'#fff'};cursor:pointer;text-align:center;font-weight:700;font-size:14px;color:${!isKz?'var(--accent)':'#334155'}">🇷🇺 Русский</div>
+        <div onclick="S.entLang='kz';rEntSetup(app())" style="flex:1;padding:11px;border-radius:10px;border:2px solid ${isKz?'var(--accent)':'#e2e8f0'};background:${isKz?'#fff7ed':'#fff'};cursor:pointer;text-align:center;font-weight:700;font-size:14px;color:${isKz?'var(--accent)':'#334155'}">🇰🇿 Қазақша</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">${isKz?'Міндетті пәндер':'Обязательные предметы'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;font-size:13px;font-weight:600;color:#475569;display:flex;align-items:center;gap:10px"><span>📚</span><span style="flex:1">${isKz?'Қазақстан тарихы':'История Казахстана'}</span><span style="font-size:11px;background:#e2e8f0;padding:2px 8px;border-radius:8px;font-weight:700">${entGetQ('history',S.entLang,20).length} вопр.</span></div>
+        <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;font-size:13px;font-weight:600;color:#475569;display:flex;align-items:center;gap:10px"><span>🔢</span><span style="flex:1">${isKz?'Математикалық сауаттылық':'Мат. грамотность'}</span><span style="font-size:11px;background:#e2e8f0;padding:2px 8px;border-radius:8px;font-weight:700">${entGetQ('math_literacy',S.entLang,10).length} вопр.</span></div>
+        <div style="padding:10px 12px;border-radius:10px;background:#f8fafc;font-size:13px;font-weight:600;color:#475569;display:flex;align-items:center;gap:10px"><span>📖</span><span style="flex:1">${isKz?'Оқу сауаттылығы':'Грамотность чтения'}</span><span style="font-size:11px;background:#e2e8f0;padding:2px 8px;border-radius:8px;font-weight:700">${entGetQ(S.entLang==='kz'?'reading_kz':'reading_ru',S.entLang,10).length} вопр.</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px">${isKz?'Бейіндік пәндер':'Профильные предметы'}</div>
+        <div style="font-size:12px;font-weight:800;color:${prof.length<2?'var(--accent)':'#16a34a'}">${prof.length}/2 ${isKz?'таңдалды':'выбрано'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">${profHTML}</div>
+    </div>
+
+    <button onclick="entStartQuiz()" ${ready?'':'disabled'} style="width:100%;padding:16px;background:${ready?'var(--accent)':'#e2e8f0'};color:${ready?'#fff':'#94a3b8'};border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:${ready?'pointer':'default'};transition:.2s;letter-spacing:.3px">
+      ${ready?`${isKz?'Тестті бастау':'Начать тест'} · ${totalEst} ${isKz?'сұрақ →':'вопрос →'}`:(isKz?'2 бейіндік пән таңда':'Выбери 2 профильных предмета')}
+    </button>
+  </div>`;
+}
+
+function entToggleProfile(key){
+  const p=S.entProfile;const idx=p.indexOf(key);
+  if(idx>=0) p.splice(idx,1);
+  else if(p.length<2) p.push(key);
+  rEntSetup(app());
+}
+
+function entStartQuiz(){
+  S.entQuestions=entBuildQuestions();
+  S.entIdx=0;S.entAnswers={};S.entFlags=new Set();
+  S.entSecondsLeft=8400;S.entDone=false;
+  S.entScreen='quiz';
+  entShowNav(false);
+  rEnt(app());
+  entStartTimer();
+}
+
+function rEntQuiz(a){
+  const qs=S.entQuestions;const i=S.entIdx;
+  if(i>=qs.length){entStopTimer();S.entDone=true;S.entScreen='result';entShowNav(true);rEnt(a);return;}
+  const q=qs[i];const isKz=S.entLang==='kz';const total=qs.length;
+  const answered=S.entAnswers[i];const flagged=S.entFlags&&S.entFlags.has(i);
+  const answeredCount=Object.keys(S.entAnswers).length;
+  const subLabel=(ENT_SUBJ_LABEL[q.subject]||{ru:q.subject,kz:q.subject})[isKz?'kz':'ru'];
+  const timerLow=S.entSecondsLeft<300;
+
+  const optHTML=['A','B','C','D'].filter(k=>q.options[k]).map(k=>{
+    const sel=answered===k;
+    return `<div onclick="entAnswer('${k}')" style="padding:13px 16px;border-radius:13px;border:2px solid ${sel?'var(--accent)':'#e8edf2'};background:${sel?'linear-gradient(135deg,#fff7ed,#fff3e0)':'#fff'};cursor:pointer;font-size:14px;font-weight:${sel?700:500};color:${sel?'var(--accent)':'#334155'};margin-bottom:9px;display:flex;align-items:flex-start;gap:12px;box-shadow:${sel?'0 2px 8px rgba(250,163,24,.2)':'0 1px 3px rgba(0,0,0,.04)'};transition:.15s;-webkit-tap-highlight-color:transparent">
+      <span style="min-width:26px;height:26px;border-radius:50%;flex-shrink:0;background:${sel?'var(--accent)':'#f1f5f9'};color:${sel?'#fff':'#64748b'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:1px">${k}</span>
+      <span style="line-height:1.5">${escapeHtml(q.options[k])}</span>
+    </div>`;
+  }).join('');
+
+  a.innerHTML=`<div style="min-height:100vh;background:#f8fafc;padding-bottom:80px">
+    <!-- Sticky header -->
+    <div style="position:sticky;top:0;z-index:20;background:var(--dark-bg);padding:10px 14px 8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <button onclick="entConfirmSubmit()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 13px;color:rgba(255,255,255,.8);font-size:12px;font-weight:700;cursor:pointer">${isKz?'Аяқтау':'Завершить'}</button>
+        <div id="ent-timer" style="font-size:22px;font-weight:900;color:${timerLow?'#f87171':'#fff'};font-variant-numeric:tabular-nums;letter-spacing:1px${timerLow?';animation:pulse 1s infinite':''}">${entFmtTime(S.entSecondsLeft)}</div>
+        <button onclick="entOpenPalette()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 13px;color:rgba(255,255,255,.8);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;width:14px;height:14px">
+            ${'<span style="width:5px;height:5px;background:currentColor;border-radius:1px"></span>'.repeat(4)}
+          </span>
+          ${answeredCount}/${total}
+        </button>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:3px;border-radius:2px;background:rgba(255,255,255,.15);overflow:hidden">
+        <div style="height:100%;width:${Math.round(answeredCount/total*100)}%;background:var(--accent);transition:.3s;border-radius:2px"></div>
+      </div>
+    </div>
+
+    <!-- Subject label -->
+    <div style="padding:12px 16px 0">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:20px;padding:5px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+        <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px">${subLabel}</span>
+        <span style="width:4px;height:4px;border-radius:50%;background:#cbd5e1"></span>
+        <span style="font-size:11px;font-weight:700;color:#64748b">${isKz?'Сұрақ':'Вопрос'} ${i+1} / ${total}</span>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <div style="padding:12px 16px">
+      <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:600;color:#1e293b;line-height:1.6;flex:1">${escapeHtml(q.text)}</div>
+          <button onclick="entToggleFlag(${i})" title="${isKz?'Белгілеу':'Отметить'}" style="background:${flagged?'#fff7ed':'#f8fafc'};border:2px solid ${flagged?'var(--accent)':'#e2e8f0'};border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+            ${flagged?'🚩':'🏳️'}
+          </button>
+        </div>
+        ${optHTML}
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <div style="position:fixed;bottom:0;left:0;right:0;padding:10px 16px;background:#fff;border-top:1px solid #e8edf2;display:flex;gap:10px;z-index:15;box-shadow:0 -2px 12px rgba(0,0,0,.06)">
+      <button onclick="entNav(-1)" ${i===0?'disabled':''} style="width:52px;padding:12px;border-radius:12px;border:2px solid ${i===0?'#f1f5f9':'#e2e8f0'};background:#fff;font-size:18px;cursor:${i===0?'default':'pointer'};color:${i===0?'#cbd5e1':'#334155'}">←</button>
+      <button onclick="entToggleFlag(${i})" style="width:52px;padding:12px;border-radius:12px;border:2px solid ${flagged?'var(--accent)':'#e2e8f0'};background:${flagged?'#fff7ed':'#fff'};font-size:16px;cursor:pointer">🚩</button>
+      <button onclick="entNav(1)" style="flex:1;padding:12px;border-radius:12px;border:none;background:${answered?'var(--accent)':'#e2e8f0'};font-size:15px;font-weight:800;color:${answered?'#fff':'#94a3b8'};cursor:pointer;letter-spacing:.3px">
+        ${i===total-1?(isKz?'Аяқтау ✓':'Завершить ✓'):(answered?(isKz?'Келесі →':'Далее →'):(isKz?'Өткізу →':'Пропустить →'))}
+      </button>
+    </div>
+  </div>`;
+}
+
+function entToggleFlag(i){
+  if(!S.entFlags) S.entFlags=new Set();
+  S.entFlags.has(i)?S.entFlags.delete(i):S.entFlags.add(i);
+  rEntQuiz(app());
+}
+
+function entAnswer(key){
+  S.entAnswers[S.entIdx]=key;
+  // Update only answer UI without full re-render for smoothness
+  rEntQuiz(app());
+}
+
+function entNav(dir){
+  const total=S.entQuestions.length;const next=S.entIdx+dir;
+  if(next<0) return;
+  if(next>=total){entConfirmSubmit();return;}
+  S.entIdx=next;rEntQuiz(app());
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function entOpenPalette(){
+  const qs=S.entQuestions;const isKz=S.entLang==='kz';
+  const answeredCount=Object.keys(S.entAnswers).length;
+  const flaggedCount=S.entFlags?S.entFlags.size:0;
+
+  // Group by subject
+  const subjGroups={};
+  qs.forEach((q,i)=>{
+    if(!subjGroups[q.subject]) subjGroups[q.subject]=[];
+    subjGroups[q.subject].push(i);
+  });
+
+  let groupsHTML='';
+  Object.entries(subjGroups).forEach(([subj,idxs])=>{
+    const label=(ENT_SUBJ_LABEL[subj]||{ru:subj,kz:subj})[isKz?'kz':'ru'];
+    const btns=idxs.map(i=>{
+      const ans=S.entAnswers[i];const flag=S.entFlags&&S.entFlags.has(i);const cur=i===S.entIdx;
+      const bg=cur?'var(--accent)':ans?'#4ade80':flag?'#fbbf24':'#f1f5f9';
+      const color=cur||ans?'#fff':flag?'#78350f':'#64748b';
+      return `<button onclick="entGoTo(${i})" style="width:38px;height:38px;border-radius:8px;border:2px solid ${cur?'var(--accent)':ans?'#22c55e':flag?'#f59e0b':'#e2e8f0'};background:${bg};color:${color};font-size:12px;font-weight:800;cursor:pointer">${i+1}</button>`;
+    }).join('');
+    groupsHTML+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${btns}</div>
+    </div>`;
+  });
+
+  const overlay=document.createElement('div');
+  overlay.id='ent-palette';
+  overlay.style.cssText='position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;background:rgba(0,0,0,.5)';
+  overlay.innerHTML=`
+    <div onclick="entClosePalette()" style="flex:1"></div>
+    <div style="background:#fff;border-radius:20px 20px 0 0;max-height:80vh;display:flex;flex-direction:column">
+      <div style="padding:16px 16px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f1f5f9">
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#1e293b">${isKz?'Сұрақтар':'Вопросы'}</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:2px">
+            <span style="color:#22c55e;font-weight:700">● ${answeredCount} ${isKz?'жауапталды':'отвечено'}</span>
+            ${flaggedCount>0?`  <span style="color:#f59e0b;font-weight:700">● ${flaggedCount} ${isKz?'белгіленді':'отмечено'}</span>`:''}
+            <span style="color:#94a3b8">  ● ${qs.length-answeredCount} ${isKz?'қалды':'осталось'}</span>
+          </div>
+        </div>
+        <button onclick="entClosePalette()" style="background:#f1f5f9;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;line-height:1">✕</button>
+      </div>
+      <div style="overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch">${groupsHTML}</div>
+      <div style="padding:12px 16px;border-top:1px solid #f1f5f9;display:flex;gap:8px">
+        <button onclick="entClosePalette()" style="flex:1;padding:13px;border-radius:12px;border:2px solid #e2e8f0;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#334155">${isKz?'Жабу':'Закрыть'}</button>
+        <button onclick="entClosePalette();entConfirmSubmit()" style="flex:1;padding:13px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer">${isKz?'Аяқтау':'Завершить'}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function entClosePalette(){const el=$('ent-palette');if(el)el.remove();}
+
+function entGoTo(i){
+  entClosePalette();S.entIdx=i;rEntQuiz(app());
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function entConfirmSubmit(){
+  const isKz=S.entLang==='kz';
+  const unanswered=S.entQuestions.length-Object.keys(S.entAnswers).length;
+  if(unanswered>0){
+    const msg=isKz?`${unanswered} сұраққа жауап берілмеді. Аяқтайсыз ба?`:`Пропущено ${unanswered} вопр. Завершить тест?`;
+    if(!confirm(msg)) return;
+  }
+  entStopTimer();S.entDone=true;S.entScreen='result';entShowNav(true);rEnt(app());
+}
+
+function rEntResult(a){
+  const isKz=S.entLang==='kz';const qs=S.entQuestions;
+  const subjScores={};
+  qs.forEach((q,i)=>{
+    const subj=q.subject;
+    if(!subjScores[subj]) subjScores[subj]={correct:0,total:0,label:(ENT_SUBJ_LABEL[subj]||{ru:subj,kz:subj})[isKz?'kz':'ru']};
+    subjScores[subj].total++;
+    if(S.entAnswers[i]===q.correct) subjScores[subj].correct++;
+  });
+  const totalCorrect=Object.values(subjScores).reduce((s,v)=>s+v.correct,0);
+  const totalQ=qs.length;
+  const pct=Math.round(totalCorrect/totalQ*100);
+  const timePassed=8400-S.entSecondsLeft;
+  const timeStr=`${Math.floor(timePassed/60)} мин ${timePassed%60} сек`;
+  const wrongCount=qs.filter((q,i)=>S.entAnswers[i]&&S.entAnswers[i]!==q.correct).length;
+  const skippedCount=qs.filter((q,i)=>!S.entAnswers[i]).length;
+
+  // Grade
+  const g=pct>=75?{emoji:'🏆',label:isKz?'Тамаша нәтиже!':'Отличный результат!',color:'#15803d',bg:'#dcfce7',hint:isKz?'ЕНТ-ты жоғары балмен тапсырасыз!':'Сдадите ЕНТ с высоким баллом!'}
+           :pct>=55?{emoji:'👍',label:isKz?'Жақсы нәтиже':'Хороший результат',color:'#d97706',bg:'#fef3c7',hint:isKz?'Бірнеше аптада 90+ балға жетуге болады':'Несколько недель — и будете на 90+ баллов'}
+           :pct>=40?{emoji:'📚',label:isKz?'Дайындық керек':'Нужна подготовка',color:'#b45309',bg:'#fef9c3',hint:isKz?'Aiplus-та 2-3 айда дайындалып болады':'2-3 месяца Aiplus — и результат улучшится'}
+                   :{emoji:'💪',label:isKz?'Бастайық!':'Начнём сначала!',color:'#dc2626',bg:'#fee2e2',hint:isKz?'Aiplus мұғалімдері кез-келген деңгейден дайындайды':'Наши учителя готовят с любого уровня'};
+
+  const subjRows=Object.entries(subjScores).map(([key,v])=>{
+    const spct=Math.round(v.correct/v.total*100);
+    const barC=spct>=70?'#4ade80':spct>=45?'#fbbf24':'#f87171';
+    const icon=ENT_PROF_ICONS[key]||ENT_SUBJ_LABEL[key]?'📚':'';
+    return `<div style="margin-bottom:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:600;color:#334155">${v.label}</span>
+        <span style="font-size:13px;font-weight:800;color:${barC==='#4ade80'?'#16a34a':barC==='#fbbf24'?'#d97706':'#dc2626'}">${v.correct}/${v.total} <span style="font-size:11px;color:#94a3b8">(${spct}%)</span></span>
+      </div>
+      <div style="height:7px;border-radius:4px;background:#e8edf2;overflow:hidden">
+        <div style="height:100%;width:${spct}%;border-radius:4px;background:${barC}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  a.innerHTML=`<div style="padding:16px 16px 90px;background:#f8fafc;min-height:100vh">
+    <!-- Result hero -->
+    <div style="background:linear-gradient(135deg,var(--dark-bg),#1e3a5f);border-radius:20px;padding:24px;text-align:center;margin-bottom:14px;color:#fff">
+      <div style="font-size:52px;margin-bottom:8px">${g.emoji}</div>
+      <div style="font-size:40px;font-weight:900;letter-spacing:-1px">${totalCorrect}<span style="font-size:22px;font-weight:600;opacity:.6">/${totalQ}</span></div>
+      <div style="font-size:14px;opacity:.7;margin:4px 0 12px">${Math.round(totalCorrect/totalQ*100)}% • ${timeStr}</div>
+      <div style="display:inline-block;padding:8px 18px;border-radius:20px;background:${g.bg};color:${g.color};font-weight:800;font-size:14px">${g.label}</div>
+      <div style="font-size:12px;opacity:.6;margin-top:10px">${g.hint}</div>
+    </div>
+
+    <!-- Quick stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:#dcfce7;border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:#16a34a">${totalCorrect}</div><div style="font-size:11px;color:#16a34a;font-weight:600">${isKz?'Дұрыс':'Верно'}</div></div>
+      <div style="background:#fee2e2;border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:#dc2626">${wrongCount}</div><div style="font-size:11px;color:#dc2626;font-weight:600">${isKz?'Қате':'Ошибки'}</div></div>
+      <div style="background:#f1f5f9;border-radius:12px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:#64748b">${skippedCount}</div><div style="font-size:11px;color:#64748b;font-weight:600">${isKz?'Өткізілген':'Пропущено'}</div></div>
+    </div>
+
+    <!-- By subject -->
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+      <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">${isKz?'Пәндер бойынша':'По предметам'}</div>
+      ${subjRows}
+    </div>
+
+    <!-- Actions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <button onclick="S.entReviewTab='wrong';S.entScreen='review';rEnt(app())" style="padding:14px;border-radius:13px;border:2px solid #f87171;background:#fff;color:#dc2626;font-size:13px;font-weight:700;cursor:pointer">❌ ${isKz?'Қателер ('+wrongCount+')':'Ошибки ('+wrongCount+')'}</button>
+      <button onclick="entReset()" style="padding:14px;border-radius:13px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer">🔄 ${isKz?'Қайтадан':'Заново'}</button>
+    </div>
+
+    <!-- CTA -->
+    <div style="background:linear-gradient(135deg,#fff7ed,#fff3e0);border-radius:16px;padding:16px;border:2px solid var(--accent);text-align:center">
+      <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px">${isKz?'Нәтижені жақсарту керек пе?':'Хотите лучше сдать ЕНТ?'}</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px">${isKz?'Aiplus-та 9-11 сынып оқушыларды дайындайды':'Aiplus готовит учеников 9-11 классов'}</div>
+      <a href="https://wa.me/77007870264" target="_blank" style="display:inline-block;padding:12px 28px;background:var(--accent);color:#fff;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none">📱 ${isKz?'Тегін кеңес':'Бесплатная консультация'}</a>
+    </div>
+  </div>`;
+}
+
+function rEntReview(a){
+  const isKz=S.entLang==='kz';const qs=S.entQuestions;
+  if(!S.entReviewTab) S.entReviewTab='wrong';
+  const tab=S.entReviewTab;
+
+  const filtered=qs.map((q,i)=>({q,i,userAns:S.entAnswers[i],correct:q.correct})).filter(({userAns,correct})=>{
+    if(tab==='wrong') return userAns&&userAns!==correct;
+    if(tab==='skipped') return !userAns;
+    if(tab==='correct') return userAns===correct;
+    return userAns!==correct||!userAns; // 'errors' = wrong + skipped
+  });
+
+  const wrongCount=qs.filter((q,i)=>S.entAnswers[i]&&S.entAnswers[i]!==q.correct).length;
+  const skippedCount=qs.filter((q,i)=>!S.entAnswers[i]).length;
+  const correctCount=qs.filter((q,i)=>S.entAnswers[i]===q.correct).length;
+
+  const tabs=[
+    {id:'wrong',label:isKz?`Қате (${wrongCount})`:`Ошибки (${wrongCount})`,color:'#dc2626'},
+    {id:'skipped',label:isKz?`Өткізілген (${skippedCount})`:`Пропущено (${skippedCount})`,color:'#64748b'},
+    {id:'correct',label:isKz?`Дұрыс (${correctCount})`:`Верно (${correctCount})`,color:'#16a34a'},
+  ];
+
+  const tabHTML=tabs.map(t=>`<button onclick="S.entReviewTab='${t.id}';rEntReview(app())" style="flex:1;padding:9px 4px;border:none;border-bottom:3px solid ${tab===t.id?t.color:'transparent'};background:transparent;font-size:12px;font-weight:700;color:${tab===t.id?t.color:'#94a3b8'};cursor:pointer;transition:.15s">${t.label}</button>`).join('');
+
+  const cardsHTML=filtered.map(({q,i,userAns,correct})=>{
+    const subLabel=(ENT_SUBJ_LABEL[q.subject]||{ru:q.subject,kz:q.subject})[isKz?'kz':'ru'];
+    const optHTML=['A','B','C','D'].filter(k=>q.options[k]).map(k=>{
+      const isC=k===correct;const isU=k===userAns;
+      const bg=isC?'#dcfce7':isU?'#fee2e2':'#f8fafc';
+      const border=isC?'#86efac':isU?'#fca5a5':'#e2e8f0';
+      return `<div style="padding:9px 12px;border-radius:10px;border:2px solid ${border};background:${bg};font-size:13px;margin-bottom:5px;display:flex;gap:8px;align-items:flex-start">
+        <span style="font-weight:800;color:${isC?'#16a34a':isU?'#dc2626':'#94a3b8'};min-width:16px">${k}</span>
+        <span style="flex:1;color:#334155;line-height:1.4">${escapeHtml(q.options[k])}</span>
+        ${isC?'<span style="color:#16a34a;font-weight:800">✓</span>':isU?'<span style="color:#dc2626;font-weight:800">✗</span>':''}
+      </div>`;
+    }).join('');
+    return `<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05);border-left:4px solid ${userAns===correct?'#4ade80':userAns?'#f87171':'#94a3b8'}">
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <span style="font-size:10px;font-weight:700;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:6px;text-transform:uppercase">${subLabel}</span>
+        <span style="font-size:10px;font-weight:700;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:6px">№${i+1}</span>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:12px;line-height:1.55">${escapeHtml(q.text)}</div>
+      ${optHTML}
+    </div>`;
+  }).join('');
+
+  a.innerHTML=`<div style="background:#f8fafc;min-height:100vh;padding-bottom:90px">
+    <div style="position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #f1f5f9">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px">
+        <button onclick="S.entScreen='result';rEnt(app())" style="background:#f1f5f9;border:none;border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">←</button>
+        <span style="font-size:16px;font-weight:800;color:#1e293b">${isKz?'Жұмыс қателер':'Работа над ошибками'}</span>
+      </div>
+      <div style="display:flex;padding:0 16px 0">${tabHTML}</div>
+    </div>
+    <div style="padding:12px 16px">
+      ${filtered.length===0?`<div style="text-align:center;padding:40px 20px;color:#64748b">
+        <div style="font-size:40px;margin-bottom:12px">${tab==='correct'?'📭':'🎉'}</div>
+        <div style="font-size:15px;font-weight:600">${tab==='correct'?(isKz?'Дұрыс жауаптар жоқ':'Нет правильных ответов'):(isKz?'Бұл санатта жоқ!':'В этой категории ничего нет!')}</div>
+      </div>`:cardsHTML}
+    </div>
+  </div>`;
+}
+
+function entReset(){
+  entStopTimer();entShowNav(true);
+  S.entScreen='setup';S.entProfile=[];S.entQuestions=[];S.entIdx=0;
+  S.entAnswers={};S.entFlags=new Set();S.entSecondsLeft=8400;S.entDone=false;
+  rEnt(app());
+}
+
+// ============================================================
 // INIT
 // ============================================================
 // Check URL params
@@ -2381,6 +2872,7 @@ function shareOlympResult(){
   } else {
     goTab('olymp');
   }
+  loadEntData();
 })();
 </script>
 </body>
