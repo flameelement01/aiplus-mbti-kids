@@ -2508,8 +2508,8 @@ function rEntSetup(a){
     <div class="card" style="margin-bottom:12px">
       <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">${isKz?'Тіл / Язык':'Язык / Тіл'}</div>
       <div style="display:flex;gap:8px">
-        <div onclick="S.entLang='ru';rEntSetup(app())" style="flex:1;padding:11px;border-radius:10px;border:2px solid ${!isKz?'var(--accent)':'#e2e8f0'};background:${!isKz?'#fff7ed':'#fff'};cursor:pointer;text-align:center;font-weight:700;font-size:14px;color:${!isKz?'var(--accent)':'#334155'}">🇷🇺 Русский</div>
         <div onclick="S.entLang='kz';rEntSetup(app())" style="flex:1;padding:11px;border-radius:10px;border:2px solid ${isKz?'var(--accent)':'#e2e8f0'};background:${isKz?'#fff7ed':'#fff'};cursor:pointer;text-align:center;font-weight:700;font-size:14px;color:${isKz?'var(--accent)':'#334155'}">🇰🇿 Қазақша</div>
+        <div onclick="S.entLang='ru';rEntSetup(app())" style="flex:1;padding:11px;border-radius:10px;border:2px solid ${!isKz?'var(--accent)':'#e2e8f0'};background:${!isKz?'#fff7ed':'#fff'};cursor:pointer;text-align:center;font-weight:700;font-size:14px;color:${!isKz?'var(--accent)':'#334155'}">🇷🇺 Русский</div>
       </div>
     </div>
 
@@ -2603,8 +2603,8 @@ function rEntQuiz(a){
       <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:14px">
           <div style="font-size:15px;font-weight:600;color:#1e293b;line-height:1.6;flex:1">${escapeHtml(q.text)}</div>
-          <button onclick="entToggleFlag(${i})" title="${isKz?'Белгілеу':'Отметить'}" style="background:${flagged?'#fff7ed':'#f8fafc'};border:2px solid ${flagged?'var(--accent)':'#e2e8f0'};border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-            ${flagged?'🚩':'🏳️'}
+          <button onclick="entToggleFlag(${i})" style="background:${flagged?'#fff7ed':'#f8fafc'};border:2px solid ${flagged?'var(--accent)':'#e2e8f0'};border-radius:10px;padding:6px 10px;cursor:pointer;font-size:13px;font-weight:700;flex-shrink:0;display:flex;align-items:center;gap:4px;color:${flagged?'var(--accent)':'#94a3b8'}">
+            🚩 <span style="font-size:11px">${flagged?(isKz?'Белгіленді':'Отмечен'):(isKz?'Белгілеу':'Отметить')}</span>
           </button>
         </div>
         ${optHTML}
