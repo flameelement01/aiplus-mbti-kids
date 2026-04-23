@@ -2488,7 +2488,8 @@ function rEntSetup(a){
     const sel=prof.includes(key);const disabled=!sel&&prof.length>=2;
     const name=isKz?names.kz:names.ru;const icon=ENT_PROF_ICONS[key]||'📖';
     const qCount=entGetQ(key,S.entLang,30).length;
-    return `<div onclick="${disabled?'':``entToggleProfile('${key}')``}" style="padding:12px 14px;border-radius:12px;border:2px solid ${sel?'var(--accent)':disabled?'#f1f5f9':'#e2e8f0'};background:${sel?'#fff7ed':disabled?'#fafafa':'#fff'};cursor:${disabled?'default':'pointer'};font-size:14px;font-weight:600;color:${sel?'var(--accent)':disabled?'#cbd5e1':'#334155'};transition:.15s;display:flex;align-items:center;gap:10px">
+    const clickFn=disabled?'':"entToggleProfile('"+key+"')";
+    return `<div onclick="${clickFn}" style="padding:12px 14px;border-radius:12px;border:2px solid ${sel?'var(--accent)':disabled?'#f1f5f9':'#e2e8f0'};background:${sel?'#fff7ed':disabled?'#fafafa':'#fff'};cursor:${disabled?'default':'pointer'};font-size:14px;font-weight:600;color:${sel?'var(--accent)':disabled?'#cbd5e1':'#334155'};transition:.15s;display:flex;align-items:center;gap:10px">
       <span style="font-size:20px;opacity:${disabled?0.3:1}">${icon}</span>
       <span style="flex:1">${name}</span>
       <span style="font-size:11px;font-weight:700;color:${sel?'var(--accent)':'#94a3b8'};background:${sel?'#fff7ed':'#f1f5f9'};padding:2px 8px;border-radius:8px">${qCount}</span>
