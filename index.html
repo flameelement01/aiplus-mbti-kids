@@ -483,10 +483,10 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
 <div class="wrap" id="app"></div>
 
 <nav class="bottomnav" id="bottomnav">
-  <div class="nav-item active" onclick="goTab('home')"><div class="nav-ic">🏠</div>Главная</div>
+  <div class="nav-item" onclick="goTab('home')"><div class="nav-ic">🏠</div>Главная</div>
   <div class="nav-item" onclick="goTab('test')"><div class="nav-ic">🎯</div>Тест</div>
   <div class="nav-item" onclick="goTab('diag')"><div class="nav-ic">📝</div>Знания</div>
-  <div class="nav-item" onclick="goTab('ent')"><div class="nav-ic">📋</div>ЕНТ</div>
+  <div class="nav-item active" onclick="goTab('ent')"><div class="nav-ic">📋</div>ЕНТ</div>
   <div class="nav-item" onclick="goTab('courses')"><div class="nav-ic">🎬</div>Курсы</div>
   <div class="nav-item" onclick="goTab('ai')"><div class="nav-ic">🤖</div>ИИ</div>
 </nav>
@@ -499,7 +499,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,.opt:focus-visible
 // STATE
 // ============================================================
 const S={
-  tab:"home",screen:"welcome",lang:"ru",idx:0,
+  tab:"ent",screen:"welcome",lang:"ru",idx:0,
   scores:{people:0,research:0,tech:0,creative:0,nature:0,economy:0},
   user:{},testDone:false,bestCat:null,
   diagSubject:null,diagGrade:null,diagIdx:0,diagScore:0,diagAnswered:false,diagProgress:{},diagAnswers:[],diagName:null,diagQuestions:null,diagLangPicked:false,
