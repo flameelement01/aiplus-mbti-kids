@@ -1186,8 +1186,8 @@ function rTestWelcome(a){
 function rTestLang(a){
   a.innerHTML=`<div class="lang-wrap"><h2 class="lang-title">${t('langTitle')}</h2>
     <div class="lang-btns">
-      <div class="lang-btn" onclick="S.lang='kz';S.screen='register';renderTest()"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
-      <div class="lang-btn" onclick="S.lang='ru';S.screen='register';renderTest()"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
+      <div class="lang-btn" onclick="S.lang='kz';S.screen='register';renderTest()"><div class="lbl">Қазақша</div></div>
+      <div class="lang-btn" onclick="S.lang='ru';S.screen='register';renderTest()"><div class="lbl">Русский</div></div>
     </div></div>`;
 }
 function rTestReg(a){
@@ -1572,8 +1572,8 @@ function rDiagLang(a){
     <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Тест тілін таңда</h2>
     <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Выберите язык теста</p>
     <div style="display:flex;gap:16px;justify-content:center">
-      <div class="lang-btn" onclick="S.lang='kz';S.diagLangPicked=true;rDiag(app())"><div class="flag">🇰🇿</div><div class="lbl">Қазақша</div></div>
-      <div class="lang-btn" onclick="S.lang='ru';S.diagLangPicked=true;rDiag(app())"><div class="flag">🇷🇺</div><div class="lbl">Русский</div></div>
+      <div class="lang-btn" onclick="S.lang='kz';S.diagLangPicked=true;rDiag(app())"><div class="lbl">Қазақша</div></div>
+      <div class="lang-btn" onclick="S.lang='ru';S.diagLangPicked=true;rDiag(app())"><div class="lbl">Русский</div></div>
     </div>
   </div>`;
 }
